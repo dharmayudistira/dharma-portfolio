@@ -1,0 +1,22 @@
+---
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<header class="section-label">
+  <div class="section-label__inner">
+    <h2 id={id}>{title}</h2>
+    <span
+      class="section-label__cross section-label__cross--bottom-left"
+      aria-hidden="true"
+    ></span>
+    <span
+      class="section-label__cross section-label__cross--bottom-right"
+      aria-hidden="true"
+    ></span>
+  </div>
+</header>

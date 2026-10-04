@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import ContentLayout from "../../layouts/ContentLayout.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  }).format(date);
+---
+
+<ContentLayout
+  title="Blog"
+  description="Notes on product engineering, interfaces, animation, and building software."
+  eyebrow="Index: 02"
+>
+  <section class="content-index" aria-label="Blog posts">
+    {posts.length > 0 ? (
+      <ol class="content-index__list">
+        {posts.map((post, index) => (
+          <li>
+            <a href={`/blog/${post.id}/`}>
+              <span class="content-index__number">{String(index + 1).padStart(2, "0")}</span>
+              <span>
+                <strong>{post.data.title}</strong>
+                <small>{post.data.description}</small>
+              </span>
+              <time datetime={post.data.publishedAt.toISOString()}>
+                {formatDate(post.data.publishedAt)}
+              </time>
+            </a>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="content-index__empty">Writing is being prepared.</p>
+    )}
+  </section>
+</ContentLayout>

@@ -1,0 +1,338 @@
+---
+import MorphIcon from "morphicons/astro";
+import { getCollection } from "astro:content";
+import { Briefcase, FileText, House, Menu, Search, Sun, UserRound, X } from "lucide";
+
+const pathname = Astro.url.pathname;
+const links = [
+  { href: "/", label: "Home", icon: House },
+  { href: "/projects/", label: "Projects", icon: Briefcase },
+  { href: "/blog/", label: "Blogs", icon: FileText },
+  { href: "/profile/", label: "Profile", icon: UserRound },
+];
+
+const isActive = (href: string) =>
+  href === "/" ? pathname === href : pathname.startsWith(href);
+
+const [projects, posts] = await Promise.all([
+  getCollection("projects", ({ data }) => !data.draft),
+  getCollection("blog", ({ data }) => !data.draft),
+]);
+const contentResults = [
+  ...projects.map((project) => ({
+    href: `/projects/${project.id}/`,
+    label: project.data.title,
+    value: `${project.data.title} ${project.data.summary} ${project.data.stack.join(" ")}`.toLowerCase(),
+  })),
+  ...posts.map((post) => ({
+    href: `/blog/${post.id}/`,
+    label: post.data.title,
+    value: `${post.data.title} ${post.data.description} ${post.data.tags.join(" ")}`.toLowerCase(),
+  })),
+];
+---
+
+<header class="app-bar">
+  <div class="app-bar__inner">
+    <a class="app-bar__brand" href="/" aria-label="Dharma Yudistira, home">
+      Dharma
+    </a>
+
+    <nav class="app-bar__nav" aria-label="Primary navigation">
+      {links.map(({ href, label }) => (
+        <a href={href} aria-current={isActive(href) ? "page" : undefined}>{label}</a>
+      ))}
+    </nav>
+
+    <div class="app-bar__actions">
+      <button
+        class="app-bar__search"
+        type="button"
+        data-search-toggle
+        aria-controls="site-search"
+        aria-haspopup="dialog"
+        aria-label="Search"
+      >
+        <MorphIcon icon={Search} size={14} strokeWidth={1.5} />
+        <span>Search</span>
+        <kbd><span aria-hidden="true">⌘</span>K</kbd>
+      </button>
+
+      <button class="icon-button" type="button" data-theme-toggle aria-label="Switch theme">
+        <MorphIcon icon={Sun} data-theme-icon size={18} strokeWidth={1.5} />
+      </button>
+
+      <button
+        class="icon-button app-bar__menu-button"
+        type="button"
+        data-menu-toggle
+        aria-controls="mobile-navigation"
+        aria-expanded="false"
+        aria-label="Open navigation"
+      >
+        <MorphIcon icon={Menu} size={19} strokeWidth={1.5} />
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog
+  id="mobile-navigation"
+  class="app-bar__mobile-nav"
+  aria-labelledby="mobile-navigation-title"
+>
+  <div class="app-bar__mobile-header">
+    <a
+      id="mobile-navigation-title"
+      class="app-bar__brand"
+      href="/"
+      aria-label="Dharma Yudistira, home"
+    >
+      Dharma
+    </a>
+    <form method="dialog">
+      <button class="icon-button" type="submit" aria-label="Close navigation" autofocus>
+        <MorphIcon icon={X} size={18} strokeWidth={1.5} />
+      </button>
+    </form>
+  </div>
+
+  <nav class="app-bar__mobile-links" aria-label="Mobile navigation">
+    {links.map(({ href, label }) => (
+      <a href={href} aria-current={isActive(href) ? "page" : undefined}>{label}</a>
+    ))}
+  </nav>
+
+  <footer class="app-bar__mobile-footer">
+    <button
+      class="app-bar__search app-bar__mobile-search"
+      type="button"
+      data-search-toggle
+      aria-controls="site-search"
+      aria-haspopup="dialog"
+      aria-label="Search"
+    >
+      <MorphIcon icon={Search} size={14} strokeWidth={1.5} />
+      <span>Search</span>
+      <kbd><span aria-hidden="true">Ctrl</span> K</kbd>
+    </button>
+  </footer>
+</dialog>
+
+<dialog id="site-search" class="site-search" aria-labelledby="site-search-title">
+  <h2 id="site-search-title" class="visually-hidden">Search the site</h2>
+  <label class="visually-hidden" for="site-search-input">Search pages</label>
+  <div class="site-search__field">
+    <MorphIcon icon={Search} size={16} strokeWidth={1.5} aria-hidden="true" />
+    <input
+      id="site-search-input"
+      type="search"
+      placeholder="Type a command or search..."
+      autocomplete="off"
+      data-search-input
+    />
+  </div>
+
+  <section class="site-search__section" aria-labelledby="site-search-navigation">
+    <h3 id="site-search-navigation">Navigation</h3>
+    <nav class="site-search__navigation" aria-label="Search results">
+      {links.map(({ href, label, icon }) => (
+        <a
+          href={href}
+          data-search-result
+          data-search-value={label.toLowerCase()}
+          aria-current={isActive(href) ? "page" : undefined}
+        >
+          <MorphIcon icon={icon} size={17} strokeWidth={1.5} />
+          <span>{label}</span>
+        </a>
+      ))}
+    </nav>
+  </section>
+
+  {contentResults.length > 0 && (
+    <section class="site-search__section site-search__section--content" aria-labelledby="site-search-content">
+      <h3 id="site-search-content">Type to search projects &amp; posts</h3>
+      <div class="site-search__content-results">
+        {contentResults.map(({ href, label, value }) => (
+          <a href={href} data-search-result data-search-value={value}>{label}</a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <p class="site-search__empty" data-search-empty hidden>No matching page or content.</p>
+
+  <div class="site-search__theme">
+    <span>Theme</span>
+    <button type="button" data-theme-toggle aria-label="Switch theme">
+      <MorphIcon icon={Sun} data-theme-icon size={17} strokeWidth={1.5} />
+      <span data-theme-label>Light mode</span>
+    </button>
+  </div>
+</dialog>
+
+<script>
+  import { Moon, Sun } from "lucide";
+  import type { MorphIconElement } from "morphicons/element";
+
+  const themeStorageKey = "dharma:theme";
+
+  const setTheme = (theme: "dark" | "light", persist: boolean) => {
+    const root = document.documentElement;
+    const buttons = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
+    const icons = document.querySelectorAll<MorphIconElement>("[data-theme-icon]");
+    const labels = document.querySelectorAll<HTMLElement>("[data-theme-label]");
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+    buttons.forEach((button) => {
+      button.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
+      );
+    });
+    labels.forEach((label) => {
+      label.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+    });
+    meta?.setAttribute("content", theme === "dark" ? "#07090a" : "#f3f0e9");
+
+    icons.forEach((icon) => icon.morphTo(theme === "dark" ? Sun : Moon, "bouncy"));
+
+    if (persist) {
+      localStorage.setItem(themeStorageKey, theme);
+    }
+  };
+
+  const setupAppBar = async () => {
+    await customElements.whenDefined("morph-icon");
+
+    const themeButtons = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
+    const menuButton = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+    const menu = document.querySelector<HTMLDialogElement>("#mobile-navigation");
+    const themeIcons = document.querySelectorAll<MorphIconElement>("[data-theme-icon]");
+    const searchButtons = document.querySelectorAll<HTMLButtonElement>("[data-search-toggle]");
+    const searchDialog = document.querySelector<HTMLDialogElement>("#site-search");
+    const searchInput = document.querySelector<HTMLInputElement>("[data-search-input]");
+    const searchResults = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-search-result]"),
+    );
+    const searchEmpty = document.querySelector<HTMLElement>("[data-search-empty]");
+    const mobileBreakpoint = window.matchMedia("(max-width: 768px)");
+    const initialTheme = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+
+    setTheme(initialTheme, false);
+    themeIcons.forEach((icon) => icon.set(initialTheme === "dark" ? Sun : Moon));
+
+    const toggleTheme = async (button: HTMLButtonElement) => {
+      const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+
+      if (!document.startViewTransition) {
+        setTheme(nextTheme, true);
+        return;
+      }
+
+      const transition = document.startViewTransition(() => {
+        setTheme(nextTheme, true);
+      });
+
+      try {
+        await transition.ready;
+      } catch {
+        return;
+      }
+
+      const { top, left, width, height } = button.getBoundingClientRect();
+      const x = left + width / 2;
+      const y = top + height / 2;
+      const maxRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y),
+      );
+
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0 at ${x}px ${y}px)`,
+            `circle(${maxRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 500,
+          easing: "ease-in-out",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    };
+
+    themeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        void toggleTheme(button);
+      });
+    });
+
+    menuButton?.addEventListener("click", () => {
+      if (!menu || menu.open) return;
+      menu.showModal();
+      menuButton.setAttribute("aria-expanded", "true");
+    });
+
+    menu?.addEventListener("close", () => {
+      menuButton?.setAttribute("aria-expanded", "false");
+    });
+
+    mobileBreakpoint.addEventListener("change", ({ matches }) => {
+      if (!matches && menu?.open) menu.close();
+    });
+
+    menu?.addEventListener("click", (event) => {
+      if (event.target !== menu) return;
+
+      const bounds = menu.getBoundingClientRect();
+      const inside =
+        event.clientX >= bounds.left &&
+        event.clientX <= bounds.right &&
+        event.clientY >= bounds.top &&
+        event.clientY <= bounds.bottom;
+      if (!inside) menu.close();
+    });
+
+    const filterSearchResults = () => {
+      const query = searchInput?.value.trim().toLowerCase() ?? "";
+      let visibleCount = 0;
+
+      searchResults.forEach((result) => {
+        const matches = result.dataset.searchValue?.includes(query) ?? false;
+        result.hidden = !matches;
+        if (matches) visibleCount += 1;
+      });
+
+      if (searchEmpty) searchEmpty.hidden = visibleCount > 0;
+    };
+
+    const openSearch = () => {
+      if (!searchDialog) return;
+      if (menu?.open) menu.close();
+      if (!searchDialog.open) searchDialog.showModal();
+      searchInput?.focus();
+    };
+
+    searchButtons.forEach((button) => button.addEventListener("click", openSearch));
+    searchInput?.addEventListener("input", filterSearchResults);
+    searchDialog?.addEventListener("close", () => {
+      if (searchInput) searchInput.value = "";
+      filterSearchResults();
+    });
+    searchDialog?.addEventListener("click", (event) => {
+      if (event.target === searchDialog) searchDialog.close();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key.toLowerCase() !== "k" || (!event.metaKey && !event.ctrlKey)) return;
+      event.preventDefault();
+      openSearch();
+    });
+  };
+
+  setupAppBar();
+</script>

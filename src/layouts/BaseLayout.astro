@@ -1,0 +1,102 @@
+---
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import "@fontsource-variable/caveat";
+import "../styles/global.css";
+
+import AppBar from "../components/AppBar.astro";
+import EntranceOverlay from "../components/EntranceOverlay.astro";
+import PageGuides from "../components/PageGuides.astro";
+
+type JsonLd = Record<string, unknown>;
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  canonicalUrl?: string;
+  ogType?: "website" | "article";
+  jsonLd?: JsonLd | JsonLd[];
+}
+
+const siteName = "Dharma Yudistira";
+const {
+  title = siteName,
+  description = "Dharma Yudistira, product engineer working across frontend and mobile experiences.",
+  image,
+  canonicalUrl,
+  ogType = "website",
+  jsonLd,
+} = Astro.props;
+
+const pageTitle = title === siteName ? title : `${title} | ${siteName}`;
+const canonical = canonicalUrl
+  ? new URL(canonicalUrl)
+  : Astro.site
+    ? new URL(Astro.url.pathname, Astro.site)
+    : undefined;
+const socialImage = image && Astro.site ? new URL(image, Astro.site) : undefined;
+const pathname = Astro.url.pathname;
+const introMode = pathname === "/" ? "home" : "shell";
+const serializedJsonLd = jsonLd
+  ? JSON.stringify(jsonLd).replace(/</g, "\\u003c")
+  : undefined;
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07090a" />
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {socialImage && <meta property="og:image" content={socialImage} />}
+
+    <meta name="twitter:card" content={socialImage ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    {socialImage && <meta name="twitter:image" content={socialImage} />}
+
+    <title>{pageTitle}</title>
+    {serializedJsonLd && (
+      <script type="application/ld+json" set:html={serializedJsonLd}></script>
+    )}
+    <noscript><style>.intro { display: none !important; }</style></noscript>
+
+    <script is:inline>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem("dharma:theme");
+          const systemTheme = matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark";
+          const theme = savedTheme === "light" || savedTheme === "dark"
+            ? savedTheme
+            : systemTheme;
+
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+
+          if (sessionStorage.getItem("dharma:intro-seen") === "1") {
+            document.documentElement.dataset.intro = "seen";
+          }
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <AppBar />
+    <slot />
+    <PageGuides />
+    <EntranceOverlay mode={introMode} />
+  </body>
+</html>

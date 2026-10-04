@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+import ContentLayout from "../../layouts/ContentLayout.astro";
+
+const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+---
+
+<ContentLayout
+  title="Projects"
+  description="Selected product engineering work across frontend and mobile experiences."
+  eyebrow="Index: 01"
+>
+  <section class="content-index" aria-label="Projects">
+    {projects.length > 0 ? (
+      <ol class="content-index__list">
+        {projects.map((project, index) => (
+          <li>
+            <a href={`/projects/${project.id}/`}>
+              <span class="content-index__number">{String(index + 1).padStart(2, "0")}</span>
+              <span>
+                <strong>{project.data.title}</strong>
+                <small>{project.data.summary}</small>
+              </span>
+              <span class="content-index__year">{project.data.year}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="content-index__empty">Project case studies are being prepared.</p>
+    )}
+  </section>
+</ContentLayout>

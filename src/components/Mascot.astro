@@ -1,0 +1,268 @@
+---
+interface Props {
+  directions?: string;
+  reactions?: string;
+  size?: number;
+  class?: string;
+  label?: string;
+}
+
+const {
+  directions = "/mascots/dharma-sketch-directions.webp",
+  reactions = "/mascots/dharma-sketch-reactions.webp",
+  size = 140,
+  class: className,
+  label = "Dharma mascot",
+} = Astro.props;
+---
+
+<button
+  class:list={["mascot", className]}
+  type="button"
+  aria-label={`Interact with ${label}`}
+  data-mascot
+  style={`--mascot-size: ${size}px;`}
+>
+  <span class="mascot__body" data-mascot-body aria-hidden="true">
+    <span
+      class="mascot__layer mascot__layer--directions"
+      data-mascot-directions
+      style={`background-image: url("${directions}");`}
+    ></span>
+    <span
+      class="mascot__layer mascot__layer--reactions"
+      data-mascot-reactions
+      style={`background-image: url("${reactions}");`}
+    ></span>
+  </span>
+</button>
+
+<script>
+  const DIRECTIONS = [
+    "up-left",
+    "up",
+    "up-right",
+    "left",
+    "center",
+    "right",
+    "down-left",
+    "down",
+    "down-right",
+  ] as const;
+
+  const REACTIONS = [
+    "blink",
+    "heart",
+    "sparkle",
+    "surprised",
+    "wink",
+    "bashful",
+    "sleepy",
+    "dizzy",
+    "delighted",
+  ] as const;
+
+  type Direction = (typeof DIRECTIONS)[number];
+  type Reaction = (typeof REACTIONS)[number];
+
+  const CLOCKWISE: Direction[] = [
+    "right",
+    "down-right",
+    "down",
+    "down-left",
+    "left",
+    "up-left",
+    "up",
+    "up-right",
+  ];
+
+  const SECTOR = (Math.PI * 2) / CLOCKWISE.length;
+  const HYSTERESIS = 0.12;
+  const PAYOFFS: Reaction[] = ["heart", "sparkle", "delighted"];
+  const BOOP_PAYOFF = 120;
+  const BOOP_END = 560;
+  const DIZZY_AFTER = 4;
+  const DIZZY_WINDOW = 1600;
+  const DIZZY_END = 1100;
+  const SQUASH_MS = 420;
+
+  const SQUASH: Keyframe[] = [
+    { transform: "scale(1, 1)", easing: "ease-in" },
+    {
+      transform: "scale(1.1, 0.86)",
+      offset: 0.18,
+      easing: "ease-out",
+    },
+    {
+      transform: "scale(0.95, 1.08)",
+      offset: 0.45,
+      easing: "ease-in-out",
+    },
+    {
+      transform: "scale(1.03, 0.97)",
+      offset: 0.72,
+      easing: "ease-in-out",
+    },
+    { transform: "scale(1, 1)" },
+  ];
+
+  const wrap = (angle: number) =>
+    Math.atan2(Math.sin(angle), Math.cos(angle));
+
+  const setCell = (layer: HTMLElement, index: number) => {
+    const x = (index % 3) * 50;
+    const y = Math.floor(index / 3) * 50;
+    layer.style.backgroundPosition = `${x}% ${y}%`;
+  };
+
+  const supportsPointerTracking = window.matchMedia(
+    "(hover: hover) and (pointer: fine)",
+  ).matches;
+
+  for (const mascot of document.querySelectorAll<HTMLButtonElement>(
+    "[data-mascot]",
+  )) {
+    const body = mascot.querySelector<HTMLElement>("[data-mascot-body]");
+    const directions = mascot.querySelector<HTMLElement>(
+      "[data-mascot-directions]",
+    );
+    const reactions = mascot.querySelector<HTMLElement>(
+      "[data-mascot-reactions]",
+    );
+
+    if (!body || !directions || !reactions) {
+      continue;
+    }
+
+    let activeSector = -1;
+    let pointer: { x: number; y: number } | null = null;
+    let timers: number[] = [];
+    let boopCount = 0;
+    let lastBoopAt = 0;
+
+    setCell(directions, DIRECTIONS.indexOf("center"));
+    setCell(reactions, REACTIONS.indexOf("blink"));
+
+    const aim = () => {
+      if (!pointer) {
+        return;
+      }
+
+      const box = mascot.getBoundingClientRect();
+      const dx = pointer.x - (box.left + box.width / 2);
+      const dy = pointer.y - (box.top + box.height / 2);
+      const deadZone = Math.min(box.width, box.height) / 2;
+
+      if (Math.hypot(dx, dy) < deadZone) {
+        activeSector = -1;
+        setCell(directions, DIRECTIONS.indexOf("center"));
+        return;
+      }
+
+      const angle = Math.atan2(dy, dx);
+      if (
+        activeSector !== -1 &&
+        Math.abs(wrap(angle - activeSector * SECTOR)) <
+          SECTOR / 2 + HYSTERESIS
+      ) {
+        return;
+      }
+
+      activeSector =
+        (Math.round(angle / SECTOR) + CLOCKWISE.length) % CLOCKWISE.length;
+      setCell(directions, DIRECTIONS.indexOf(CLOCKWISE[activeSector]));
+    };
+
+    if (supportsPointerTracking) {
+      window.addEventListener(
+        "pointermove",
+        (event) => {
+          pointer = { x: event.clientX, y: event.clientY };
+          aim();
+        },
+        { passive: true },
+      );
+      window.addEventListener("scroll", aim, { passive: true });
+    }
+
+    const showReaction = (reaction: Reaction | null) => {
+      if (reaction) {
+        setCell(reactions, REACTIONS.indexOf(reaction));
+      }
+      directions.style.opacity = reaction ? "0" : "1";
+      reactions.style.opacity = reaction ? "1" : "0";
+    };
+
+    const later = (delay: number, reaction: Reaction | null) => {
+      timers.push(window.setTimeout(() => showReaction(reaction), delay));
+    };
+
+    mascot.addEventListener("click", () => {
+      timers.forEach(window.clearTimeout);
+      timers = [];
+
+      const now = Date.now();
+      boopCount = now - lastBoopAt < DIZZY_WINDOW ? boopCount + 1 : 1;
+      lastBoopAt = now;
+
+      if (boopCount >= DIZZY_AFTER) {
+        boopCount = 0;
+        showReaction("dizzy");
+        later(DIZZY_END, null);
+      } else {
+        showReaction("blink");
+        later(BOOP_PAYOFF, PAYOFFS[(boopCount - 1) % PAYOFFS.length]);
+        later(BOOP_END, null);
+      }
+
+      body.getAnimations().forEach((animation) => animation.cancel());
+      body.animate(SQUASH, { duration: SQUASH_MS, easing: "linear" });
+    });
+  }
+</script>
+
+<style>
+  .mascot {
+    width: var(--mascot-size);
+    height: var(--mascot-size);
+    padding: 0;
+    flex: 0 0 auto;
+    border: 0;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  .mascot:focus-visible {
+    outline: 1px solid var(--foreground);
+    outline-offset: 4px;
+  }
+
+  .mascot__body {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: 50% 78%;
+  }
+
+  .mascot__layer {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-size: 300% 300%;
+    image-rendering: auto;
+    pointer-events: none;
+  }
+
+  .mascot__layer--directions {
+    background-position: 50% 50%;
+  }
+
+  .mascot__layer--reactions {
+    background-position: 0 0;
+    opacity: 0;
+  }
+</style>

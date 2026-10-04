@@ -1,0 +1,48 @@
+---
+interface Props {
+  class?: string;
+  hero?: boolean;
+}
+
+const { class: className, hero = false } = Astro.props;
+---
+
+<svg
+  class={className}
+  data-hero-ratio={hero || undefined}
+  viewBox="0 0 1618 1000"
+  fill="none"
+  preserveAspectRatio="xMaxYMid slice"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+>
+  <g
+    data-ratio-guides
+    stroke="currentColor"
+    stroke-width="1"
+    stroke-dasharray="6 8"
+    stroke-linecap="round"
+    opacity="0.2"
+    vector-effect="non-scaling-stroke"
+  >
+    <path d="M1000 0V1000"></path>
+    <path d="M1000 382H1618"></path>
+    <path d="M1236 0V382"></path>
+    <path d="M1000 236H1236"></path>
+    <path d="M1146 236V382"></path>
+    <path d="M1146 292H1236"></path>
+    <path d="M1180 236V292"></path>
+    <path d="M1146 270H1180"></path>
+    <path d="M1168 270V292"></path>
+  </g>
+
+  <path
+    data-ratio-curve
+    d="M0 0 C0 552.285 447.715 1000 1000 1000 C1341.307 1000 1618 723.307 1618 382 C1618 171.038 1446.962 0 1236 0 C1105.67 0 1000 105.67 1000 236 C1000 316.634 1065.366 382 1146 382 C1195.706 382 1236 341.706 1236 292 C1236 261.072 1210.928 236 1180 236 C1161.225 236 1146 251.225 1146 270 C1146 282.15 1155.85 292 1168 292"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+    opacity="0.3"
+    vector-effect="non-scaling-stroke"
+  ></path>
+</svg>

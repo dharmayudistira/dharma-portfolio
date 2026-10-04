@@ -1,0 +1,38 @@
+---
+interface Props {
+  size: "extra-small" | "small" | "medium";
+  variant: "blank" | "filled";
+  corner?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+}
+
+const { size, variant, corner } = Astro.props;
+---
+
+<div class:list={["gap", `gap--${size}`, `gap--${variant}`]} aria-hidden="true">
+  <div class="gap__frame">
+    {
+      corner && (
+        <span class:list={["gap__corner", `gap__corner--${corner}`]}>
+          <svg class="gap__corner-arc" viewBox="0 0 32 32" fill="none">
+            <path d="M0 32A32 32 0 0 0 32 0" vector-effect="non-scaling-stroke" />
+          </svg>
+
+          <span class="gap__corner-note">
+            <span>90°</span>
+            <svg viewBox="0 0 34 8" fill="none">
+              <path
+                d="M1 5C7 3.8 11 5.7 16.5 4.2C22 2.8 27 5.2 33 3.5"
+                vector-effect="non-scaling-stroke"
+              />
+            </svg>
+          </span>
+        </span>
+      )
+    }
+
+    <span class="gap__cross gap__cross--top-left"></span>
+    <span class="gap__cross gap__cross--top-right"></span>
+    <span class="gap__cross gap__cross--bottom-left"></span>
+    <span class="gap__cross gap__cross--bottom-right"></span>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import ContentLayout from "../../layouts/ContentLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
+
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const canonical = Astro.site
+  ? new URL(`/projects/${project.id}/`, Astro.site).toString()
+  : undefined;
+const image = project.data.cover?.src;
+const jsonLd = canonical
+  ? {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      name: project.data.title,
+      description: project.data.summary,
+      datePublished: project.data.publishedAt.toISOString(),
+      dateModified: project.data.updatedAt?.toISOString(),
+      url: canonical,
+      image: image && Astro.site ? new URL(image, Astro.site).toString() : undefined,
+      author: {
+        "@id": new URL("/profile/#person", Astro.site).toString(),
+      },
+      keywords: project.data.stack.join(", "),
+    }
+  : undefined;
+---
+
+<ContentLayout
+  title={project.data.title}
+  description={project.data.summary}
+  eyebrow={`Project · ${project.data.year}`}
+  image={image}
+  canonicalUrl={canonical}
+  jsonLd={jsonLd}
+>
+  <article class="prose">
+    <Content />
+  </article>
+</ContentLayout>

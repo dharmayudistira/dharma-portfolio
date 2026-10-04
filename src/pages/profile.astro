@@ -1,0 +1,39 @@
+---
+import ContentLayout from "../layouts/ContentLayout.astro";
+
+const profileUrl = Astro.site
+  ? new URL("/profile/", Astro.site).toString()
+  : undefined;
+const jsonLd = profileUrl
+  ? {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      url: profileUrl,
+      mainEntity: {
+        "@id": `${profileUrl}#person`,
+        "@type": "Person",
+        name: "Dharma Yudistira",
+        jobTitle: "Product Engineer",
+        worksFor: {
+          "@type": "Organization",
+          name: "Zero One Group",
+        },
+      },
+    }
+  : undefined;
+---
+
+<ContentLayout
+  title="Profile"
+  description="Product engineer focused on thoughtful frontend and mobile experiences."
+  eyebrow="Profile: Dharma Yudistira"
+  canonicalUrl={profileUrl}
+  jsonLd={jsonLd}
+>
+  <article class="prose">
+    <p>
+      I design and build digital products across frontend and mobile, with a focus on
+      considered interaction, strong systems, and reliable implementation.
+    </p>
+  </article>
+</ContentLayout>

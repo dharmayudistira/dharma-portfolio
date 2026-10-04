@@ -1,0 +1,150 @@
+---
+import { Image } from "astro:assets";
+import { getCollection, type CollectionEntry } from "astro:content";
+import MorphIcon from "morphicons/astro";
+import { ArrowRight } from "lucide";
+import SectionLabel from "./SectionLabel.astro";
+
+type BlogPost = CollectionEntry<"blog">;
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+const primaryPost = posts.find(({ data }) => data.featured) ?? posts[0];
+const supportingPosts = primaryPost
+  ? posts.filter(({ id }) => id !== primaryPost.id).slice(0, 3)
+  : [];
+
+const getCategory = ({ data }: BlogPost) => data.tags[0] ?? "Writing";
+const getReadingMinutes = ({ body }: BlogPost) => {
+  const wordCount = (body ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[`*_#[\]()>-]/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+
+  return Math.max(1, Math.ceil(wordCount / 200));
+};
+const formatDate = (date: Date) => {
+  const day = date.getUTCDate();
+  const remainder = day % 100;
+  const suffix = remainder >= 11 && remainder <= 13
+    ? "th"
+    : day % 10 === 1
+      ? "st"
+      : day % 10 === 2
+        ? "nd"
+        : day % 10 === 3
+          ? "rd"
+          : "th";
+  const month = new Intl.DateTimeFormat("en", { month: "long", timeZone: "UTC" }).format(date);
+
+  return `${month} ${day}${suffix}, ${date.getUTCFullYear()}`;
+};
+---
+
+{
+  primaryPost && (
+    <section class="featured-blogs" aria-labelledby="featured-blogs-title">
+      <SectionLabel id="featured-blogs-title" title="Featured Blogs" />
+
+      <div class="featured-blogs__frame">
+        <span class="featured-blogs__choice" aria-hidden="true">
+          <span>dharma&apos;s choice</span>
+          <svg viewBox="0 0 150 60" fill="none">
+            <path
+              d="M76 7C75 27 89 38 108 39C116 39 123 37 128 35"
+              vector-effect="non-scaling-stroke"
+            />
+            <path
+              d="M116 28L128 35L119 46"
+              vector-effect="non-scaling-stroke"
+            />
+          </svg>
+        </span>
+
+        <article class="featured-blogs__primary">
+          <a class="featured-blogs__primary-link" href={`/blog/${primaryPost.id}/`}>
+            <span class="featured-blogs__primary-copy">
+              <span class="featured-blogs__title">
+                <h3>{primaryPost.data.title}</h3>
+                <svg
+                  class="featured-blogs__title-mark"
+                  viewBox="0 0 100 8"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </span>
+              <p>{primaryPost.data.description}</p>
+            </span>
+
+            <span class="featured-blogs__primary-meta">
+              <time datetime={primaryPost.data.publishedAt.toISOString()}>
+                {formatDate(primaryPost.data.publishedAt)}
+              </time>
+              <span>{getReadingMinutes(primaryPost)} min read</span>
+              <span>{getCategory(primaryPost)}</span>
+            </span>
+
+            <span class="featured-blogs__cover">
+              <Image
+                src={primaryPost.data.cover}
+                alt={`Cover for ${primaryPost.data.title}`}
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+          </a>
+        </article>
+
+        <ol class="featured-blogs__list">
+          {supportingPosts.map((post) => (
+            <li>
+              <article>
+                <a class="featured-blogs__item" href={`/blog/${post.id}/`}>
+                  <span class="featured-blogs__item-topline">
+                    <span>{getCategory(post)}</span>
+                    <MorphIcon icon={ArrowRight} size={22} strokeWidth={1.25} aria-hidden="true" />
+                  </span>
+
+                  <span class="featured-blogs__item-copy">
+                    <span class="featured-blogs__title">
+                      <h3>{post.data.title}</h3>
+                      <svg
+                        class="featured-blogs__title-mark"
+                        viewBox="0 0 100 8"
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                          vector-effect="non-scaling-stroke"
+                        />
+                      </svg>
+                    </span>
+                    <p>{post.data.description}</p>
+                  </span>
+
+                  <span class="featured-blogs__item-meta">
+                    <time datetime={post.data.publishedAt.toISOString()}>
+                      {formatDate(post.data.publishedAt)}
+                    </time>
+                    <span>{getReadingMinutes(post)} min read</span>
+                  </span>
+                </a>
+              </article>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}

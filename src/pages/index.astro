@@ -1,0 +1,33 @@
+---
+import FeaturedBlogs from "../components/FeaturedBlogs.astro";
+import FeaturedProjects from "../components/FeaturedProjects.astro";
+import Footer from "../components/Footer.astro";
+import Gap from "../components/Gap.astro";
+import Hero from "../components/Hero.astro";
+import TechMarquee from "../components/TechMarquee.astro";
+import Testimonials from "../components/Testimonials.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const jsonLd = Astro.site
+  ? {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Dharma Yudistira",
+      url: Astro.site.toString(),
+    }
+  : undefined;
+---
+
+<BaseLayout jsonLd={jsonLd}>
+  <Hero />
+  <Gap size="small" variant="blank" corner="top-left" />
+  <TechMarquee />
+  <Gap size="small" variant="filled" corner="bottom-right" />
+  <FeaturedBlogs />
+  <Gap size="small" variant="blank" />
+  <Testimonials />
+  <Gap size="small" variant="filled" corner="bottom-left" />
+  <FeaturedProjects />
+  <Gap size="medium" variant="filled" corner="bottom-right" />
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,21 @@
+---
+title: "Building Fast Content-First Sites"
+description: "A practical case for static output, repository-backed writing, and selective client JavaScript."
+publishedAt: 2026-08-29
+tags:
+  - Performance
+  - Astro
+cover: "../../assets/blog-cover-placeholder.svg"
+featured: false
+draft: false
+---
+
+## Start with the document
+
+Content sites rarely need a client application to render their primary experience. Static HTML provides a reliable baseline for reading, indexing, sharing, and navigation. It also keeps the critical path small because the browser can display useful content before JavaScript is evaluated.
+
+Repository-backed MDX keeps writing close to the code that presents it. Schemas validate metadata during the build, filenames provide stable routes, and version control becomes the editorial history. The result is a simple publishing model with few moving parts.
+
+## Add behavior deliberately
+
+Client JavaScript still has a place for focused interactions such as search, theme controls, and coordinated animation. The important boundary is intentionality. Each script should justify its download and execution cost through behavior that HTML and CSS cannot provide cleanly on their own.

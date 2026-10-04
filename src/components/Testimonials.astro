@@ -1,0 +1,41 @@
+---
+import { testimonials } from "../data/testimonials";
+import SectionLabel from "./SectionLabel.astro";
+
+const visibleTestimonials = testimonials.slice(0, 3);
+---
+
+<section class="testimonials" aria-labelledby="testimonials-title" data-testimonials>
+  <SectionLabel id="testimonials-title" title="Testimonials" />
+
+  <div class="testimonials__frame">
+    <ol class="testimonials__list">
+      {
+        visibleTestimonials.map((testimonial, index) => (
+          <li data-testimonial-card data-testimonial-index={index}>
+            <article class="testimonial-card">
+              <blockquote class="testimonial-card__quote">
+                <span class="testimonial-card__quote-mark" aria-hidden="true">
+                  &ldquo;
+                </span>
+                <p data-testimonial-quote>{testimonial.quote}</p>
+              </blockquote>
+
+              <footer class="testimonial-card__footer">
+                <span class="testimonial-card__avatar" aria-hidden="true">
+                  <span></span>
+                </span>
+                <cite class="testimonial-card__identity" data-testimonial-identity>
+                  <span data-testimonial-name>{testimonial.name}</span>
+                  <span data-testimonial-company>{testimonial.company}</span>
+                </cite>
+              </footer>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <script src="../scripts/testimonial-rotation.ts"></script>
+</section>

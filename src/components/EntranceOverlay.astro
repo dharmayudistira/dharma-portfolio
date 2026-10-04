@@ -1,0 +1,19 @@
+---
+import hand from "../assets/hand-pencil-sketch.svg";
+
+interface Props {
+  mode: "home" | "shell";
+}
+
+const { mode } = Astro.props;
+---
+
+<div class="intro" data-intro-mode={mode} aria-hidden="true">
+  <div class="intro__mat"></div>
+  <div class="intro__drawing"></div>
+  <div class="intro__hand-anchor">
+    <img class="intro__hand" src={hand.src} alt="" />
+  </div>
+</div>
+
+<script src="../scripts/entrance.ts"></script>

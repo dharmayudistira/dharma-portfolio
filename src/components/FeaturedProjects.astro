@@ -1,0 +1,179 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { ArrowLeft, ArrowRight } from "lucide";
+import MorphIcon from "morphicons/astro";
+import SectionLabel from "./SectionLabel.astro";
+
+const projects = (await getCollection(
+  "projects",
+  ({ data }) => !data.draft && data.featured,
+))
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+  .slice(0, 3);
+const projectCount = projects.length;
+const formatIndex = (index: number) => String(index + 1).padStart(2, "0");
+const initialProjectIndex = formatIndex(0);
+---
+
+<section class="featured-projects" aria-labelledby="featured-projects-title">
+  <SectionLabel id="featured-projects-title" title="Featured Projects" />
+
+  {
+    projectCount > 0 ? (
+      <div class="featured-projects__slider" data-project-slider>
+        <div class="featured-projects__toolbar">
+          <p class="featured-projects__position">
+            <span data-project-current>
+              <span class="visually-hidden" data-project-current-text>
+                {initialProjectIndex}
+              </span>
+              <span class="featured-projects__counter-digits" aria-hidden="true">
+                {initialProjectIndex.split("").map((digit) => (
+                  <span
+                    class="featured-projects__counter-digit"
+                    data-project-counter-digit
+                  >
+                    <span
+                      class="featured-projects__counter-value"
+                      data-project-counter-value
+                    >
+                      {digit}
+                    </span>
+                  </span>
+                ))}
+              </span>
+            </span>
+          </p>
+
+          <p class="featured-projects__role">
+            <span class="featured-projects__role-value" data-project-role>
+              {projects[0]?.data.role}
+            </span>
+          </p>
+
+          {projectCount > 1 && (
+            <div class="featured-projects__controls" aria-label="Featured project navigation">
+              <button
+                type="button"
+                data-project-previous
+                aria-label="Show previous featured project"
+                aria-controls="featured-project-slides"
+                disabled
+              >
+                <MorphIcon icon={ArrowLeft} size={20} strokeWidth={1.25} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                data-project-next
+                aria-label="Show next featured project"
+                aria-controls="featured-project-slides"
+              >
+                <MorphIcon icon={ArrowRight} size={20} strokeWidth={1.25} aria-hidden="true" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div
+          class="featured-projects__viewport"
+          data-project-viewport
+          role="group"
+          aria-roledescription="carousel"
+          aria-label="Featured projects"
+        >
+          <ol class="featured-projects__slides" id="featured-project-slides">
+            {projects.map((project, index) => (
+              <li
+                class="featured-projects__slide"
+                data-project-slide
+                data-project-role={project.data.role}
+                data-project-title={project.data.title}
+                aria-roledescription="slide"
+                aria-label={`${index + 1} of ${projectCount}`}
+                aria-hidden={index === 0 ? "false" : "true"}
+                hidden={index !== 0}
+              >
+                <article class="featured-projects__project">
+                  <div class="featured-projects__copy" data-project-copy>
+                    <h3>{project.data.title}</h3>
+                    <p class="featured-projects__summary">{project.data.summary}</p>
+
+                    <a class="featured-projects__case-study" href={`/projects/${project.id}/`}>
+                      <span class="featured-projects__case-study-label">
+                        <span>View case study</span>
+                        <svg
+                          class="featured-projects__case-study-mark"
+                          viewBox="0 0 100 8"
+                          preserveAspectRatio="none"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path
+                            d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                            vector-effect="non-scaling-stroke"
+                          />
+                        </svg>
+                      </span>
+                      <MorphIcon icon={ArrowRight} size={18} strokeWidth={1.25} aria-hidden="true" />
+                    </a>
+                  </div>
+
+                  <div class="featured-projects__visual" data-project-visual>
+                    {project.data.cover ? (
+                      <span class="featured-projects__visual-frame">
+                        <Image
+                          src={project.data.cover}
+                          alt={`Preview of ${project.data.title}`}
+                          loading={index === 0 ? "eager" : "lazy"}
+                          decoding="async"
+                        />
+                      </span>
+                    ) : (
+                      <span
+                        class="featured-projects__visual-frame featured-projects__visual-placeholder"
+                        aria-hidden="true"
+                      ></span>
+                    )}
+                  </div>
+
+                  <div class="featured-projects__details" data-project-details>
+                    <dl>
+                      <div>
+                        <dt>Platform</dt>
+                        <dd>{project.data.platform}</dd>
+                      </div>
+                      <div>
+                        <dt>Year</dt>
+                        <dd>{project.data.year}</dd>
+                      </div>
+                      <div>
+                        <dt>Stack</dt>
+                        <dd>{project.data.stack.join(" · ")}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-project-announcer>
+          Project 1 of {projectCount}: {projects[0]?.data.title}
+        </p>
+      </div>
+    ) : (
+      <div class="featured-projects__empty">
+        <span>00 / queued</span>
+        <p>Project case studies are being prepared.</p>
+        <svg viewBox="0 0 124 42" fill="none" aria-hidden="true">
+          <path d="M3 29C28 7 52 38 77 17C91 6 103 12 116 9" />
+          <path d="M105 5L116 9L109 19" />
+        </svg>
+      </div>
+    )
+  }
+
+  <script src="../scripts/project-slider.ts"></script>
+</section>

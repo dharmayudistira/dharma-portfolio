@@ -1,0 +1,288 @@
+---
+import { execFileSync } from "node:child_process";
+import { Mail } from "lucide";
+import MorphIcon from "morphicons/astro";
+import packageJson from "../../package.json";
+import githubIcon from "../assets/social/github.svg";
+import linkedinBlack from "../assets/social/linkedin-black.svg";
+import linkedinWhite from "../assets/social/linkedin-white.svg";
+import upworkBlack from "../assets/social/upwork-black.svg";
+import upworkWhite from "../assets/social/upwork-white.svg";
+import xBlack from "../assets/social/x-black.svg";
+import xWhite from "../assets/social/x-white.svg";
+import Gap from "./Gap.astro";
+
+const deploymentCommit =
+  process.env.VERCEL_GIT_COMMIT_SHA ??
+  process.env.CF_PAGES_COMMIT_SHA ??
+  process.env.GITHUB_SHA;
+
+const getBuildCommit = () => {
+  if (deploymentCommit) {
+    return deploymentCommit.slice(0, 7);
+  }
+
+  try {
+    return execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+      encoding: "utf8",
+    }).trim();
+  } catch {
+    return "TBD";
+  }
+};
+
+const buildCommit = getBuildCommit();
+const updatedAt = new Date().toISOString().slice(0, 10);
+const version = (value: string) => value.replace(/^\D+/, "");
+const stack = [
+  `astro@${version(packageJson.dependencies.astro)}`,
+  `typescript@${version(packageJson.devDependencies.typescript)}`,
+  `gsap@${version(packageJson.dependencies.gsap)}`,
+  "css",
+];
+const inspirations = [
+  { name: "Chánh Đại", url: "https://chanhdai.com/" },
+  { name: "Theodorus Clarence", url: "https://theodorusclarence.com/" },
+];
+const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
+---
+
+<footer class="site-footer">
+  <div class="site-footer__frame">
+    <header class="site-footer__intro">
+      <strong>dharma-yudistira.com</strong>
+      <p>Curious by nature, product-minded by practice.</p>
+    </header>
+
+    <dl class="site-footer__details">
+      <div class="site-footer__detail site-footer__detail--crafted">
+        <dt>Crafted by</dt>
+        <dd>
+          <a class="site-footer__link" href="https://x.com/justamannothero" rel="me noreferrer">
+            <span class="site-footer__link-label">
+              <span>Dharma</span>
+              <svg
+                class="site-footer__link-mark"
+                viewBox="0 0 100 8"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
+            </span>
+          </a>
+        </dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--build">
+        <dt>Build</dt>
+        <dd><code>{buildCommit}</code></dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--updated">
+        <dt>Updated</dt>
+        <dd><time datetime={updatedAt}>{updatedAt}</time></dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--focus">
+        <dt>Focus</dt>
+        <dd>Web · Mobile</dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--deployed">
+        <dt>Deployed on</dt>
+        <dd>TBD</dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--source">
+        <dt>Source code</dt>
+        <dd>
+          <a class="site-footer__link" href={repositoryUrl} rel="noreferrer">
+            <span class="site-footer__link-label">
+              <span>GitHub</span>
+              <svg
+                class="site-footer__link-mark"
+                viewBox="0 0 100 8"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
+            </span>
+          </a>
+        </dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--license">
+        <dt>License</dt>
+        <dd>
+          <a class="site-footer__link" href={`${repositoryUrl}/blob/main/LICENSE`} rel="noreferrer">
+            <span class="site-footer__link-label">
+              <span>MIT License</span>
+              <svg
+                class="site-footer__link-mark"
+                viewBox="0 0 100 8"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
+            </span>
+          </a>
+        </dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--typeface">
+        <dt>Typeface</dt>
+        <dd>Geist</dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--stack">
+        <dt>Stack</dt>
+        <dd class="site-footer__stack">
+          {stack.map((item) => <span>{item}</span>)}
+        </dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--analytics">
+        <dt>Analytics</dt>
+        <dd>TBD</dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--agents">
+        <dt>For agents</dt>
+        <dd class="site-footer__agents">
+          <span>llms.txt</span>
+          <span>index.md</span>
+        </dd>
+      </div>
+
+      <div class="site-footer__detail site-footer__detail--inspired">
+        <dt>Inspired by</dt>
+        <dd>
+          <ol class="site-footer__inspirations">
+            {
+              inspirations.map((item, index) => (
+                <li>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <a class="site-footer__link" href={item.url} rel="noreferrer">
+                    <span class="site-footer__link-label">
+                      <span>{item.name}</span>
+                      <svg
+                        class="site-footer__link-mark"
+                        viewBox="0 0 100 8"
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                          vector-effect="non-scaling-stroke"
+                        />
+                      </svg>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <Gap size="extra-small" variant="blank" />
+
+  <div class="site-footer__social-bar">
+    <nav class="site-footer__socials" aria-label="Social media and contact links">
+      <a
+        class="site-footer__social-link"
+        href="https://x.com/justamannothero"
+        rel="me noreferrer"
+        aria-label="Dharma on X"
+      >
+        <img
+          class="site-footer__social-icon site-footer__social-icon--dark-theme"
+          src={xWhite.src}
+          alt=""
+        />
+        <img
+          class="site-footer__social-icon site-footer__social-icon--light-theme"
+          src={xBlack.src}
+          alt=""
+        />
+      </a>
+
+      <a
+        class="site-footer__social-link"
+        href="https://www.linkedin.com/in/dharmayudistira/"
+        rel="me noreferrer"
+        aria-label="Dharma on LinkedIn"
+      >
+        <img
+          class="site-footer__social-icon site-footer__social-icon--dark-theme"
+          src={linkedinWhite.src}
+          alt=""
+        />
+        <img
+          class="site-footer__social-icon site-footer__social-icon--light-theme"
+          src={linkedinBlack.src}
+          alt=""
+        />
+      </a>
+
+      <a
+        class="site-footer__social-link"
+        href="https://github.com/dharmayudistira"
+        rel="me noreferrer"
+        aria-label="Dharma on GitHub"
+      >
+        <img
+          class="site-footer__social-icon site-footer__social-icon--github"
+          src={githubIcon.src}
+          alt=""
+        />
+      </a>
+
+      <a
+        class="site-footer__social-link site-footer__social-link--upwork"
+        href="https://www.upwork.com/freelancers/~01eced17d5102f0a7e"
+        rel="me noreferrer"
+        aria-label="Dharma on Upwork"
+      >
+        <img
+          class="site-footer__social-icon site-footer__social-icon--upwork site-footer__social-icon--dark-theme"
+          src={upworkWhite.src}
+          alt=""
+        />
+        <img
+          class="site-footer__social-icon site-footer__social-icon--upwork site-footer__social-icon--light-theme"
+          src={upworkBlack.src}
+          alt=""
+        />
+      </a>
+
+      <a
+        class="site-footer__social-link"
+        href="mailto:dharmayudistira2000@gmail.com"
+        aria-label="Email Dharma"
+      >
+        <MorphIcon icon={Mail} size={18} strokeWidth={1.5} aria-hidden="true" />
+      </a>
+    </nav>
+  </div>
+
+  <Gap size="medium" variant="blank" />
+</footer>

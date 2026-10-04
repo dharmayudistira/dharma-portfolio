@@ -1,0 +1,41 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow: string;
+  image?: string;
+  canonicalUrl?: string;
+  ogType?: "website" | "article";
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  eyebrow,
+  image,
+  canonicalUrl,
+  ogType,
+  jsonLd,
+} = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={image}
+  canonicalUrl={canonicalUrl}
+  ogType={ogType}
+  jsonLd={jsonLd}
+>
+  <main class="content-page">
+    <header class="content-page__header">
+      <p class="content-page__eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p class="content-page__description">{description}</p>
+    </header>
+    <slot />
+  </main>
+</BaseLayout>

@@ -1,0 +1,54 @@
+---
+import GoldenRatio from "./GoldenRatio.astro";
+---
+
+<main class="hero">
+  <div class="hero__content">
+    <div class="hero__artwork" aria-hidden="true">
+      <GoldenRatio class="hero__golden-ratio" hero />
+    </div>
+
+    <div class="hero__copy">
+      <h1 class="hero__title">
+        <span>DHARMA</span>
+        <span>YUDISTIRA</span>
+      </h1>
+
+      <div class="hero__details">
+        <div class="hero__work-note" aria-hidden="true">
+          <span>currently work here</span>
+          <svg class="hero__work-arrow hero__work-arrow--outside" viewBox="0 0 190 90" fill="none">
+            <path d="M56 18C70 53 93 72 135 79"></path>
+            <path d="M135 79L125 69M135 79L123 82"></path>
+          </svg>
+          <svg class="hero__work-arrow hero__work-arrow--inside" viewBox="0 0 150 68" fill="none">
+            <path d="M72 58C47 48 35 31 39 9"></path>
+            <path d="M39 9L34 19M39 9L46 18"></path>
+          </svg>
+        </div>
+
+        <p class="hero__meta">
+          <span>Zero One Group</span>
+          <i aria-hidden="true"></i>
+          <span>Frontend · Mobile</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__annotations" aria-hidden="true">
+    <span class="datum datum--top-left">
+      <span class="datum__label">0,0</span>
+    </span>
+    <span class="datum datum--top-right">
+      <span class="datum__label">1024,0</span>
+    </span>
+    <span class="datum datum--bottom-left"></span>
+    <span class="datum datum--bottom-right"></span>
+
+    <div class="ratio-note">
+      <span class="ratio-note__label">Golden ratio</span>
+      <span class="ratio-note__value">φ ≈ 1.618033</span>
+    </div>
+  </div>
+</main>
