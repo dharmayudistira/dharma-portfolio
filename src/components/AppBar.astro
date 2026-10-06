@@ -2,6 +2,7 @@
 import MorphIcon from "morphicons/astro";
 import { getCollection } from "astro:content";
 import { Briefcase, FileText, House, Menu, Search, Sun, UserRound, VolumeX, X } from "lucide";
+import { STACK_LABELS } from "../data/stacks";
 
 const pathname = Astro.url.pathname;
 const links = [
@@ -22,7 +23,7 @@ const contentResults = [
   ...projects.map((project) => ({
     href: `/projects/${project.id}/`,
     label: project.data.title,
-    value: `${project.data.title} ${project.data.summary} ${project.data.stack.join(" ")}`.toLowerCase(),
+    value: `${project.data.title} ${project.data.summary} ${project.data.stack.map((id) => STACK_LABELS[id]).join(" ")}`.toLowerCase(),
   })),
   ...posts.map((post) => ({
     href: `/blog/${post.id}/`,

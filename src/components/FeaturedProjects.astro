@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { ArrowLeft, ArrowRight } from "lucide";
 import MorphIcon from "morphicons/astro";
+import { STACK_LABELS } from "../data/stacks";
 import SectionLabel from "./SectionLabel.astro";
 
 const projects = (await getCollection(
@@ -149,7 +150,7 @@ const initialProjectIndex = formatIndex(0);
                       </div>
                       <div>
                         <dt>Stack</dt>
-                        <dd>{project.data.stack.join(" · ")}</dd>
+                        <dd>{project.data.stack.map((id) => STACK_LABELS[id]).join(" · ")}</dd>
                       </div>
                     </dl>
                   </div>

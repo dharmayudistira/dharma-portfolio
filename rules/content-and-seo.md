@@ -16,9 +16,25 @@ clear and attributable for answer engines and AI-assisted search.
 
 ## Required Project Data
 
-Projects require `title`, `summary`, `year`, `role`, `platform`, `stack`,
-`publishedAt`, and `draft`. Optional fields are `cover`, `featured`,
+Projects require `title`, `summary`, `year`, `projectType`, `role`, `platform`,
+`stack`, `publishedAt`, and `draft`. Optional fields are `cover`, `featured`,
 `updatedAt`, `externalUrl`, and `repositoryUrl`.
+
+Choose `projectType` explicitly; it has no default. Replace the template's
+sample value with the project's primary category:
+
+| Value | Display label | Use for |
+| --- | --- | --- |
+| `full-time` | Full-time | Work delivered as an employee. |
+| `freelance` | Freelance | Work delivered for a client through a paid engagement. |
+| `self-built` | Self-built product | A product you create and own for intended users. |
+| `experiment` | Experiments & learning | Personal exploration, practice, or technology trials. |
+
+Store `stack` as an array of IDs from the shared catalog in
+`src/data/stacks.ts`, such as `astro` and `typescript`. Unknown IDs fail
+collection validation. Add a technology's ID and display label to `STACKS`
+before referencing it in project frontmatter. Components use `STACK_LABELS`
+for display; selections such as the marquee keep their own ID order.
 
 ## Required Blog Data
 

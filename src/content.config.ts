@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { STACK_IDS } from "./data/stacks";
 
 const projects = defineCollection({
   loader: glob({ base: "./src/content/projects", pattern: "**/*.{md,mdx}" }),
@@ -9,9 +10,15 @@ const projects = defineCollection({
       title: z.string(),
       summary: z.string(),
       year: z.number().int(),
+      projectType: z.enum([
+        "full-time",
+        "freelance",
+        "self-built",
+        "experiment",
+      ]),
       role: z.string(),
       platform: z.string(),
-      stack: z.array(z.string()),
+      stack: z.array(z.enum(STACK_IDS)),
       cover: image().optional(),
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),

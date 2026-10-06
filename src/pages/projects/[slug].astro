@@ -1,5 +1,6 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
+import { STACK_LABELS } from "../../data/stacks";
 import ContentLayout from "../../layouts/ContentLayout.astro";
 
 export async function getStaticPaths() {
@@ -34,7 +35,7 @@ const jsonLd = canonical
       author: {
         "@id": new URL("/profile/#person", Astro.site).toString(),
       },
-      keywords: project.data.stack.join(", "),
+      keywords: project.data.stack.map((id) => STACK_LABELS[id]).join(", "),
     }
   : undefined;
 ---
@@ -42,7 +43,6 @@ const jsonLd = canonical
 <ContentLayout
   title={project.data.title}
   description={project.data.summary}
-  eyebrow={`Project · ${project.data.year}`}
   image={image}
   canonicalUrl={canonical}
   jsonLd={jsonLd}

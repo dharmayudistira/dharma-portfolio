@@ -1,0 +1,408 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import { ChevronDown, Filter, Search } from "lucide";
+import MorphIcon from "morphicons/astro";
+import { STACKS } from "../data/stacks";
+
+const projects = await getCollection("projects", ({ data }) => !data.draft);
+const projectTypes = {
+  "full-time": "Full-time",
+  freelance: "Freelance",
+  "self-built": "Self-built product",
+  experiment: "Experiments & learning",
+} satisfies Record<CollectionEntry<"projects">["data"]["projectType"], string>;
+const platforms = [...new Set(projects.flatMap(({ data }) => data.platform.split(" · ")))].sort();
+const stacks = STACKS.filter(({ id }) => projects.some(({ data }) => data.stack.includes(id)));
+---
+
+<section class="project-search" aria-label="Project search and filters" data-project-search-toolbar data-filter-count="0" aria-busy="false">
+  <form class="project-search__frame" role="search" aria-label="Search projects">
+    <div class="project-search__filters">
+      <span class="project-search__note" aria-hidden="true">Filter by:</span>
+      <details class="project-search__dropdown" data-project-search-dropdown>
+        <summary aria-label="Select Tag">
+          <MorphIcon icon={Filter} size={14} strokeWidth={1.5} aria-hidden="true" />
+          <span>Tag</span>
+          <span class="project-search__badge" data-project-filter-badge aria-hidden="true" hidden>0</span>
+          <MorphIcon icon={ChevronDown} size={12} strokeWidth={1.5} data-project-filter-chevron aria-hidden="true" />
+        </summary>
+        <div class="project-search__menu">
+          <div class="project-search__columns">
+            <fieldset class="project-search__group project-search__group--type">
+              <legend>Project type</legend>
+              <div class="project-search__types">
+                {Object.entries(projectTypes).map(([value, label]) => (
+                  <label class="project-search__option">
+                    <input type="checkbox" name="projectType" value={value} data-project-filter />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="project-search__group">
+              <legend>Platform</legend>
+              {platforms.map((platform) => (
+                <label class="project-search__option">
+                  <input type="checkbox" name="platform" value={platform} data-project-filter />
+                  <span>{platform}</span>
+                </label>
+              ))}
+            </fieldset>
+
+            <fieldset class="project-search__group">
+              <legend>Stack</legend>
+              {stacks.map(({ id, label }) => (
+                <label class="project-search__option">
+                  <input type="checkbox" name="stack" value={id} data-project-filter />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </fieldset>
+          </div>
+          <div class="project-search__footer">
+            <span>Active filters: <output data-project-filter-count aria-live="polite">0</output></span>
+            <button type="button" data-project-filter-clear disabled>Clear filters</button>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="project-search__field">
+      <span class="project-search__icon" aria-hidden="true">
+        <MorphIcon icon={Search} size={16} strokeWidth={1.5} data-project-search-icon />
+      </span>
+      <label class="visually-hidden" for="project-search-input">Search projects</label>
+      <input
+        id="project-search-input"
+        type="search"
+        name="query"
+        placeholder="SEARCH KEYWORD"
+        autocomplete="off"
+        data-project-search-input
+      />
+    </div>
+  </form>
+  <span class="visually-hidden" role="status" data-project-search-status></span>
+  <script src="../scripts/project-search.ts"></script>
+</section>
+
+<style>
+  .project-search {
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid var(--technical-line-soft);
+  }
+
+  .project-search__frame {
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin-inline: auto;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .project-search__field {
+    flex: 0 1 250px;
+    min-width: 0;
+    margin-inline-start: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-inline: 14px;
+    border: 1px solid var(--technical-line-soft);
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .project-search__field:focus-within {
+    border-color: var(--muted);
+    box-shadow: 0 0 0 1px var(--muted);
+  }
+
+  .project-search__field input {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--foreground);
+    font: 400 11px/1 var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+
+  .project-search__field input::placeholder {
+    color: var(--muted);
+    font-size: 10px;
+    opacity: 1;
+  }
+
+  .project-search__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  .project-search[aria-busy="true"] .project-search__icon {
+    animation: project-search-spin 800ms linear infinite;
+  }
+
+  .project-search__filters {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .project-search__note {
+    white-space: nowrap;
+    color: var(--muted);
+    font: 500 10px/1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .project-search__dropdown summary {
+    min-height: 36px;
+    padding-inline: 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--technical-line-soft);
+    background: transparent;
+    color: var(--muted);
+    font: 500 11px/1 var(--font-mono);
+    letter-spacing: 0.04em;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .project-search__dropdown summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .project-search__dropdown summary:hover {
+    border-color: var(--technical-line-strong);
+    color: var(--foreground);
+  }
+
+  .project-search__dropdown[open] summary,
+  .project-search:not([data-filter-count="0"]) summary {
+    border-color: var(--foreground);
+    background: var(--foreground);
+    color: var(--surface);
+  }
+
+  .project-search__badge {
+    min-width: 18px;
+    height: 18px;
+    padding-inline: 4px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--surface) 18%, transparent);
+    color: inherit;
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+
+  .project-search__dropdown summary:focus-visible,
+  .project-search__option input:focus-visible,
+  .project-search__footer button:focus-visible {
+    outline: 2px solid var(--muted);
+    outline-offset: 2px;
+  }
+
+  .project-search__menu {
+    position: absolute;
+    z-index: 1;
+    inset: calc(100% + 12px) auto auto 0;
+    width: min(600px, calc(100vw - var(--page-gutter) - var(--page-gutter) - 32px));
+    max-height: min(640px, var(--project-search-menu-height, calc(100dvh - 32px)));
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--technical-line-soft);
+    background: var(--surface-raised);
+    container: project-filters / inline-size;
+  }
+
+  .project-search__menu[data-placement="above"] {
+    inset-block-start: auto;
+    inset-block-end: calc(100% + 12px);
+  }
+
+  .project-search__columns {
+    min-height: 0;
+    margin: -4px;
+    padding: 4px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 24px;
+    overflow-y: auto;
+  }
+
+  .project-search__group {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .project-search__group legend {
+    margin-bottom: 12px;
+    padding: 0;
+    color: var(--foreground);
+    font: 500 0.6875rem/1.4 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .project-search__option {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font: 400 0.75rem/1.5 var(--font-mono);
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .project-search__option:has(:checked),
+  .project-search__option:hover {
+    color: var(--foreground);
+  }
+
+  .project-search__option input {
+    appearance: none;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--technical-line);
+    background: transparent;
+    color: var(--surface);
+    cursor: pointer;
+  }
+
+  .project-search__option input:checked {
+    border-color: var(--foreground);
+    background: var(--foreground);
+  }
+
+  .project-search__option input:checked::after {
+    content: "";
+    width: 3px;
+    height: 6px;
+    margin-top: -2px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  .project-search__footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--technical-line-soft);
+    color: var(--muted);
+    font: 400 0.625rem/1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .project-search__footer button {
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+
+  .project-search__footer button:hover:not(:disabled) {
+    color: var(--foreground);
+  }
+
+  .project-search__footer button:disabled {
+    color: var(--technical-copy);
+    cursor: default;
+  }
+
+  @container project-filters (min-width: 340px) {
+    .project-search__columns,
+    .project-search__types {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 24px;
+    }
+
+    .project-search__group--type {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @container project-filters (min-width: 540px) {
+    .project-search__columns {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .project-search__group--type {
+      grid-column: auto;
+    }
+
+    .project-search__types {
+      display: block;
+    }
+  }
+
+  @keyframes project-search-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 640px) {
+    .project-search__frame {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .project-search__field {
+      flex-basis: 100%;
+    }
+
+    .project-search__filters {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .project-search__field input {
+      height: 42px;
+      font-size: 16px;
+    }
+
+    .project-search__dropdown summary,
+    .project-search__option,
+    .project-search__footer button {
+      min-height: 44px;
+    }
+
+    .project-search__menu {
+      padding: 16px;
+    }
+  }
+</style>

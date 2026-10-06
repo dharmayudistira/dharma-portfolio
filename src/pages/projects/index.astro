@@ -1,35 +1,113 @@
 ---
-import { getCollection } from "astro:content";
 import ContentLayout from "../../layouts/ContentLayout.astro";
-
-const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
-);
+import Gap from "../../components/Gap.astro";
+import Footer from "../../components/Footer.astro";
+import ProjectsDrawing from "../../components/ProjectsDrawing.astro";
+import ProjectSearchToolbar from "../../components/ProjectSearchToolbar.astro";
+import ProjectGrid from "../../components/ProjectGrid.astro";
+import paperTexture from "../../assets/crumpled-paper.webp";
 ---
 
 <ContentLayout
-  title="Projects"
+  title="projects."
   description="Selected product engineering work across frontend and mobile experiences."
-  eyebrow="Index: 01"
+  showDescription={false}
+  pageClass="projects-page"
 >
-  <section class="content-index" aria-label="Projects">
-    {projects.length > 0 ? (
-      <ol class="content-index__list">
-        {projects.map((project, index) => (
-          <li>
-            <a href={`/projects/${project.id}/`}>
-              <span class="content-index__number">{String(index + 1).padStart(2, "0")}</span>
-              <span>
-                <strong>{project.data.title}</strong>
-                <small>{project.data.summary}</small>
-              </span>
-              <span class="content-index__year">{project.data.year}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    ) : (
-      <p class="content-index__empty">Project case studies are being prepared.</p>
-    )}
-  </section>
+  <div class="projects-drawing-wrap">
+    <ProjectsDrawing />
+    <img
+      class="projects-drawing-wrap__texture"
+      src={paperTexture.src}
+      alt=""
+      width={paperTexture.width}
+      height={paperTexture.height}
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <Fragment slot="after-content">
+    <Gap size="small" variant="filled" />
+    <ProjectSearchToolbar />
+    <Gap size="extra-small" variant="blank" corner="bottom-right" />
+    <ProjectGrid />
+    <Gap size="medium" variant="filled" />
+  </Fragment>
+  <Footer slot="after-main" />
 </ContentLayout>
+
+<style>
+  :global(.project-grid:has(+ .gap)) {
+    z-index: 1;
+  }
+
+  :global(.project-search + .gap),
+  :global(.project-grid + .gap) {
+    border-block-start: 0;
+  }
+
+  :global(.project-grid + .gap .gap__cross--top-left),
+  :global(.project-grid + .gap .gap__cross--top-right) {
+    display: none;
+  }
+
+  :global(.projects-page) {
+    --projects-artwork-height: clamp(240px, 45vw, 450px);
+    position: relative;
+    isolation: isolate;
+    min-height: var(--projects-artwork-height);
+    padding-top: var(--header-height);
+  }
+
+  :global(.projects-page .content-page__header) {
+    position: absolute;
+    z-index: 1;
+    top: clamp(140px, 20vw, 226px);
+    left: 40px;
+    width: min(660px, calc(100% - 80px));
+  }
+
+  :global(.projects-page .content-page__header h1) {
+    color: var(--foreground);
+    font: 500 clamp(5rem, 14vw, 9.5rem)/0.78 var(--font-hand);
+    letter-spacing: -0.035em;
+    text-transform: none;
+  }
+
+  .projects-drawing-wrap {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: var(--projects-artwork-height);
+    overflow: hidden;
+    background: var(--surface);
+    mask-image: linear-gradient(#000 40%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .projects-drawing-wrap :global(svg) {
+    position: absolute;
+    top: var(--header-height);
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+  }
+
+  .projects-drawing-wrap__texture {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: overlay;
+    user-select: none;
+  }
+
+  @media (max-width: 575px) {
+    :global(.projects-page .content-page__header) {
+      top: calc(var(--header-height) + 40px);
+      left: 20px;
+      width: calc(100% - 40px);
+    }
+  }
+</style>

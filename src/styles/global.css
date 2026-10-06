@@ -1330,14 +1330,16 @@ html[data-intro="seen"] .intro {
   align-self: center;
 }
 
-.featured-blogs__title {
+.featured-blogs__title,
+.project-grid__title {
   position: relative;
   width: fit-content;
   max-width: 100%;
   display: block;
 }
 
-.featured-blogs__title-mark {
+.featured-blogs__title-mark,
+.project-grid__title-mark {
   position: absolute;
   top: calc(100% + 1px);
   left: 0;
@@ -1349,7 +1351,8 @@ html[data-intro="seen"] .intro {
   transition: clip-path 300ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.featured-blogs__title-mark path {
+.featured-blogs__title-mark path,
+.project-grid__title-mark path {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -1401,7 +1404,8 @@ html[data-intro="seen"] .intro {
 }
 
 .featured-blogs__primary-link:is(:hover, :focus-visible) .featured-blogs__title-mark,
-.featured-blogs__item:is(:hover, :focus-visible) .featured-blogs__title-mark {
+.featured-blogs__item:is(:hover, :focus-visible) .featured-blogs__title-mark,
+.project-grid__card:is(:hover, :focus-visible) .project-grid__title-mark {
   clip-path: inset(0);
 }
 
@@ -2191,14 +2195,6 @@ html[data-intro="seen"] .intro {
 
 .content-page__header {
   max-width: 760px;
-}
-
-.content-page__eyebrow {
-  margin: 0 0 28px;
-  color: var(--muted);
-  font: 500 10px/1 var(--font-mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
 }
 
 .content-page__header h1 {

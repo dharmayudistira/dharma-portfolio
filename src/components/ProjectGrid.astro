@@ -1,0 +1,254 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { STACK_LABELS } from "../data/stacks";
+
+const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+---
+
+<section class="project-grid" aria-label="Projects" data-project-grid>
+  <ul class="project-grid__list" data-project-list hidden={projects.length === 0}>
+    {projects.map((project) => (
+      <li
+        class="project-grid__item"
+        data-project-item
+        data-project-type={project.data.projectType}
+        data-project-platform={project.data.platform}
+        data-project-stack={project.data.stack.join(" ")}
+        data-project-search={`${project.data.title} ${project.data.summary} ${project.data.stack.map((id) => STACK_LABELS[id]).join(" ")}`}
+      >
+        <article class="project-grid__project">
+          <a
+            class="project-grid__card"
+            href={`/projects/${project.id}/`}
+            aria-labelledby={`project-title-${project.id}`}
+          >
+            {project.data.cover ? (
+              <span class="project-grid__cover">
+                <Image
+                  src={project.data.cover}
+                  alt={`Preview of ${project.data.title}`}
+                  widths={[320, 480, 640, 960]}
+                  sizes="(min-width: 1280px) 448px, (min-width: 769px) 40vw, 90vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+            ) : (
+              <span
+                class="project-grid__cover"
+                aria-hidden="true"
+              />
+            )}
+            <span class="project-grid__title">
+              <h2 id={`project-title-${project.id}`}>{project.data.title}</h2>
+              <svg
+                class="project-grid__title-mark"
+                viewBox="0 0 100 8"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
+            </span>
+            <p class="project-grid__summary">{project.data.summary}</p>
+            <ul class="project-grid__stack" aria-label="Stack">
+              {project.data.stack.map((id) => (
+                <li>{STACK_LABELS[id]}</li>
+              ))}
+            </ul>
+          </a>
+        </article>
+        <span class="project-grid__row-guide" aria-hidden="true">
+          <span class="project-grid__guide-frame">
+            <span class="gap__cross gap__cross--top-left" />
+            <span class="gap__cross project-grid__cross--center" />
+            <span class="gap__cross gap__cross--top-right" />
+          </span>
+        </span>
+      </li>
+    ))}
+  </ul>
+  <div class="project-grid__empty" data-project-empty hidden={projects.length > 0}>
+    <h2>No projects found</h2>
+    <p>Try another keyword or clear your search and filters.</p>
+    <span class="project-grid__row-guide" aria-hidden="true">
+      <span class="project-grid__guide-frame">
+        <span class="gap__cross gap__cross--top-left" />
+        <span class="gap__cross gap__cross--top-right" />
+      </span>
+    </span>
+  </div>
+</section>
+
+<style>
+  .project-grid {
+    --project-grid-card-padding: 32px;
+    position: relative;
+    container-type: inline-size;
+    isolation: isolate;
+  }
+
+  .project-grid__list,
+  .project-grid__empty {
+    position: relative;
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin: 0 auto;
+    border-inline: 1px dashed var(--technical-line-soft);
+  }
+
+  .project-grid__list {
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    list-style: none;
+  }
+
+  .project-grid__item {
+    position: relative;
+    min-width: 0;
+  }
+
+  .project-grid__row-guide {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: calc((100% - 100cqw) / 2);
+    width: 100cqw;
+    border-block-end: 1px dashed var(--technical-line-soft);
+    pointer-events: none;
+  }
+
+  .project-grid__guide-frame {
+    position: relative;
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin-inline: auto;
+    display: block;
+  }
+
+  .project-grid__cross--center {
+    display: none;
+    inset-block-start: 0;
+    inset-inline-start: 50%;
+  }
+
+  .project-grid__project {
+    height: 100%;
+  }
+
+  .project-grid__card {
+    height: 100%;
+    padding: 32px var(--project-grid-card-padding);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-grid__card:focus-visible {
+    outline: 2px solid var(--muted);
+    outline-offset: -8px;
+  }
+
+  .project-grid__cover {
+    position: relative;
+    margin-block-end: 24px;
+    display: block;
+    flex-shrink: 0;
+    aspect-ratio: 1.618;
+    overflow: hidden;
+    border: 1px dashed var(--technical-line-strong);
+    border-radius: 12px;
+  }
+
+  .project-grid__cover img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+
+  .project-grid__card h2,
+  .project-grid__empty h2 {
+    margin: 0;
+    color: var(--foreground);
+    font: 500 clamp(1.25rem, 2vw, 1.5rem)/1.25 var(--font-sans);
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+  }
+
+  .project-grid__summary,
+  .project-grid__empty p {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font: 400 0.9375rem/1.6 var(--font-sans);
+    overflow-wrap: anywhere;
+  }
+
+  .project-grid__stack {
+    margin: auto 0 0;
+    padding: 24px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .project-grid__stack li {
+    max-width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--technical-line-soft);
+    color: var(--stack-copy);
+    font: 400 0.6875rem/1.2 var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+
+  .project-grid__card:is(:hover, :focus-visible) .project-grid__cover {
+    border-color: var(--muted);
+  }
+
+  .project-grid__empty {
+    padding: 32px var(--project-grid-card-padding);
+  }
+
+  @media (min-width: 769px) {
+    .project-grid__list {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .project-grid__list::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 50%;
+      border-inline-start: 1px dashed var(--technical-line-soft);
+      pointer-events: none;
+    }
+
+    .project-grid__item .project-grid__row-guide {
+      inset-inline-start: calc(100% - 50cqw);
+    }
+
+    .project-grid__item:nth-child(even of :not([hidden])) .project-grid__row-guide {
+      display: none;
+    }
+
+    .project-grid__cross--center {
+      display: block;
+    }
+  }
+
+  @media (max-width: 575px) {
+    .project-grid {
+      --project-grid-card-padding: 16px;
+    }
+
+    .project-grid__card,
+    .project-grid__empty {
+      padding: 24px var(--project-grid-card-padding);
+    }
+  }
+</style>
