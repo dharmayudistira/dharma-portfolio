@@ -39,7 +39,16 @@ drawing, and transition timing.
 - Animate transforms and opacity where possible to reduce layout work.
 - Use `quickSetter` or equivalent for per-frame coordinate updates.
 - Cleanly remove the entrance overlay when the sequence completes or fails.
-- Do not add reduced-motion behavior unless the product decision changes.
+- Do not add reduced-motion behavior outside the approved footer landscape
+  exception unless the product decision changes.
+
+## Footer Landscape Exception
+
+- The footer landscape may honor `prefers-reduced-motion`, including Hairline's
+  built-in support, as an explicitly approved exception.
+- Keep this exception scoped to the footer landscape. Entrance and other
+  animations retain their existing behavior.
+- Preserve the complete static landscape when motion is reduced.
 
 ## Verification
 

@@ -83,11 +83,14 @@ Do not change these without explicit user approval:
 - The public writing route is `/blog/`, never `/blogs/`.
 - Projects and posts live in this repository as validated MDX.
 - Route slugs come from stable content filenames.
-- There is no reduced-motion animation branch by current product decision.
+- Animations outside the footer landscape have no reduced-motion branch by
+  current product decision.
+- The footer landscape may honor `prefers-reduced-motion`, including Hairline's
+  built-in support, as an explicitly approved exception.
 - `SITE_URL` is the only production-origin configuration source.
 
-The missing reduced-motion branch is a known accessibility tradeoff. Do not
-silently add or remove one.
+The missing reduced-motion branch outside the footer landscape is a known
+accessibility tradeoff. Do not silently add or remove one elsewhere.
 
 ## Working Method
 

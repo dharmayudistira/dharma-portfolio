@@ -11,6 +11,7 @@ import upworkWhite from "../assets/social/upwork-white.svg";
 import xBlack from "../assets/social/x-black.svg";
 import xWhite from "../assets/social/x-white.svg";
 import Gap from "./Gap.astro";
+import FooterLandscape from "./FooterLandscape.astro";
 
 const deploymentCommit =
   process.env.VERCEL_GIT_COMMIT_SHA ??
@@ -284,6 +285,8 @@ const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
       </a>
     </nav>
   </div>
+
+  <FooterLandscape />
 
   <Gap size="medium" variant="blank" />
 </footer>
