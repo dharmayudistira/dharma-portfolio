@@ -37,6 +37,8 @@ if (intro) {
 
       if (mode === "home") {
         await playHomeIntro(gsap);
+      } else if (mode === "projects") {
+        await playProjectsIntro(gsap);
       } else {
         playShellIntro(gsap);
       }
@@ -335,6 +337,134 @@ async function playHomeIntro(
       duration: 0.85,
       ease: "power2.inOut",
     });
+}
+
+async function playProjectsIntro(
+  gsap: typeof import("gsap").gsap,
+) {
+  const word = intro?.querySelector<SVGSVGElement>(".intro__word");
+  const handAnchor = intro?.querySelector<HTMLElement>(".intro__hand-anchor");
+  const heading = document.querySelector<HTMLElement>(".projects-page h1");
+  const strokes = Array.from(word?.querySelectorAll<SVGPathElement>("[data-word-stroke]") ?? []);
+
+  if (!intro || !word || !handAnchor || !heading || strokes.length === 0) {
+    finishIntro();
+    return;
+  }
+
+  await document.fonts.load("500 100px 'Caveat Variable'", "projects.");
+  await waitForLayout();
+
+  if (!intro.isConnected) return;
+
+  const context = document.createElement("canvas").getContext("2d");
+
+  if (!context) {
+    finishIntro();
+    return;
+  }
+
+  const textRange = document.createRange();
+  textRange.selectNodeContents(heading);
+  const alignWord = () => {
+    const headingStyle = getComputedStyle(heading);
+    const scale = Number.parseFloat(headingStyle.fontSize) / 100;
+    context.font = headingStyle.font;
+    const metrics = context.measureText(heading.textContent ?? "projects.");
+    const textBounds = textRange.getBoundingClientRect();
+
+    // Match the HTML text baseline, including Caveat's ascenders and descenders.
+    gsap.set(word, {
+      autoRound: false,
+      left: textBounds.left,
+      top: textBounds.top + metrics.fontBoundingBoxAscent - 80 * scale,
+      width: 270 * scale,
+      height: 115 * scale,
+    });
+  };
+
+  alignWord();
+
+  const setHandLeft = gsap.quickSetter(handAnchor, "left", "px");
+  const setHandTop = gsap.quickSetter(handAnchor, "top", "px");
+  const lengths = strokes.map((stroke) => stroke.getTotalLength());
+  const totalLength = lengths.reduce((sum, length) => sum + length, 0);
+  const getScreenPoint = (stroke: SVGPathElement, distance: number) => {
+    const matrix = stroke.getScreenCTM();
+
+    if (!matrix) return null;
+
+    return stroke.getPointAtLength(distance).matrixTransform(matrix);
+  };
+  const start = getScreenPoint(strokes[0], 0);
+
+  if (!start) {
+    finishIntro();
+    return;
+  }
+
+  strokes.forEach((stroke, index) => {
+    gsap.set(stroke, {
+      opacity: 0,
+      strokeDasharray: lengths[index],
+      strokeDashoffset: lengths[index],
+    });
+  });
+  gsap.set(word, { visibility: "visible" });
+  gsap.set(handAnchor, { autoAlpha: 0, left: start.x + 60, top: window.innerHeight + 180 });
+
+  const timeline = gsap.timeline({
+    defaults: { ease: "power2.inOut" },
+    onComplete: () => {
+      window.removeEventListener("resize", alignWord);
+      finishIntro();
+    },
+  });
+  window.addEventListener("resize", alignWord);
+
+  timeline.addLabel("write-projects", 0.3).to(handAnchor, {
+    autoAlpha: 1,
+    left: () => getScreenPoint(strokes[0], 0)?.x ?? start.x,
+    top: () => getScreenPoint(strokes[0], 0)?.y ?? start.y,
+    duration: 0.65,
+    ease: "power3.out",
+  }, "write-projects");
+
+  strokes.forEach((stroke, index) => {
+    const length = lengths[index];
+    const state = { progress: 0 };
+    const render = () => {
+      stroke.style.opacity = "1";
+      stroke.style.strokeDashoffset = String(length * (1 - state.progress));
+      const point = getScreenPoint(stroke, length * state.progress);
+
+      if (!point) return;
+
+      setHandLeft(point.x);
+      setHandTop(point.y);
+    };
+    const strokeStart = getScreenPoint(stroke, 0);
+
+    if (index > 0 && strokeStart) {
+      timeline.to(handAnchor, {
+        left: () => getScreenPoint(stroke, 0)?.x ?? strokeStart.x,
+        top: () => getScreenPoint(stroke, 0)?.y ?? strokeStart.y,
+        duration: 0.14,
+      });
+    }
+
+    timeline.to(state, {
+      progress: 1,
+      duration: Math.max(0.12, 3.4 * length / totalLength),
+      ease: "none",
+      onStart: render,
+      onUpdate: render,
+    });
+  });
+
+  timeline
+    .to(handAnchor, { autoAlpha: 0, y: 50, duration: 0.35 })
+    .to(intro, { autoAlpha: 0, duration: 0.65 }, "<0.15");
 }
 
 function playShellIntro(

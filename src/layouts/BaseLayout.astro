@@ -37,7 +37,11 @@ const canonical = canonicalUrl
     : undefined;
 const socialImage = image && Astro.site ? new URL(image, Astro.site) : undefined;
 const pathname = Astro.url.pathname;
-const introMode = pathname === "/" ? "home" : "shell";
+const introMode = pathname === "/"
+  ? "home"
+  : pathname === "/projects/" || pathname === "/projects"
+    ? "projects"
+    : "shell";
 const serializedJsonLd = jsonLd
   ? JSON.stringify(jsonLd).replace(/</g, "\\u003c")
   : undefined;

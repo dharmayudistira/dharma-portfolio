@@ -2,7 +2,7 @@
 import hand from "../assets/hand-pencil-sketch.svg";
 
 interface Props {
-  mode: "home" | "shell";
+  mode: "home" | "projects" | "shell";
 }
 
 const { mode } = Astro.props;
@@ -11,6 +11,30 @@ const { mode } = Astro.props;
 <div class="intro" data-intro-mode={mode} aria-hidden="true">
   <div class="intro__mat"></div>
   <div class="intro__drawing"></div>
+  {mode === "projects" && (
+    <svg class="intro__word" viewBox="0 0 270 115" aria-hidden="true">
+      <defs>
+        <mask id="intro-projects-ink" maskUnits="userSpaceOnUse" x="0" y="0" width="270" height="115">
+          <g fill="none" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+            {/* Centerlines follow the packaged Caveat lettering at 100px, weight 500. */}
+            <path data-word-stroke d="M22 41Q14 64 6 100" />
+            <path data-word-stroke d="M17 59C25 47 36 46 39 53C44 65 26 73 16 71" />
+            <path data-word-stroke d="M56 44Q49 59 48 74Q48 62 61 54Q70 48 76 48" />
+            <path data-word-stroke d="M98 47C87 43 72 65 80 75C88 83 108 57 102 49Q100 46 98 47" />
+            <path data-word-stroke d="M117 46C114 67 108 92 101 98Q93 103 92 93" />
+            <path data-word-stroke d="M123 28L125 25" />
+            <path data-word-stroke d="M134 57C148 65 160 50 148 46C138 41 126 59 129 70Q132 84 149 70" />
+            <path data-word-stroke d="M179 55C185 38 168 44 160 62Q149 87 181 67" />
+            <path data-word-stroke d="M208 29C198 43 190 59 191 73Q194 81 211 71" />
+            <path data-word-stroke d="M192 42Q200 43 215 41" />
+            <path data-word-stroke d="M241 52C251 37 237 39 224 52C208 67 235 67 235 76Q230 80 219 77" />
+            <path data-word-stroke d="M250 71L253 70" />
+          </g>
+        </mask>
+      </defs>
+      <text x="0" y="80" fill="currentColor" mask="url(#intro-projects-ink)">projects.</text>
+    </svg>
+  )}
   <div class="intro__hand-anchor">
     <img class="intro__hand" src={hand.src} alt="" />
   </div>

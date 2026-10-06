@@ -551,6 +551,14 @@ html[data-intro="seen"] .intro {
   display: block;
 }
 
+.intro__word {
+  position: absolute;
+  visibility: hidden;
+  overflow: visible;
+  font: 500 100px var(--font-hand);
+  letter-spacing: -3.5px;
+}
+
 .intro__hand-anchor {
   position: absolute;
   z-index: 2;

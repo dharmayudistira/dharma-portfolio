@@ -73,7 +73,8 @@ Do not change these without explicit user approval:
 
 - The home intro plays once per browser tab session.
 - A first visit to `/` runs the full grid, hand, and golden-ratio sequence.
-- A first visit to another route runs the shell line-drawing sequence.
+- A first visit to `/projects/` runs the handwritten heading sequence.
+- A first visit to another non-home route runs the shell line-drawing sequence.
 - `sessionStorage["dharma:intro-seen"]` stores intro completion.
 - `localStorage["dharma:theme"]` stores the `dark` or `light` theme.
 - Interface sound is opt-in and `localStorage["dharma:sound"]` stores its settings.
