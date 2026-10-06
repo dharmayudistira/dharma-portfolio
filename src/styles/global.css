@@ -1339,7 +1339,8 @@ html[data-intro="seen"] .intro {
 }
 
 .featured-blogs__title,
-.project-grid__title {
+.project-grid__title,
+.blog-list__title {
   position: relative;
   width: fit-content;
   max-width: 100%;
@@ -1347,7 +1348,8 @@ html[data-intro="seen"] .intro {
 }
 
 .featured-blogs__title-mark,
-.project-grid__title-mark {
+.project-grid__title-mark,
+.blog-list__title-mark {
   position: absolute;
   top: calc(100% + 1px);
   left: 0;
@@ -1360,7 +1362,8 @@ html[data-intro="seen"] .intro {
 }
 
 .featured-blogs__title-mark path,
-.project-grid__title-mark path {
+.project-grid__title-mark path,
+.blog-list__title-mark path {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -1413,7 +1416,8 @@ html[data-intro="seen"] .intro {
 
 .featured-blogs__primary-link:is(:hover, :focus-visible) .featured-blogs__title-mark,
 .featured-blogs__item:is(:hover, :focus-visible) .featured-blogs__title-mark,
-.project-grid__card:is(:hover, :focus-visible) .project-grid__title-mark {
+.project-grid__card:is(:hover, :focus-visible) .project-grid__title-mark,
+.blog-list__link:is(:hover, :focus-visible) .blog-list__title-mark {
   clip-path: inset(0);
 }
 

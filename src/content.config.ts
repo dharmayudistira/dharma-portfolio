@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { BLOG_CATEGORY_IDS, BLOG_TAG_IDS } from "./data/blog";
 import { STACK_IDS } from "./data/stacks";
 
 const projects = defineCollection({
@@ -37,7 +38,8 @@ const blog = defineCollection({
       description: z.string(),
       publishedAt: z.coerce.date(),
       updatedAt: z.coerce.date().optional(),
-      tags: z.array(z.string()).default([]),
+      category: z.enum(BLOG_CATEGORY_IDS),
+      tags: z.array(z.enum(BLOG_TAG_IDS)).default([]),
       cover: image(),
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),

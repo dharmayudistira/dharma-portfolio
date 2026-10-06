@@ -41,7 +41,9 @@ const introMode = pathname === "/"
   ? "home"
   : pathname === "/projects/" || pathname === "/projects"
     ? "projects"
-    : "shell";
+    : pathname === "/blog/" || pathname === "/blog"
+      ? "blogs"
+      : "shell";
 const serializedJsonLd = jsonLd
   ? JSON.stringify(jsonLd).replace(/</g, "\\u003c")
   : undefined;

@@ -2,37 +2,66 @@
 import hand from "../assets/hand-pencil-sketch.svg";
 
 interface Props {
-  mode: "home" | "projects" | "shell";
+  mode: "home" | "projects" | "blogs" | "shell";
 }
 
 const { mode } = Astro.props;
+const handwrittenHeadings = {
+  projects: {
+    text: "projects.",
+    width: 270,
+    strokeWidth: 12,
+    strokes: [
+      "M22 41Q14 64 6 100",
+      "M17 59C25 47 36 46 39 53C44 65 26 73 16 71",
+      "M56 44Q49 59 48 74Q48 62 61 54Q70 48 76 48",
+      "M98 47C87 43 72 65 80 75C88 83 108 57 102 49Q100 46 98 47",
+      "M117 46C114 67 108 92 101 98Q93 103 92 93",
+      "M123 28L125 25",
+      "M134 57C148 65 160 50 148 46C138 41 126 59 129 70Q132 84 149 70",
+      "M179 55C185 38 168 44 160 62Q149 87 181 67",
+      "M208 29C198 43 190 59 191 73Q194 81 211 71",
+      "M192 42Q200 43 215 41",
+      "M241 52C251 37 237 39 224 52C208 67 235 67 235 76Q230 80 219 77",
+      "M250 71L253 70",
+    ],
+  },
+  blogs: {
+    text: "blogs.",
+    width: 190,
+    strokeWidth: 14,
+    strokes: [
+      "M32 17C29 34 18 55 12 71",
+      "M17 65C29 52 43 43 43 53C40 65 26 79 17 75",
+      "M71 18C68 35 56 57 51 71Q49 78 54 76",
+      "M84 47C76 44 63 64 68 74C75 82 94 57 88 49Q86 46 84 47",
+      "M123 47C111 42 94 65 101 74C106 80 124 59 126 53",
+      "M130 47C124 65 116 87 109 96C103 102 96 97 95 88",
+      "M153 52C163 37 149 39 136 52C120 67 147 67 147 76Q142 80 131 77",
+      "M160 71L163 70",
+    ],
+  },
+} as const;
+const handwriting = mode === "projects" || mode === "blogs"
+  ? handwrittenHeadings[mode]
+  : undefined;
+const maskId = `intro-${mode}-ink`;
 ---
 
 <div class="intro" data-intro-mode={mode} aria-hidden="true">
   <div class="intro__mat"></div>
   <div class="intro__drawing"></div>
-  {mode === "projects" && (
-    <svg class="intro__word" viewBox="0 0 270 115" aria-hidden="true">
+  {handwriting && (
+    <svg class="intro__word" viewBox={`0 0 ${handwriting.width} 115`} aria-hidden="true">
       <defs>
-        <mask id="intro-projects-ink" maskUnits="userSpaceOnUse" x="0" y="0" width="270" height="115">
-          <g fill="none" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+        <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width={handwriting.width} height="115">
+          <g fill="none" stroke="white" stroke-width={handwriting.strokeWidth} stroke-linecap="round" stroke-linejoin="round">
             {/* Centerlines follow the packaged Caveat lettering at 100px, weight 500. */}
-            <path data-word-stroke d="M22 41Q14 64 6 100" />
-            <path data-word-stroke d="M17 59C25 47 36 46 39 53C44 65 26 73 16 71" />
-            <path data-word-stroke d="M56 44Q49 59 48 74Q48 62 61 54Q70 48 76 48" />
-            <path data-word-stroke d="M98 47C87 43 72 65 80 75C88 83 108 57 102 49Q100 46 98 47" />
-            <path data-word-stroke d="M117 46C114 67 108 92 101 98Q93 103 92 93" />
-            <path data-word-stroke d="M123 28L125 25" />
-            <path data-word-stroke d="M134 57C148 65 160 50 148 46C138 41 126 59 129 70Q132 84 149 70" />
-            <path data-word-stroke d="M179 55C185 38 168 44 160 62Q149 87 181 67" />
-            <path data-word-stroke d="M208 29C198 43 190 59 191 73Q194 81 211 71" />
-            <path data-word-stroke d="M192 42Q200 43 215 41" />
-            <path data-word-stroke d="M241 52C251 37 237 39 224 52C208 67 235 67 235 76Q230 80 219 77" />
-            <path data-word-stroke d="M250 71L253 70" />
+            {handwriting.strokes.map((stroke) => <path data-word-stroke d={stroke} />)}
           </g>
         </mask>
       </defs>
-      <text x="0" y="80" fill="currentColor" mask="url(#intro-projects-ink)">projects.</text>
+      <text x="0" y="80" fill="currentColor" mask={`url(#${maskId})`}>{handwriting.text}</text>
     </svg>
   )}
   <div class="intro__hand-anchor">

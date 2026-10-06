@@ -1,0 +1,315 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { BLOG_CATEGORY_LABELS, BLOG_TAG_LABELS, formatBlogDate, getBlogReadingMinutes } from "../data/blog";
+import Gap from "./Gap.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+---
+
+<section class="blog-list" aria-label="Blogs" data-blog-results>
+  <ul class="blog-list__list" data-blog-list hidden={posts.length === 0}>
+    {posts.map((post) => (
+      <li
+        class="blog-list__item"
+        data-blog-item
+        data-blog-category={post.data.category}
+        data-blog-tags={post.data.tags.join(" ")}
+        data-blog-search={`${post.data.title} ${post.data.description} ${BLOG_CATEGORY_LABELS[post.data.category]} ${post.data.tags.map((id) => BLOG_TAG_LABELS[id]).join(" ")}`}
+      >
+        <article class="blog-list__article">
+          <span class="blog-list__row-guide blog-list__row-guide--top" aria-hidden="true">
+            <span class="blog-list__guide-frame">
+              <span class="gap__cross gap__cross--top-left" />
+              <span class="gap__cross gap__cross--top-right" />
+            </span>
+          </span>
+          <a class="blog-list__link" href={`/blog/${post.id}/`} aria-labelledby={`blog-title-${post.id}`}>
+            <div class="blog-list__cover">
+              <Image
+                src={post.data.cover}
+                alt={`Cover for ${post.data.title}`}
+                widths={[160, 240, 480, 640, 960]}
+                sizes="(max-width: 575px) calc(100vw - 64px), (max-width: 640px) calc(100vw - 80px), (min-width: 1280px) 200px, 24vw"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="blog-list__copy">
+              <div class="blog-list__title">
+                <h2 id={`blog-title-${post.id}`}>{post.data.title}</h2>
+                <svg
+                  class="blog-list__title-mark"
+                  viewBox="0 0 100 8"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+              <p>{post.data.description}</p>
+            </div>
+            <div class="blog-list__footer">
+              <span class="blog-list__meta">
+                <span class="blog-list__row-guide blog-list__row-guide--meta" aria-hidden="true">
+                  <span class="blog-list__guide-frame">
+                    <span class="gap__cross gap__cross--top-left" />
+                    <span class="gap__cross gap__cross--top-right" />
+                  </span>
+                </span>
+                <time datetime={post.data.publishedAt.toISOString()}>{formatBlogDate(post.data.publishedAt)}</time>
+                <span aria-hidden="true">·</span>
+                <span>{getBlogReadingMinutes(post.body)} min read</span>
+                <span class="blog-list__row-guide blog-list__row-guide--meta-bottom" aria-hidden="true">
+                  <span class="blog-list__guide-frame">
+                    <span class="gap__cross gap__cross--top-left" />
+                    <span class="gap__cross gap__cross--top-right" />
+                  </span>
+                </span>
+              </span>
+              <span class="blog-list__category">{BLOG_CATEGORY_LABELS[post.data.category]}</span>
+            </div>
+          </a>
+          <span class="blog-list__row-guide" aria-hidden="true">
+            <span class="blog-list__guide-frame">
+              <span class="gap__cross gap__cross--top-left" />
+              <span class="gap__cross gap__cross--top-right" />
+            </span>
+          </span>
+        </article>
+        <Gap size="small" variant="blank" />
+      </li>
+    ))}
+  </ul>
+  <div class="blog-list__empty" data-blog-empty hidden={posts.length > 0}>
+    <span class="blog-list__row-guide blog-list__row-guide--top" aria-hidden="true">
+      <span class="blog-list__guide-frame">
+        <span class="gap__cross gap__cross--top-left" />
+        <span class="gap__cross gap__cross--top-right" />
+      </span>
+    </span>
+    <h2>No blogs found</h2>
+    <p>Try another keyword or clear your search and filters.</p>
+    <span class="blog-list__row-guide" aria-hidden="true">
+      <span class="blog-list__guide-frame">
+        <span class="gap__cross gap__cross--top-left" />
+        <span class="gap__cross gap__cross--top-right" />
+      </span>
+    </span>
+  </div>
+</section>
+
+<style>
+  .blog-list {
+    --blog-list-cover-width: clamp(160px, 24%, 240px);
+    position: relative;
+    container-type: inline-size;
+    isolation: isolate;
+  }
+
+  :global(.index-search:has(+ .gap + .blog-list)) {
+    border-block-end: 0;
+  }
+
+  .blog-list__list,
+  .blog-list__empty {
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin: 0 auto;
+  }
+
+  .blog-list__list {
+    padding: 0;
+    list-style: none;
+  }
+
+  .blog-list__item,
+  .blog-list__article,
+  .blog-list__empty {
+    position: relative;
+  }
+
+  :global(.blog-list__item > .gap) {
+    width: 100cqw;
+    margin-inline-start: calc((100% - 100cqw) / 2);
+    border-block: 0;
+  }
+
+  :global(.blog-list__item > .gap .gap__cross),
+  :global(.blog-list__item:nth-last-child(1 of :not([hidden])) > .gap) {
+    display: none;
+  }
+
+  .blog-list__row-guide {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: calc((100% - 100cqw) / 2);
+    width: 100cqw;
+    border-block-end: 1px dashed var(--technical-line-soft);
+    pointer-events: none;
+  }
+
+  .blog-list__row-guide--top,
+  .blog-list__row-guide--meta {
+    inset-block-start: 0;
+    inset-block-end: auto;
+  }
+
+  .blog-list__row-guide--meta,
+  .blog-list__row-guide--meta-bottom {
+    display: none;
+  }
+
+  .blog-list__guide-frame {
+    position: relative;
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin-inline: auto;
+    display: block;
+  }
+
+  .blog-list__link {
+    display: grid;
+    grid-template-columns: var(--blog-list-cover-width) minmax(0, 1fr);
+  }
+
+  .blog-list__link:focus-visible {
+    outline: 2px solid var(--muted);
+    outline-offset: -4px;
+  }
+
+  .blog-list__cover {
+    grid-row: span 2;
+    min-width: 0;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    border-inline-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .blog-list__cover img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px dashed var(--technical-line-strong);
+    border-radius: 12px;
+  }
+
+  .blog-list__copy {
+    min-width: 0;
+    padding: 20px 20px 0;
+  }
+
+  .blog-list h2 {
+    margin: 0;
+    color: var(--foreground);
+    font: 500 clamp(1.125rem, 2vw, 1.5rem)/1.25 var(--font-sans);
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+  }
+
+  .blog-list p {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font: 400 0.9375rem/1.6 var(--font-sans);
+    overflow-wrap: anywhere;
+  }
+
+  .blog-list__footer {
+    position: relative;
+    grid-column: 2;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--muted);
+    font: 400 0.6875rem/1.4 var(--font-mono);
+  }
+
+  .blog-list__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .blog-list__category {
+    margin-inline-start: auto;
+    padding: 6px 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--technical-line-soft);
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .blog-list__link:is(:hover, :focus-visible) .blog-list__cover img {
+    border-color: var(--muted);
+  }
+
+  .blog-list__empty {
+    padding: 32px 20px;
+  }
+
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .blog-list__cover {
+      align-items: stretch;
+    }
+
+    .blog-list__cover img {
+      aspect-ratio: auto;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .blog-list__row-guide--meta,
+    .blog-list__row-guide--meta-bottom {
+      display: block;
+    }
+
+    .blog-list__link {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .blog-list__cover {
+      grid-row: 1;
+      padding: 16px;
+      border-inline-end: 0;
+    }
+
+    .blog-list__copy {
+      grid-row: 3;
+      padding: 16px;
+    }
+
+    .blog-list__footer {
+      display: contents;
+      font-size: 0.625rem;
+    }
+
+    .blog-list__meta {
+      position: relative;
+      grid-row: 2;
+      padding: 12px 16px;
+    }
+
+    .blog-list__category {
+      grid-row: 4;
+      justify-self: start;
+      margin: 4px 16px 16px;
+    }
+
+    .blog-list__empty {
+      padding: 24px 16px;
+    }
+  }
+</style>

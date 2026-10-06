@@ -38,8 +38,21 @@ for display; selections such as the marquee keep their own ID order.
 
 ## Required Blog Data
 
-Posts require `title`, `description`, `publishedAt`, `cover`, and `draft`.
+Posts require `title`, `description`, `publishedAt`, `category`, `cover`, and `draft`.
 Optional fields are `updatedAt`, `tags`, `featured`, and `canonicalUrl`.
+
+Choose one `category` ID from `BLOG_CATEGORIES` in `src/data/blog.ts`:
+`engineering`, `design`, or `product`. Categories are broad areas; `tags` are
+narrower topics and may appear across categories.
+
+Store `tags` as an array of IDs from `BLOG_TAGS` in the same catalog, such as
+`astro`, `performance`, or `design-systems`. Unknown category and tag IDs fail
+collection validation. Add an ID and display label to the catalog before using
+it in frontmatter. Components use `BLOG_CATEGORY_LABELS` and `BLOG_TAG_LABELS`
+for display and search.
+
+Reading time is derived from the MDX body at 200 words per minute, rounded up
+with a minimum of one minute. Do not store it in frontmatter.
 
 Do not weaken schemas to accommodate one malformed entry. Correct the entry or
 propose an intentional schema change with its route and metadata impact.

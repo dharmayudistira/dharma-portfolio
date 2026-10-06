@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { getCollection, type CollectionEntry } from "astro:content";
 import MorphIcon from "morphicons/astro";
 import { ArrowRight } from "lucide";
+import { BLOG_CATEGORY_LABELS, formatBlogDate, getBlogReadingMinutes } from "../data/blog";
 import SectionLabel from "./SectionLabel.astro";
 
 type BlogPost = CollectionEntry<"blog">;
@@ -15,33 +16,7 @@ const supportingPosts = primaryPost
   ? posts.filter(({ id }) => id !== primaryPost.id).slice(0, 3)
   : [];
 
-const getCategory = ({ data }: BlogPost) => data.tags[0] ?? "Writing";
-const getReadingMinutes = ({ body }: BlogPost) => {
-  const wordCount = (body ?? "")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/[`*_#[\]()>-]/g, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-
-  return Math.max(1, Math.ceil(wordCount / 200));
-};
-const formatDate = (date: Date) => {
-  const day = date.getUTCDate();
-  const remainder = day % 100;
-  const suffix = remainder >= 11 && remainder <= 13
-    ? "th"
-    : day % 10 === 1
-      ? "st"
-      : day % 10 === 2
-        ? "nd"
-        : day % 10 === 3
-          ? "rd"
-          : "th";
-  const month = new Intl.DateTimeFormat("en", { month: "long", timeZone: "UTC" }).format(date);
-
-  return `${month} ${day}${suffix}, ${date.getUTCFullYear()}`;
-};
+const getCategory = ({ data }: BlogPost) => BLOG_CATEGORY_LABELS[data.category];
 ---
 
 {
@@ -87,9 +62,9 @@ const formatDate = (date: Date) => {
 
             <span class="featured-blogs__primary-meta">
               <time datetime={primaryPost.data.publishedAt.toISOString()}>
-                {formatDate(primaryPost.data.publishedAt)}
+                {formatBlogDate(primaryPost.data.publishedAt)}
               </time>
-              <span>{getReadingMinutes(primaryPost)} min read</span>
+              <span>{getBlogReadingMinutes(primaryPost.body)} min read</span>
               <span>{getCategory(primaryPost)}</span>
             </span>
 
@@ -135,9 +110,9 @@ const formatDate = (date: Date) => {
 
                   <span class="featured-blogs__item-meta">
                     <time datetime={post.data.publishedAt.toISOString()}>
-                      {formatDate(post.data.publishedAt)}
+                      {formatBlogDate(post.data.publishedAt)}
                     </time>
-                    <span>{getReadingMinutes(post)} min read</span>
+                    <span>{getBlogReadingMinutes(post.body)} min read</span>
                   </span>
                 </a>
               </article>

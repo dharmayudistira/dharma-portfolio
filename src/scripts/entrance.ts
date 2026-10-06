@@ -37,8 +37,8 @@ if (intro) {
 
       if (mode === "home") {
         await playHomeIntro(gsap);
-      } else if (mode === "projects") {
-        await playProjectsIntro(gsap);
+      } else if (mode === "projects" || mode === "blogs") {
+        await playHeadingIntro(gsap);
       } else {
         playShellIntro(gsap);
       }
@@ -339,12 +339,12 @@ async function playHomeIntro(
     });
 }
 
-async function playProjectsIntro(
+async function playHeadingIntro(
   gsap: typeof import("gsap").gsap,
 ) {
   const word = intro?.querySelector<SVGSVGElement>(".intro__word");
   const handAnchor = intro?.querySelector<HTMLElement>(".intro__hand-anchor");
-  const heading = document.querySelector<HTMLElement>(".projects-page h1");
+  const heading = document.querySelector<HTMLElement>(".index-hero h1");
   const strokes = Array.from(word?.querySelectorAll<SVGPathElement>("[data-word-stroke]") ?? []);
 
   if (!intro || !word || !handAnchor || !heading || strokes.length === 0) {
@@ -352,7 +352,10 @@ async function playProjectsIntro(
     return;
   }
 
-  await document.fonts.load("500 100px 'Caveat Variable'", "projects.");
+  const text = heading.textContent ?? "";
+  const wordBox = word.viewBox.baseVal;
+
+  await document.fonts.load("500 100px 'Caveat Variable'", text);
   await waitForLayout();
 
   if (!intro.isConnected) return;
@@ -370,7 +373,7 @@ async function playProjectsIntro(
     const headingStyle = getComputedStyle(heading);
     const scale = Number.parseFloat(headingStyle.fontSize) / 100;
     context.font = headingStyle.font;
-    const metrics = context.measureText(heading.textContent ?? "projects.");
+    const metrics = context.measureText(text);
     const textBounds = textRange.getBoundingClientRect();
 
     // Match the HTML text baseline, including Caveat's ascenders and descenders.
@@ -378,8 +381,8 @@ async function playProjectsIntro(
       autoRound: false,
       left: textBounds.left,
       top: textBounds.top + metrics.fontBoundingBoxAscent - 80 * scale,
-      width: 270 * scale,
-      height: 115 * scale,
+      width: wordBox.width * scale,
+      height: wordBox.height * scale,
     });
   };
 
@@ -422,13 +425,13 @@ async function playProjectsIntro(
   });
   window.addEventListener("resize", alignWord);
 
-  timeline.addLabel("write-projects", 0.3).to(handAnchor, {
+  timeline.addLabel("write-heading", 0.3).to(handAnchor, {
     autoAlpha: 1,
     left: () => getScreenPoint(strokes[0], 0)?.x ?? start.x,
     top: () => getScreenPoint(strokes[0], 0)?.y ?? start.y,
     duration: 0.65,
     ease: "power3.out",
-  }, "write-projects");
+  }, "write-heading");
 
   strokes.forEach((stroke, index) => {
     const length = lengths[index];

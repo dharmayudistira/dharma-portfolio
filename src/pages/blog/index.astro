@@ -1,42 +1,48 @@
 ---
-import { getCollection } from "astro:content";
 import ContentLayout from "../../layouts/ContentLayout.astro";
-
-const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
-);
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("en", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  }).format(date);
+import Gap from "../../components/Gap.astro";
+import Footer from "../../components/Footer.astro";
+import IndexHero from "../../components/IndexHero.astro";
+import IndexSearchToolbar from "../../components/IndexSearchToolbar.astro";
+import BlogList from "../../components/BlogList.astro";
 ---
 
 <ContentLayout
-  title="Blog"
+  title="blogs."
   description="Notes on product engineering, interfaces, animation, and building software."
+  showDescription={false}
+  pageClass="blogs-page index-hero"
 >
-  <section class="content-index" aria-label="Blog posts">
-    {posts.length > 0 ? (
-      <ol class="content-index__list">
-        {posts.map((post, index) => (
-          <li>
-            <a href={`/blog/${post.id}/`}>
-              <span class="content-index__number">{String(index + 1).padStart(2, "0")}</span>
-              <span>
-                <strong>{post.data.title}</strong>
-                <small>{post.data.description}</small>
-              </span>
-              <time datetime={post.data.publishedAt.toISOString()}>
-                {formatDate(post.data.publishedAt)}
-              </time>
-            </a>
-          </li>
-        ))}
-      </ol>
-    ) : (
-      <p class="content-index__empty">Writing is being prepared.</p>
-    )}
-  </section>
+  <IndexHero word="blogs" />
+  <Fragment slot="after-content">
+    <Gap size="small" variant="filled" />
+    <IndexSearchToolbar collection="blog" />
+    <Gap size="extra-small" variant="blank" corner="bottom-right" />
+    <BlogList />
+    <Gap size="medium" variant="filled" />
+  </Fragment>
+  <Footer slot="after-main" />
 </ContentLayout>
+
+<style>
+  :global(.blog-list:has(+ .gap)) {
+    z-index: 1;
+  }
+
+  :global(.gap:has(+ .blog-list)) {
+    border-block-end: 0;
+  }
+
+  :global(.gap:has(+ .blog-list) :is(.gap__cross--bottom-left, .gap__cross--bottom-right)) {
+    display: none;
+  }
+
+  :global(.blog-list + .gap),
+  :global(main:has(.blog-list) + .site-footer) {
+    border-block-start: 0;
+  }
+
+  :global(.blog-list + .gap :is(.gap__cross--top-left, .gap__cross--top-right)) {
+    display: none;
+  }
+</style>

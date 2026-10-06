@@ -1,0 +1,85 @@
+---
+import IndexDrawing from "./IndexDrawing.astro";
+import paperTexture from "../assets/crumpled-paper.webp";
+
+interface Props {
+  word: "project" | "blogs";
+}
+
+const { word } = Astro.props;
+---
+
+<div class="index-hero__drawing">
+  <IndexDrawing word={word} />
+  <img
+    class="index-hero__texture"
+    src={paperTexture.src}
+    alt=""
+    width={paperTexture.width}
+    height={paperTexture.height}
+    loading="lazy"
+    decoding="async"
+  />
+</div>
+
+<style>
+  :global(.index-hero) {
+    --index-artwork-height: clamp(240px, 45vw, 450px);
+    position: relative;
+    isolation: isolate;
+    min-height: var(--index-artwork-height);
+    padding-top: var(--header-height);
+  }
+
+  :global(.index-hero .content-page__header) {
+    position: absolute;
+    z-index: 1;
+    top: clamp(140px, 20vw, 226px);
+    left: 40px;
+    width: min(660px, calc(100% - 80px));
+  }
+
+  :global(.index-hero .content-page__header h1) {
+    color: var(--foreground);
+    font: 500 clamp(5rem, 14vw, 9.5rem)/0.78 var(--font-hand);
+    letter-spacing: -0.035em;
+    text-transform: none;
+  }
+
+  .index-hero__drawing {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: var(--index-artwork-height);
+    overflow: hidden;
+    background: var(--surface);
+    mask-image: linear-gradient(#000 40%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .index-hero__drawing :global(svg) {
+    position: absolute;
+    top: var(--header-height);
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+  }
+
+  .index-hero__texture {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: overlay;
+    user-select: none;
+  }
+
+  @media (max-width: 575px) {
+    :global(.index-hero .content-page__header) {
+      top: calc(var(--header-height) + 40px);
+      left: 20px;
+      width: calc(100% - 40px);
+    }
+  }
+</style>
