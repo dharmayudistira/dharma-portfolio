@@ -1,7 +1,7 @@
 ---
 import MorphIcon from "morphicons/astro";
 import { getCollection } from "astro:content";
-import { Briefcase, FileText, House, Menu, Search, Sun, UserRound, X } from "lucide";
+import { Briefcase, FileText, House, Menu, Search, Sun, UserRound, VolumeX, X } from "lucide";
 
 const pathname = Astro.url.pathname;
 const links = [
@@ -170,13 +170,34 @@ const contentResults = [
       <span data-theme-label>Light mode</span>
     </button>
   </div>
+  <div class="site-search__sound" role="group" aria-label="Interface sound settings">
+    <div class="site-search__sound-heading">
+      <span>Sound</span>
+      <label for="site-sound-volume">Volume <output data-sound-volume-output aria-hidden="true">35%</output></label>
+    </div>
+    <div class="site-search__sound-controls">
+      <button type="button" data-sound-toggle aria-label="Interface sound" aria-pressed="false">
+        <MorphIcon icon={VolumeX} data-sound-icon size={17} strokeWidth={1.5} />
+        <span data-sound-label>Off</span>
+      </button>
+      <input id="site-sound-volume" type="range" min="0" max="100" value="35" data-sound-volume />
+    </div>
+  </div>
 </dialog>
 
 <script>
-  import { Moon, Sun } from "lucide";
+  import { Moon, Sun, Volume2, VolumeX } from "lucide";
   import type { MorphIconElement } from "morphicons/element";
+  import {
+    installSoundUnlock,
+    playInteractionSound,
+    readSoundPreference,
+    setSoundEnabled,
+    setSoundVolume,
+  } from "../scripts/ui-sfx";
 
   const themeStorageKey = "dharma:theme";
+  installSoundUnlock();
 
   const setTheme = (theme: "dark" | "light", persist: boolean) => {
     const root = document.documentElement;
@@ -219,22 +240,61 @@ const contentResults = [
       document.querySelectorAll<HTMLElement>("[data-search-result]"),
     );
     const searchEmpty = document.querySelector<HTMLElement>("[data-search-empty]");
+    const soundButton = document.querySelector<HTMLButtonElement>("[data-sound-toggle]");
+    const soundIcons = document.querySelectorAll<MorphIconElement>("[data-sound-icon]");
+    const soundLabel = document.querySelector<HTMLElement>("[data-sound-label]");
+    const soundVolume = document.querySelector<HTMLInputElement>("[data-sound-volume]");
+    const soundVolumeOutput = document.querySelector<HTMLOutputElement>("[data-sound-volume-output]");
     const mobileBreakpoint = window.matchMedia("(max-width: 768px)");
     const initialTheme = document.documentElement.dataset.theme === "light" ? "light" : "dark";
 
     setTheme(initialTheme, false);
     themeIcons.forEach((icon) => icon.set(initialTheme === "dark" ? Sun : Moon));
 
+    const updateSoundControls = (animateIcon = false) => {
+      const preference = readSoundPreference();
+      soundButton?.setAttribute("aria-pressed", String(preference.enabled));
+      if (soundLabel) soundLabel.textContent = preference.enabled ? "On" : "Off";
+      soundIcons.forEach((icon) => {
+        const nextIcon = preference.enabled ? Volume2 : VolumeX;
+        if (animateIcon) icon.morphTo(nextIcon, "bouncy");
+        else icon.set(nextIcon);
+      });
+      if (soundVolume) {
+        soundVolume.value = String(Math.round(preference.volume * 100));
+        soundVolume.style.setProperty("--sound-volume", `${soundVolume.value}%`);
+      }
+      if (soundVolumeOutput) soundVolumeOutput.value = `${Math.round(preference.volume * 100)}%`;
+    };
+    updateSoundControls();
+
+    soundButton?.addEventListener("click", () => {
+      const enabled = !readSoundPreference().enabled;
+      void setSoundEnabled(enabled).then((ready) => {
+        if (ready) playInteractionSound("toggle-on");
+      });
+      updateSoundControls(true);
+    });
+
+    soundVolume?.addEventListener("input", () => {
+      setSoundVolume(Number(soundVolume.value) / 100);
+      soundVolume.style.setProperty("--sound-volume", `${soundVolume.value}%`);
+      if (soundVolumeOutput) soundVolumeOutput.value = `${soundVolume.value}%`;
+      playInteractionSound("volume-change", { retrigger: "restart", cooldownMs: 75 });
+    });
+
     const toggleTheme = async (button: HTMLButtonElement) => {
       const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
 
       if (!document.startViewTransition) {
         setTheme(nextTheme, true);
+        playInteractionSound(nextTheme === "light" ? "toggle-on" : "toggle-off");
         return;
       }
 
       const transition = document.startViewTransition(() => {
         setTheme(nextTheme, true);
+        playInteractionSound(nextTheme === "light" ? "toggle-on" : "toggle-off");
       });
 
       try {

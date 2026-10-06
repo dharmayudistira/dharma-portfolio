@@ -64,6 +64,7 @@ Read only the rule files relevant to the task, but follow all applicable ones.
 | Entrance, GSAP, hand motion, SVG drawing, or timing | `rules/animation.md` |
 | MDX, collections, metadata, SEO, GEO, or publishing | `rules/content-and-seo.md` |
 | CSS, themes, typography, icons, grid, or responsive UI | `rules/design-system.md` |
+| Interface sound, playback, or sound controls | `rules/sound-design.md` |
 | Testing, review, release, or completion checks | `rules/quality-gates.md` |
 
 ## Protected Product Decisions
@@ -75,6 +76,8 @@ Do not change these without explicit user approval:
 - A first visit to another route runs the shell line-drawing sequence.
 - `sessionStorage["dharma:intro-seen"]` stores intro completion.
 - `localStorage["dharma:theme"]` stores the `dark` or `light` theme.
+- Interface sound is opt-in and `localStorage["dharma:sound"]` stores its settings.
+- Sound and volume controls live in the Cmd+K command palette.
 - Dark and light themes remain supported.
 - The public writing route is `/blog/`, never `/blogs/`.
 - Projects and posts live in this repository as validated MDX.
@@ -107,6 +110,8 @@ Also ask before unrequested deletes, renames, or broad refactors.
 - Documentation only: verify links, commands, facts, and the final diff.
 - Any code: run `npm run check` and `npm run build`.
 - Visual changes: inspect desktop and mobile in both themes.
+- Sound changes: test opt-in, keyboard activation, mute, volume, navigation,
+  and silent use on desktop and mobile.
 - Entrance changes: test first home visit, first non-home visit, and same-tab
   revisit. Confirm hand and stroke stay synchronized and the console is clean.
 - Content changes: validate frontmatter, draft filtering, routes, canonical data,

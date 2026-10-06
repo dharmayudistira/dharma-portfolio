@@ -38,6 +38,8 @@ const {
 </button>
 
 <script>
+  import { playInteractionSound } from "../scripts/ui-sfx";
+
   const DIRECTIONS = [
     "up-left",
     "up",
@@ -198,6 +200,7 @@ const {
     };
 
     mascot.addEventListener("click", () => {
+      playInteractionSound("reaction", { cooldownMs: 180 });
       timers.forEach(window.clearTimeout);
       timers = [];
 

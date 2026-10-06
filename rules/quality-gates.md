@@ -28,6 +28,7 @@ npm run preview
 | Astro or TypeScript | Check, build, affected route, browser console |
 | CSS or layout | Check, build, desktop/mobile, dark/light, overflow |
 | Navigation or controls | Keyboard, focus, labels, active state, mobile menu |
+| Interface sound | Opt-in, unlock, mute, volume preview, persistence, silent use, sensory load |
 | Entrance animation | Full intro, shell intro, revisit skip, timing, failures |
 | SVG geometry | Scaling, clipping, stroke weight, both themes, breakpoints |
 | Content or schema | Frontmatter, draft filter, index, detail route, build |

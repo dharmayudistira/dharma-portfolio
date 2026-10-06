@@ -1,3 +1,5 @@
+import { playInteractionSound } from "./ui-sfx";
+
 const sliders = document.querySelectorAll<HTMLElement>("[data-project-slider]");
 
 sliders.forEach((slider) => {
@@ -211,6 +213,7 @@ sliders.forEach((slider) => {
     updateNavigation();
 
     const direction = nextIndex > activeIndex ? 1 : -1;
+    playInteractionSound(direction > 0 ? "forward" : "back");
     const currentSlide = slides[activeIndex];
     const nextSlide = slides[nextIndex];
     const contentGroups = [
