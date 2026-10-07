@@ -1,427 +1,49 @@
 ---
-type Point = [number, number];
-type MountainSpec = [x: number, base: number, width: number, height: number, seed: number];
-
-const line = (points: Point[]) => points.map(([x, y], i) =>
-  `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`,
-).join("");
-const randomFrom = (seed: number) => () => {
-  seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-  return seed / 4294967296;
-};
-const noise = (x: number, seed: number) => {
-  const hash = (n: number) => {
-    const value = Math.sin(n * 127.1 + seed * 311.7) * 43758.5453;
-    return value - Math.floor(value);
-  };
-  const start = Math.floor(x);
-  const t = x - start;
-  return hash(start) + (hash(start + 1) - hash(start)) * t * t * (3 - 2 * t);
-};
-
-// Closed, tapered ribbons give the ink a varying weight without SVG filters.
-const brush = (points: Point[], width: number, random: () => number) => {
-  const edges: [Point[], Point[]] = [[], []];
-  points.forEach(([x, y], i) => {
-    const before = points[Math.max(0, i - 1)];
-    const after = points[Math.min(points.length - 1, i + 1)];
-    const angle = Math.atan2(after[1] - before[1], after[0] - before[0]) + Math.PI / 2;
-    const weight = width * Math.sin(i / (points.length - 1) * Math.PI) ** 0.6 * (0.65 + random() * 0.5);
-    edges[0].push([x + Math.cos(angle) * weight, y + Math.sin(angle) * weight]);
-    edges[1].push([x - Math.cos(angle) * weight, y - Math.sin(angle) * weight]);
-  });
-  return `${line([...edges[0], ...edges[1].reverse()])}Z`;
-};
-
-const drawPine = (seed: number, detailed: boolean) => {
-  const random = randomFrom(seed + 60);
-  const bent = seed > 2;
-  const lean = seed % 2 ? 1 : -1;
-  const trunkAt = (t: number): Point => [
-    bent ? lean * (Math.sin(t * 5.4) * 9 + t * 18) : lean * t * t * 6 + Math.sin(t * 7) * 0.8,
-    -t * 60,
-  ];
-  const trunk: Point[] = Array.from({ length: 17 }, (_, i) => trunkAt(i / 16));
-  const sides: [Point[], Point[]] = [[], []];
-  trunk.forEach(([x, y], i) => {
-    const width = (bent ? 3.2 : 1.7) * (1 - i / 18) + random() * 0.5;
-    sides[0].push([x - width, y]);
-    sides[1].push([x + width, y]);
-  });
-  let branches = "";
-  let needles = "";
-  let foliage = "";
-  let bark = "";
-  const tiers = detailed ? 7 : 5;
-  for (let tier = 0; tier < tiers; tier += 1) {
-    const t = 0.25 + tier / tiers * 0.7;
-    const [x, y] = trunkAt(t);
-    bark += line([[x - 1, y + 3], [x + random() * 2, y], [x - 0.5, y - 3]]);
-    for (const side of [-1, 1]) {
-      const reach = bent ? 12 + random() * 17 : 60 * (0.04 + (1 - t) * 0.24);
-      const endX = x + reach * side;
-      const endY = y - 2 - random() * 5;
-      branches += brush([[x, y], [x + side * reach * 0.35, y + 3], [x + side * reach * 0.72, y - 1], [endX, endY]], bent ? 1.1 : 0.7, random);
-      for (const fraction of detailed ? [0.58, 0.94] : [0.85]) {
-        const cx = x + (endX - x) * fraction;
-        const cy = y + (endY - y) * fraction;
-        const radius = (bent ? 4.5 : 2.8) + random() * 2;
-        foliage += `M${(cx - radius).toFixed(1)} ${cy.toFixed(1)}q${radius.toFixed(1)} ${(-radius * 0.9).toFixed(1)} ${(radius * 2).toFixed(1)} 0q${(-radius).toFixed(1)} 2 ${(-radius * 2).toFixed(1)} 0Z`;
-        const rays = detailed ? 13 : 5;
-        for (let needle = 0; needle < rays; needle += 1) {
-          const angle = -Math.PI * (0.05 + needle / rays * 0.9);
-          const length = radius * (0.8 + random() * 0.75);
-          needles += `M${cx.toFixed(1)} ${(cy + 1).toFixed(1)}q${(Math.cos(angle) * length * 0.45).toFixed(1)} ${(Math.sin(angle) * length * 0.7).toFixed(1)} ${(Math.cos(angle) * length).toFixed(1)} ${(Math.sin(angle) * length).toFixed(1)}`;
-        }
-      }
-    }
-  }
-  branches += brush([[-8, 3], [-3, -1], [0, -6], [4, 0], [9, 2]], 1, random);
-  return { trunk: `${line([...sides[0], ...sides[1].reverse()])}Z`, branches, needles, foliage, bark };
-};
-
-const pine = (x: number, y: number, height: number, seed: number) => ({
-  x, y, height, variant: seed % 6,
-});
-// Needles smaller than a screen pixel add paint work without adding visible detail.
-const pineDrawings = Array.from({ length: 6 }, (_, i) => drawPine(i, true));
-const groveDrawings = Array.from({ length: 6 }, (_, i) => drawPine(i, false));
-
-// Smooth silhouettes and fading washes keep far hills separate from the craggy foreground.
-const distantHill = ([x, base, width, height, seed]: MountainSpec) => {
-  const points: Point[] = Array.from({ length: 25 }, (_, i) => {
-    const t = i / 24;
-    return [x + (t - 0.5) * width, base - Math.sin(t * Math.PI) ** 0.8 * height * (0.62 + noise(t * 6, seed) * 0.48)];
-  });
-  let outline = `M${points[0].join(" ")}`;
-  for (let i = 1; i < points.length; i += 1) {
-    const before = points[Math.max(0, i - 2)];
-    const start = points[i - 1];
-    const end = points[i];
-    const after = points[Math.min(points.length - 1, i + 1)];
-    outline += `C${(start[0] + (end[0] - before[0]) / 6).toFixed(1)} ${(start[1] + (end[1] - before[1]) / 6).toFixed(1)} ${(end[0] - (after[0] - start[0]) / 6).toFixed(1)} ${(end[1] - (after[1] - start[1]) / 6).toFixed(1)} ${end[0].toFixed(1)} ${end[1].toFixed(1)}`;
-  }
-  return { outline, silhouette: `${outline}L${x + width / 2} ${base + 35}H${x - width / 2}Z` };
-};
-
-const boatDrawings = [
-  {
-    // A woven canopy, its curved ribs, and a low wooden hull distinguish the sampan.
-    hull: "M-39-3Q-25 10 18 7Q31 3 39-5Q13 3-39-3Z",
-    roof: "M-20-1Q-21-14-12-18Q1-21 18-15Q24-11 25 2L-20-1Z",
-    shade: "M14-16Q23-15 25 2L14 1Q10-8 14-16Z",
-    details: "M-38-3Q-19 5 25 3M-32 1Q-10 8 22 5M-18-2Q-20-13-11-18M-11-1Q-14-14-5-18M-3 0Q-6-14 2-18M5 1Q1-12 9-17M13 1Q9-11 16-15M-17-8Q1-12 20-6M-15-13Q0-17 17-11M-33-5V-28M29-2V-19M-30-1l-13 11M-32-10q-3-4-5 0l3 7m-3-1 7 3",
-  },
-  {
-    hull: "M-29-1Q-16 9 23 5L34-3Q4 3-29-1Z",
-    roof: "M2-43Q22-38 21-13L3-11ZM-3-36Q-17-31-19-9L-3-10Z",
-    shade: "M3-42L8-39V-12L3-11ZM-3-36L-7-33V-10L-3-10Z",
-    details: "M-28-1q25 8 58-1M-24 3q20 5 46 1M2 0V-47M-3-1V-40M3-36l16 4M3-28l18 3M3-20l18 1M-4-30l-11 4M-4-22l-13 3M-4-15l-14 2M2-43l18 30M-3-36l-15 27M-23-4l-9-10M-20-4l-3-7m-2-3h4m-1 2 4 5",
-  },
-  {
-    hull: "M-26-1Q-14 6 21 3L30-2Q5 1-26-1Z",
-    roof: "",
-    shade: "",
-    details: "M-25-1q22 4 51-1M-17-1l25-1M-6-3l-2-6m-2-2h4m-3 2 5 4M-5-4l18 14m-1-1 5 2M-19-2v-13",
-  },
-];
-const buildingDrawings = [
-  {
-    roof: "M-34-20L-12-39L18-34L34-15L5-18Z",
-    walls: "M-28-19L5-16L29-13V1L5 6L-28 2Z",
-    shade: "M5-16L29-13V1L5 6ZM-12-39L18-34L34-15L5-18Z",
-    details: "M-34-20L5-18L34-15M-12-39L5-18M-28-19L5-16L29-13M5-16V6M-28-5L5-2L29-5M-28 2L5 6L29 1M-20 2V-10l9 1V4M12 4V-5l9-2V2M-25-13l7 1v5l-7-1ZM-7-11l7 1v5l-7-1ZM10-12l7 1v4l-7 1ZM-31 5L5 10L32 4M-31 8L5 13L32 7",
-    tiles: Array.from({ length: 8 }, (_, i) => `M${-27 + i * 4} ${-20 - i * 2.6}l15 2.5m-9 4 15 2.5`).join(""),
-  },
-  {
-    roof: "M-28-39Q-19-37-10-45Q-3-51 0-56Q3-51 10-45Q19-37 28-39L22-34Q0-29-22-34ZM-40-21Q-29-18-20-29L-13-35H13L20-29Q29-18 40-21L32-14Q0-9-32-14Z",
-    walls: "M-16-32H16V-25H-16ZM-24-14H24V0H-24Z",
-    shade: "M-28-39Q0-34 28-39L22-34Q0-29-22-34ZM-40-21Q0-17 40-21L32-14Q0-9-32-14ZM14-14H24V0H14Z",
-    details: "M0-56v-7m-2 4h4M-16-31v7m8-8v6m8-5v5m8-6v6m8-7v7M-24-13V0m9-12V0m9-11V0m12-11V0m9-12V0m9-13V0M-30-3H30v7h-60ZM-25-3V4m8-7V4m9-7V4m8-7V4m8-7V4m9-7V4m8-7V4M-30 1H30M-34 6H34m-38 3h42m-39 3h36",
-    tiles: Array.from({ length: 11 }, (_, i) => {
-      const x = -22 + i * 4.4;
-      return `M0-55Q${(x * 0.35).toFixed(1)} -40 ${x.toFixed(1)} -34M${(x * 0.5).toFixed(1)}-34Q${(x * 0.75).toFixed(1)} -19 ${(x * 1.45).toFixed(1)} -14`;
-    }).join(""),
-  },
-  {
-    roof: "M-38-18Q-28-20-18-35L15-32Q24-19 36-15L22-12L-24-15Z",
-    walls: "M-29-15L19-12L30-15V1L19 5L-29 2Z",
-    shade: "M19-12L30-15V1L19 5ZM-38-18L-24-15L22-12L36-15Q4-13-38-18Z",
-    details: "M-18-35L15-32M-18-35Q-7-20 22-12M-29-15L19-12L30-15M-29-3L19 0L30-3M19-12V5M-24-13V2m11-14V3m11-14V4m11-14V4M-10 3V-7l10 1V4M-25-7l8 1m14-5 11 1M-32 5L19 9L34 3m-66 5 51 4 15-6",
-    tiles: Array.from({ length: 9 }, (_, i) => `M${-16 + i * 3.6} ${-34 + i * 0.3}q5 12 18 20`).join(""),
-  },
-];
-const cloudDrawings = [
-  { body: "M-95 8C-80 2-66 8-49 3S-30-11-14-8S2 0 18-4S35-12 52-5S77-1 99 7Q63 18 20 15T-95 8Z", wisps: "M-72 9q18-3 31-1m13-6q18-2 29 1m18 3q18-2 29 0M-24 17q21-2 47 0" },
-  { body: "M-112 10Q-93 0-69 4T-28-6Q-12-16 8-9T45-5Q74-9 114 9Q81 17 41 14T-34 16T-112 10Z", wisps: "M-94 10q27-4 46-1m10-8q22-3 39 0m20 5q28-3 48 1M-54 18q24-3 40 0m18 0q23-2 35 0" },
-  { body: "M-122 9Q-92-7-58 0T-7-4Q10-13 29-6T66 1Q91-3 126 12Q88 22 49 17T-37 21T-122 9Z", wisps: "M-87 12q33-3 54 0m13-7q29-2 53 1m18 8q24-2 44 0M-38 23q26-3 45 0" },
-];
-
-// Contracting terrain rows follow the rock face; fractional samples break up the contours.
-const mountain = ([x, base, width, height, seed]: MountainSpec) => {
-  const random = randomFrom(seed);
-  const mesh: Point[][] = Array.from({ length: 12 }, (_, row) => {
-    const depth = 1 - row / 13;
-    return Array.from({ length: 33 }, (_, i) => {
-      const t = i / 32;
-      const envelope = Math.sin(t * Math.PI) ** 0.72;
-      const crag = 0.72 + noise(t * 7 + row * 0.08, seed) * 0.4 + noise(t * 23, seed + 1) * 0.12;
-      return [
-        x + (t - 0.5) * width * depth + Math.sin(row * 0.7) * row * 0.8,
-        base - height * depth * envelope * crag + row * 1.3,
-      ];
-    });
-  });
-  const silhouette = `${line(mesh[0])}L${(x + width * 0.4).toFixed(1)} ${base + 16}L${(x - width * 0.4).toFixed(1)} ${base + 16}Z`;
-  let texture = "";
-  let shade = "";
-  for (let i = 0; i < 85; i += 1) {
-    const layer = random() * 10;
-    const row = Math.floor(layer);
-    const blend = layer - row;
-    const t = random();
-    const center = Math.floor((t < 0.5 ? t * 0.8 : 0.6 + (t - 0.5) * 0.8) * 32);
-    const span = 2 + Math.floor(random() * 4);
-    const points: Point[] = [];
-    for (let column = Math.max(0, center - span); column < Math.min(33, center + span); column += 1) {
-      const [px, py] = mesh[row][column];
-      const [nx, ny] = mesh[row + 1][column];
-      points.push([px + (nx - px) * blend + (random() - 0.5) * 2, py + (ny - py) * blend + (random() - 0.5) * 2]);
-    }
-    texture += line(points);
-    if (i % 11 === 0) {
-      shade += brush(points, 1.2 + random() * 1.2, random);
-    }
-  }
-  const face = `${line([...mesh[0].slice(17), ...mesh[8].slice(15, 28).reverse()])}Z`;
-  let seams = "";
-  for (const column of [6, 18, 27]) {
-    seams += line(mesh.slice(0, 9).map((row, i) => row[column + Math.round(Math.sin(i * 0.7) * 2)]));
-  }
-  const clusters = [7 + Math.floor(random() * 7), 18 + Math.floor(random() * 6)];
-  const trees = Array.from({ length: 36 }, (_, i) => {
-    const row = i < 10 ? 0 : 2 + Math.floor(random() * 6);
-    const column = i < 10 ? 5 + Math.floor(random() * 23) : clusters[i % 2] + Math.floor(random() * 7) - 3;
-    const [px, py] = mesh[row][column];
-    return pine(px + (random() - 0.5) * 8, py + 2 + random() * 8, 4 + random() * (row ? 21 : 7), seed * 100 + i);
-  });
-  return { silhouette, outline: brush(mesh[0], 0.65, random), texture, shade, face, seams, trees };
-};
-
-const rock = (x: number, y: number, width: number, height: number, seed: number) => {
-  const random = randomFrom(seed);
-  const points: Point[] = Array.from({ length: 15 }, (_, i) => {
-    const t = i / 14;
-    return [x + (t - 0.5) * width, y - Math.sin(t * Math.PI) ** 0.6 * height * (0.7 + random() * 0.4)];
-  });
-  let cracks = "";
-  let shade = "";
-  for (let i = 0; i < 8; i += 1) {
-    const column = 2 + Math.floor(random() * 10);
-    const [px, py] = points[column];
-    const fracture: Point[] = [[px, py + 2], [px + (random() - 0.5) * width * 0.14, py + height * 0.28], [px - 2, py + height * 0.55], [px + 4, y - 2]];
-    cracks += line(fracture);
-    shade += brush(fracture, height * (0.035 + random() * 0.07), random);
-    cracks += `M${(px - 3).toFixed(1)} ${(y - 3).toFixed(1)}l4 -1 3 1`;
-  }
-  return { silhouette: `${line(points)}Z`, outline: line(points), cracks, shade };
-};
-
-const createScene = (width: number) => {
-  const narrow = width < 600;
-  const mountains = (specs: MountainSpec[]) => specs.map(mountain);
-  const distant = (narrow
-    ? [[176, 196, 300, 103, 13], [269, 185, 300, 126, 19], [242, 229, 160, 88, 22]]
-    : [[398, 191, 300, 112, 13], [507, 193, 330, 143, 19], [571, 208, 213, 81, 22]]).map((spec) => distantHill([spec[0], spec[1], spec[2], spec[3], spec[4]]));
-  const middle = mountains(narrow
-    ? [[50, 211, 280, 165, 7], [412, 215, 330, 164, 8]]
-    : [[108, 214, 325, 173, 7], [275, 219, 240, 131, 6], [740, 211, 340, 177, 8], [934, 220, 290, 135, 12]]);
-  const foothills = mountains(narrow
-    ? [[-10, 245, 165, 91, 31], [470, 248, 195, 91, 34]]
-    : [[14, 243, 235, 104, 31], [335, 236, 165, 84, 33], [967, 249, 250, 115, 34]]);
-  const bank = mountains(narrow
-    ? [[-40, 337, 245, 60, 41], [520, 335, 265, 62, 44]]
-    : [[70, 340, 390, 71, 41], [965, 344, 400, 84, 44]]);
-  const islandX = width * (narrow ? 0.74 : 0.64);
-  const island = rock(islandX, 305, narrow ? 115 : 185, 43, 51);
-  const trees = (narrow ? [-26, -8] : [-64, -39, -17, 7]).map((offset, i) =>
-    pine(islandX + offset, 281 + Math.sin(i * 3) * 6, 47 + (i % 3) * 13, 62 + i),
-  );
-  const bankTrees = (narrow ? [0.035, 0.99] : [0.035, 0.105, 0.94, 0.995]).map((t, i) =>
-    pine(width * t, 304 + Math.sin(i * 2) * 5, i === 0 ? 79 : 48 + (i % 2) * 16, 63 + i),
-  );
-  const random = randomFrom(90);
-  return {
-    width, narrow, distant, middle, foothills, bank, island, trees, bankTrees,
-    rocks: Array.from({ length: narrow ? 5 : 9 }, (_, i) => rock(islandX + (random() - 0.5) * (narrow ? 115 : 185), 301 + random() * 8, 13 + random() * 23, 7 + random() * 9, 100 + i)),
-    clouds: [{ x: width * 0.42, y: 65, scale: narrow ? 0.6 : 0.9, variant: 0 }, { x: width * 0.48, y: 159, scale: narrow ? 0.75 : 1.25, variant: 1 }, { x: width * 0.77, y: 206, scale: narrow ? 0.6 : 1.05, variant: 2 }],
-    boats: [{ x: width * (narrow ? 0.3 : 0.43), y: 278, scale: 0.85, variant: 0 }, { x: width * (narrow ? 0.49 : 0.85), y: 240, scale: 0.58, variant: 1 }, ...(narrow ? [] : [{ x: width * 0.52, y: 240, scale: 0.43, variant: 2 }])],
-    buildings: [{ x: islandX + (narrow ? 28 : 54), y: 276, scale: narrow ? 0.58 : 0.76, variant: 1 }],
-    settlements: narrow ? [{ x: width * 0.07, y: 244, scale: 0.46, variant: 0 }] : [{ x: width * 0.25, y: 229, scale: 0.48, variant: 0 }, { x: width * 0.29, y: 223, scale: 0.5, variant: 2 }, { x: width * 0.32, y: 234, scale: 0.52, variant: 0 }, { x: width * 0.91, y: 232, scale: 0.52, variant: 2 }],
-    water: Array.from({ length: narrow ? 27 : 49 }, () => {
-      const x = width * (0.07 + random() * 0.86);
-      const y = 222 + random() * 92;
-      const length = 8 + random() * 36;
-      return `M${x.toFixed(1)} ${y.toFixed(1)}q${(length / 2).toFixed(1)} ${(random() * 2 - 1).toFixed(1)} ${length.toFixed(1)} 0`;
-    }).join(""),
-  };
-};
-
-const scenes = [createScene(1024), createScene(480)];
+import landscape from "../assets/footer-landscape.svg?raw";
+import kernel from "../vendor/hairline/kernel.js?raw";
 ---
 
 <div class="footer-landscape" aria-hidden="true">
-  <div class="footer-landscape__frame" data-footer-landscape>
-    {scenes.map((scene) => (
-      <svg
-        class:list={["footer-landscape__drawing", scene.narrow ? "footer-landscape__drawing--narrow" : "footer-landscape__drawing--wide"]}
-        viewBox={`0 0 ${scene.width} 320`}
-        fill="none"
-        focusable="false"
-      >
-        <defs>
-          <linearGradient id={`landscape-wash-${scene.width}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" class="footer-landscape__wash-stop" stop-opacity="0.1" />
-            <stop offset="0.5" class="footer-landscape__wash-stop" stop-opacity="0.24" />
-            <stop offset="1" class="footer-landscape__wash-stop" stop-opacity="0.04" />
-          </linearGradient>
-          <linearGradient id={`landscape-distance-${scene.width}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" class="footer-landscape__wash-stop" stop-opacity="0.3" />
-            <stop offset="0.5" class="footer-landscape__wash-stop" stop-opacity="0.13" />
-            <stop offset="1" class="footer-landscape__wash-stop" stop-opacity="0" />
-          </linearGradient>
-          <radialGradient id={`landscape-mist-${scene.width}`} cx="0.5" cy="0.5" r="0.6">
-            <stop offset="0" class="footer-landscape__mist-stop" stop-opacity="0.96" />
-            <stop offset="0.45" class="footer-landscape__mist-stop" stop-opacity="0.88" />
-            <stop offset="1" class="footer-landscape__mist-stop" stop-opacity="0" />
-          </radialGradient>
-          <linearGradient id={`landscape-fade-${scene.width}`} x1="0" y1="0" x2="0" y2="320" gradientUnits="userSpaceOnUse">
-            <stop offset="0.55" class="footer-landscape__fade-stop" stop-opacity="1" />
-            <stop offset="0.67" class="footer-landscape__fade-stop" stop-opacity="0.75" />
-            <stop offset="0.77" class="footer-landscape__fade-stop" stop-opacity="0" />
-          </linearGradient>
-          <mask id={`landscape-atmosphere-${scene.width}`} class="footer-landscape__mask" maskUnits="userSpaceOnUse" x="-24" y="0" width={scene.width + 48} height="320">
-            <rect x="-24" y="0" width={scene.width + 48} height="320" fill={`url(#landscape-fade-${scene.width})`} />
-          </mask>
-          {[{ drawings: pineDrawings, kind: "pine" }, { drawings: groveDrawings, kind: "grove" }].map(({ drawings, kind }) => drawings.map((tree, i) => (
-            <g id={`landscape-${kind}-${scene.width}-${i}`}>
-              <path class="footer-landscape__trunk" d={tree.trunk} />
-              <path class="footer-landscape__bark" d={tree.bark} />
-              <path class="footer-landscape__ink" d={tree.branches + tree.foliage} />
-              <path class="footer-landscape__needles" d={tree.needles} />
-            </g>
-          )))}
-          {boatDrawings.map((boat, i) => (
-            <g id={`landscape-boat-${scene.width}-${i}`}>
-              <path class="footer-landscape__trunk" d={boat.hull} />
-              <path class="footer-landscape__roof" d={boat.roof} />
-              <path class="footer-landscape__building-shade" d={boat.shade} />
-              <path d={boat.details} />
-            </g>
-          ))}
-          {buildingDrawings.map((building, i) => (
-            <g id={`landscape-building-${scene.width}-${i}`}>
-              <path class="footer-landscape__trunk" d={building.walls} />
-              <path class="footer-landscape__roof" d={building.roof} />
-              <path class="footer-landscape__building-shade" d={building.shade} />
-              <path d={building.details} />
-              <path class="footer-landscape__tiles" d={building.tiles} />
-            </g>
-          ))}
-        </defs>
-        <g class="footer-landscape__distant" data-landscape-depth="0.16">
-          {scene.distant.map((hill, i) => (
-            <g opacity={0.65 + i * 0.15}>
-              <path d={hill.silhouette} fill={`url(#landscape-distance-${scene.width})`} stroke="none" />
-              <path class="footer-landscape__horizon" d={hill.outline} />
-            </g>
-          ))}
-        </g>
-        <g class="footer-landscape__middle" data-landscape-depth="0.45">
-          <g mask={`url(#landscape-atmosphere-${scene.width})`}>
-            {[...scene.middle, ...scene.foothills].map((mount) => (
-              <g>
-                <path class="footer-landscape__plate" d={mount.silhouette} />
-                <path d={mount.silhouette} fill={`url(#landscape-wash-${scene.width})`} stroke="none" />
-                <path class="footer-landscape__face" d={mount.face} />
-                <path class="footer-landscape__shade" d={mount.shade} />
-                <path class="footer-landscape__ink" d={mount.outline} />
-                <path class="footer-landscape__texture" d={mount.texture} />
-                <path class="footer-landscape__seam" d={mount.seams} />
-                {mount.trees.map((tree) => (
-                  <g class="footer-landscape__grove" transform={`translate(${tree.x.toFixed(1)} ${tree.y.toFixed(1)})`}>
-                    <use href={`#landscape-grove-${scene.width}-${tree.variant}`} transform={`scale(${(tree.height / 60).toFixed(3)})`} />
-                  </g>
-                ))}
-              </g>
-            ))}
-          </g>
-          {scene.settlements.map(({ x, y, scale, variant }) => (
-            <use class="footer-landscape__pavilion" href={`#landscape-building-${scene.width}-${variant}`} transform={`translate(${x} ${y}) scale(${scale})`} />
-          ))}
-        </g>
-        <g class="footer-landscape__sky" data-landscape-depth="0.08">
-          {scene.clouds.map(({ x, y, scale, variant }) => (
-            <g transform={`translate(${x} ${y}) scale(${scale})`} data-landscape-object="cloud">
-              <g class="footer-landscape__response" data-landscape-response>
-                <path d={cloudDrawings[variant].body} fill={`url(#landscape-mist-${scene.width})`} stroke="none" />
-                <path class="footer-landscape__cloud-wisp" d={cloudDrawings[variant].wisps} />
-              </g>
-              <rect class="footer-landscape__hit" x="-126" y="-18" width="252" height="49" />
-            </g>
-          ))}
-        </g>
-        <g class="footer-landscape__water" data-landscape-depth="0.3">
-          <path class="footer-landscape__water-wash" d={`M-24 220H${scene.width + 24}V344H-24Z`} fill={`url(#landscape-distance-${scene.width})`} />
-          <path d={scene.water} />
-          {scene.boats.map(({ x, y, scale, variant }) => (
-            <g class="footer-landscape__boat" transform={`translate(${x} ${y}) scale(${scale})`} data-landscape-object="boat">
-              <path class="footer-landscape__wake" d="M-45 12q37 3 82 0m-69 5q26 2 50 0m-35 5h26" />
-              <g class="footer-landscape__response" data-landscape-response>
-                <use href={`#landscape-boat-${scene.width}-${variant}`} />
-              </g>
-              <rect class="footer-landscape__hit" x="-48" y={variant === 1 ? -50 : -31} width="94" height={variant === 1 ? 75 : 56} />
-            </g>
-          ))}
-        </g>
-        <g class="footer-landscape__foreground" data-landscape-depth="1">
-          {scene.bank.map((mount) => (
-            <g>
-              <path class="footer-landscape__plate" d={mount.silhouette} />
-              <path d={mount.silhouette} fill={`url(#landscape-wash-${scene.width})`} stroke="none" />
-              <path class="footer-landscape__shade" d={mount.shade} />
-              <path class="footer-landscape__ink" d={mount.outline} />
-              <path class="footer-landscape__texture" d={mount.texture} />
-            </g>
-          ))}
-          <path class="footer-landscape__plate" d={scene.island.silhouette} />
-          <path d={scene.island.silhouette} fill={`url(#landscape-wash-${scene.width})`} stroke="none" />
-          <path class="footer-landscape__shade" d={scene.island.shade} />
-          <path d={scene.island.outline + scene.island.cracks} />
-          {scene.buildings.map(({ x, y, scale, variant }) => (
-            <use class="footer-landscape__pavilion" href={`#landscape-building-${scene.width}-${variant}`} transform={`translate(${x} ${y}) scale(${scale})`} />
-          ))}
-          {[...scene.trees, ...scene.bankTrees].map((tree) => (
-            <g class="footer-landscape__tree" transform={`translate(${tree.x.toFixed(1)} ${tree.y.toFixed(1)})`} data-landscape-object="tree">
-              <g class="footer-landscape__response" data-landscape-response>
-                <use href={`#landscape-pine-${scene.width}-${tree.variant}`} transform={`scale(${(tree.height / 60).toFixed(3)})`} />
-              </g>
-              <rect class="footer-landscape__hit" x={-tree.height * 0.65} y={-tree.height - 6} width={tree.height * 1.3} height={tree.height + 12} />
-            </g>
-          ))}
-          {scene.rocks.map((stone) => (
-            <g>
-              <path class="footer-landscape__trunk" d={stone.silhouette} />
-              <path class="footer-landscape__shade" d={stone.shade} />
-              <path d={stone.outline + stone.cracks} />
-            </g>
-          ))}
-        </g>
-      </svg>
-    ))}
+  <div class="footer-landscape__frame" data-hairline="device-table">
+    <Fragment set:html={landscape} />
   </div>
 </div>
 
+<script is:inline set:html={kernel} />
 <script>
-  import "../scripts/footer-landscape";
+  import { mountFooterLandscape } from "../scripts/footer-landscape";
+  import type { HairlineKernel, Point } from "../vendor/hairline/types";
+
+  declare const HL: HairlineKernel;
+  const stage = document.querySelector<HTMLElement>(".footer-landscape__frame");
+  const svg = stage?.querySelector("svg");
+
+  if (stage && svg) {
+    const motion = matchMedia("(prefers-reduced-motion: reduce)");
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      const engine: HairlineKernel = {
+        ...HL,
+        register: (element, tick) => HL.register(element, (dt, now) => {
+          HL.setReducedMotion(motion.matches);
+          return tick(dt, now);
+        }),
+        // Hairline's pointer uses 400 × 320; the footer shows the panoramic slice.
+        pointer: (element, handlers) => {
+          const viewBox = svg.viewBox.baseVal;
+          const point = ([x, y]: Point): Point => [x, viewBox.y + y * viewBox.height / 320];
+          return HL.pointer(element, {
+            move: (position) => handlers.move(point(position)),
+            down: (position) => handlers.down?.(point(position)),
+            leave: handlers.leave,
+          });
+        },
+      };
+      const read = { textContent: "rest" };
+      const figure = mountFooterLandscape({ stage, svg, read }, motion.matches ? 0 : 8, engine);
+      motion.addEventListener("change", () => figure.set(motion.matches ? 0 : 8));
+    }, { rootMargin: "400px" });
+    observer.observe(stage);
+  }
 </script>

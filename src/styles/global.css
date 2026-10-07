@@ -2157,10 +2157,8 @@ html[data-intro="seen"] .intro {
 }
 
 .footer-landscape {
-  --landscape-ink: color-mix(in srgb, var(--foreground) 76%, var(--muted));
-  --landscape-wash: color-mix(in srgb, var(--muted) 84%, var(--accent));
-  --landscape-mist: color-mix(in srgb, var(--surface) 96%, var(--foreground));
   border-block-start: 1px dashed var(--technical-line-soft);
+  padding-block: 24px;
 }
 
 .footer-landscape__frame {
@@ -2168,260 +2166,46 @@ html[data-intro="seen"] .intro {
     var(--content-max-width),
     calc(100% - var(--page-gutter) - var(--page-gutter))
   );
-  aspect-ratio: 16 / 5;
   margin-inline: auto;
-  overflow: hidden;
-  contain: paint;
+  aspect-ratio: 400 / 150;
+  touch-action: pan-y;
 }
 
-.footer-landscape__drawing {
+.footer-landscape__frame > svg {
   display: block;
   width: 100%;
-  height: 100%;
-  stroke: currentColor;
-  stroke-width: 0.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  height: auto;
+  overflow: hidden;
 }
 
-.footer-landscape__drawing path,
-.footer-landscape__drawing circle {
+/* The server-rendered landscape uses the same palette before Hairline mounts. */
+.footer-landscape__frame path {
+  fill: var(--surface);
+  stroke: var(--technical-line-strong);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
 
-.footer-landscape__drawing--narrow {
-  display: none;
+.footer-landscape__frame .sil {
+  stroke: var(--technical-copy);
 }
 
-.footer-landscape__plate {
-  fill: var(--surface);
-  stroke: none;
+.footer-landscape__frame .lo {
+  stroke: var(--technical-line);
 }
 
-.footer-landscape__distant {
-  color: var(--technical-line-soft);
+.footer-landscape__frame .nf {
+  fill: none;
 }
 
-.footer-landscape__middle {
-  color: color-mix(in srgb, var(--foreground) 46%, transparent);
+.footer-landscape__frame .dash {
+  stroke-dasharray: 2 3;
 }
 
-.footer-landscape__sky,
-.footer-landscape__water,
-.footer-landscape__wake {
-  color: var(--technical-line-strong);
-}
-
-.footer-landscape__foreground {
-  color: var(--technical-copy);
-}
-
-.footer-landscape__ink {
-  fill: currentColor;
-  stroke: none;
-}
-
-.footer-landscape__wash-stop {
-  stop-color: var(--landscape-wash);
-}
-
-.footer-landscape__mist-stop {
-  stop-color: var(--landscape-mist);
-}
-
-.footer-landscape__fade-stop {
-  stop-color: var(--foreground);
-}
-
-.footer-landscape__mask {
-  mask-type: alpha;
-}
-
-.footer-landscape__face {
-  fill: var(--landscape-ink);
-  stroke: none;
-  opacity: 0.055;
-}
-
-.footer-landscape__shade {
-  fill: var(--landscape-ink);
-  stroke: none;
-  opacity: 0.14;
-}
-
-.footer-landscape__horizon {
-  stroke-width: 0.6;
-  opacity: 0.35;
-}
-
-.footer-landscape__texture {
-  stroke-width: 0.5;
-  opacity: 0.65;
-}
-
-.footer-landscape__seam {
-  opacity: 0.4;
-  stroke-width: 0.55;
-}
-
-.footer-landscape__grove {
-  stroke-width: 0.45;
-}
-
-.footer-landscape__tree {
-  color: color-mix(in srgb, var(--landscape-ink) 85%, transparent);
-}
-
-.footer-landscape__boat,
-.footer-landscape__pavilion {
-  color: color-mix(in srgb, var(--landscape-ink) 78%, transparent);
-  stroke-width: 0.65;
-}
-
-.footer-landscape__trunk {
-  fill: var(--surface-raised);
-  stroke-width: 0.65;
-}
-
-.footer-landscape__bark {
-  stroke-width: 0.6;
-  opacity: 0.8;
-}
-
-.footer-landscape__needles {
-  stroke-width: 0.35;
-  opacity: 0.8;
-}
-
-.footer-landscape__roof {
-  fill: color-mix(in srgb, var(--surface-raised) 85%, var(--landscape-wash));
-}
-
-.footer-landscape__building-shade {
-  fill: var(--landscape-ink);
-  stroke: none;
-  opacity: 0.2;
-}
-
-.footer-landscape__tiles {
-  stroke-width: 0.4;
-  opacity: 0.7;
-}
-
-.footer-landscape__cloud-wisp {
-  stroke-width: 0.45;
-  opacity: 0.27;
-}
-
-.footer-landscape__water-wash {
-  stroke: none;
-  opacity: 0.28;
-}
-
-.footer-landscape__response {
-  transform-origin: 0 0;
-}
-
-.footer-landscape__wake {
-  opacity: calc(0.55 + var(--landscape-response, 0) * 0.4);
-  transform: scaleX(calc(1 + var(--landscape-response, 0) * 0.12));
-  transform-origin: 0 0;
-}
-
-.footer-landscape__hit {
-  fill: transparent;
-  stroke: none;
-  pointer-events: all;
-}
-
-:root:not([data-theme="light"]) .footer-landscape {
-  --landscape-light: color-mix(in srgb, var(--muted) 80%, var(--foreground));
-  --landscape-ink: color-mix(in srgb, var(--surface-raised) 94%, var(--muted));
-  --landscape-wash: var(--landscape-light);
-  --landscape-mist: color-mix(in srgb, var(--surface-raised) 74%, var(--landscape-light));
-  --landscape-stone: color-mix(in srgb, var(--surface-raised) 80%, var(--muted));
-  --landscape-contour: color-mix(in srgb, var(--surface-raised) 62%, var(--landscape-light));
-}
-
-:root:not([data-theme="light"]) .footer-landscape__frame {
-  background: radial-gradient(
-    ellipse at 50% 65%,
-    color-mix(in srgb, var(--surface-raised) 92%, var(--muted)),
-    var(--surface) 75%
-  );
-}
-
-:root:not([data-theme="light"]) .footer-landscape__plate {
-  fill: var(--landscape-stone);
-}
-
-:root:not([data-theme="light"]) .footer-landscape__middle,
-:root:not([data-theme="light"]) .footer-landscape__foreground {
-  color: var(--landscape-contour);
-}
-
-:root:not([data-theme="light"]) .footer-landscape__face {
-  opacity: 0.28;
-}
-
-:root:not([data-theme="light"]) .footer-landscape__shade {
-  opacity: 0.6;
-}
-
-:root:not([data-theme="light"]) .footer-landscape__texture,
-:root:not([data-theme="light"]) .footer-landscape__seam {
-  stroke: var(--landscape-ink);
-  opacity: 0.85;
-}
-
-:root:not([data-theme="light"]) .footer-landscape__grove,
-:root:not([data-theme="light"]) .footer-landscape__tree {
-  color: var(--landscape-ink);
-}
-
-:root:not([data-theme="light"]) .footer-landscape__trunk {
-  fill: color-mix(in srgb, var(--surface-raised) 74%, var(--muted));
-}
-
-:root:not([data-theme="light"]) .footer-landscape__needles {
-  stroke: color-mix(in srgb, var(--landscape-stone) 69%, var(--landscape-light));
-}
-
-:root:not([data-theme="light"]) .footer-landscape__boat,
-:root:not([data-theme="light"]) .footer-landscape__pavilion {
-  color: color-mix(in srgb, var(--surface-raised) 40%, var(--landscape-light));
-}
-
-:root:not([data-theme="light"]) .footer-landscape__roof {
-  fill: color-mix(in srgb, var(--landscape-stone) 82%, var(--muted));
-}
-
-:root:not([data-theme="light"]) .footer-landscape__building-shade {
-  opacity: 0.65;
-}
-
-:root:not([data-theme="light"]) .footer-landscape__sky,
-:root:not([data-theme="light"]) .footer-landscape__water,
-:root:not([data-theme="light"]) .footer-landscape__wake {
-  color: color-mix(in srgb, var(--surface-raised) 65%, var(--landscape-light));
-}
-
-:root:not([data-theme="light"]) .footer-landscape__water-wash {
-  opacity: 0.5;
-}
-
-@media (max-width: 600px) {
-  .footer-landscape__frame {
-    aspect-ratio: 3 / 2;
-  }
-
-  .footer-landscape__drawing--wide {
-    display: none;
-  }
-
-  .footer-landscape__drawing--narrow {
-    display: block;
-  }
+.footer-landscape__frame .hi {
+  stroke: var(--foreground);
 }
 
 .page-guides {
