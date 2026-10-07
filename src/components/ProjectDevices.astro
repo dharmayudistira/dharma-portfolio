@@ -1,0 +1,80 @@
+---
+import kernel from "../vendor/hairline/kernel.js?raw";
+---
+
+<div class="project-hero__devices" data-hairline="devices" aria-hidden="true">
+  <svg viewBox="0 0 400 320" aria-hidden="true"></svg>
+  <span class="project-hero__readout"></span>
+</div>
+
+<script is:inline set:html={kernel} />
+<script>
+  import { mountProjectDevices } from "../scripts/project-devices";
+  import type { HairlineKernel } from "../vendor/hairline/types";
+
+  declare const HL: HairlineKernel;
+  const stage = document.querySelector<HTMLElement>(".project-hero__devices");
+  const svg = stage?.querySelector("svg");
+  const readout = stage?.querySelector<HTMLElement>(".project-hero__readout");
+
+  if (stage && svg && readout) {
+    HL.inject(document);
+    // Only the footer has a reduced-motion exception in this site's motion policy.
+    const engine: HairlineKernel = {
+      ...HL,
+      register: (element, tick) => HL.register(element, (dt, now) => {
+        HL.setReducedMotion(false);
+        return tick(dt, now);
+      }),
+    };
+    const read = {
+      set textContent(value: string | null) {
+        readout.textContent = value === "rest" ? "" : value;
+      },
+    };
+    mountProjectDevices({ stage, svg, read }, 11, engine);
+  }
+</script>
+
+<style>
+  .project-hero__devices {
+    --hairline-plate: var(--surface);
+    --hairline-hi: var(--foreground);
+    --hairline-edge: var(--technical-copy);
+    --hairline-mid: var(--technical-copy);
+    --hairline-lo: var(--technical-line);
+    position: absolute;
+    z-index: 0;
+    inset-inline-end: 6%;
+    top: calc(var(--index-artwork-height) * 0.2);
+    width: 46%;
+    aspect-ratio: 5 / 4;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  .project-hero__devices svg {
+    mask-image: radial-gradient(ellipse at 55% 42%, #000 30%, transparent 76%);
+    /* A fixed SVG box keeps hover stable while a device tilts away from the pointer. */
+    pointer-events: auto;
+  }
+
+  .project-hero__readout {
+    position: absolute;
+    top: 6%;
+    inset-inline-end: 16%;
+    color: var(--technical-copy);
+    font: 0.625rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 575px) {
+    .project-hero__devices {
+      inset-inline-end: 0;
+      top: calc(var(--index-artwork-height) * 0.34);
+      width: 52%;
+      opacity: 0.55;
+    }
+  }
+</style>

@@ -14,6 +14,7 @@ import BlogList from "../../components/BlogList.astro";
   pageClass="blogs-page index-hero"
 >
   <IndexHero word="blogs" />
+  <div class="blog-hero__keyboard" aria-hidden="true"></div>
   <Fragment slot="after-content">
     <Gap size="small" variant="filled" />
     <IndexSearchToolbar collection="blog" />
@@ -24,7 +25,79 @@ import BlogList from "../../components/BlogList.astro";
   <Footer slot="after-main" />
 </ContentLayout>
 
+<script>
+  import { keyboard } from "@lucasmarkes/hairline";
+
+  const figure = document.querySelector<HTMLElement>(".blog-hero__keyboard");
+
+  if (figure) {
+    keyboard(figure, { intensity: 0.45 });
+
+    const svg = figure.querySelector("svg");
+    const forwarded = new WeakSet<PointerEvent>();
+
+    // Map the tilted drawing back to Hairline's untransformed pointer coordinates.
+    const alignPointer = (event: PointerEvent) => {
+      if (forwarded.has(event)) return;
+
+      const matrix = svg?.getScreenCTM();
+      if (!svg || !matrix) return;
+
+      const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+      const bounds = figure.getBoundingClientRect();
+      const viewBox = svg.viewBox.baseVal;
+      const aligned = new PointerEvent(event.type, {
+        clientX: bounds.left + (point.x - viewBox.x) / viewBox.width * bounds.width,
+        clientY: bounds.top + (point.y - viewBox.y) / viewBox.height * bounds.height,
+        pointerId: event.pointerId,
+        pointerType: event.pointerType,
+      });
+
+      forwarded.add(aligned);
+      event.stopImmediatePropagation();
+      figure.dispatchEvent(aligned);
+    };
+
+    figure.addEventListener("pointermove", alignPointer, true);
+    figure.addEventListener("pointerdown", alignPointer, true);
+  }
+</script>
+
 <style>
+  .blog-hero__keyboard {
+    --hairline-plate: var(--surface);
+    --hairline-hi: var(--foreground);
+    --hairline-edge: var(--technical-copy);
+    --hairline-mid: var(--technical-line);
+    --hairline-lo: var(--technical-line-soft);
+    position: absolute;
+    z-index: 2;
+    inset-inline-end: 6%;
+    top: calc(var(--index-artwork-height) * 0.29);
+    width: 46%;
+    aspect-ratio: 5 / 4;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  .blog-hero__keyboard :global(svg) {
+    mask-image: radial-gradient(ellipse at 60% 45%, #000 20%, transparent 70%);
+    transform: scale(1.35) rotate(-20deg);
+  }
+
+  .blog-hero__keyboard :global(svg > g) {
+    pointer-events: auto;
+  }
+
+  @media (max-width: 575px) {
+    .blog-hero__keyboard {
+      inset-inline-end: 0;
+      top: calc(var(--index-artwork-height) * 0.44);
+      width: 46%;
+      opacity: 0.55;
+    }
+  }
+
   :global(.blog-list:has(+ .gap)) {
     z-index: 1;
   }

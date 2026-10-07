@@ -5,6 +5,7 @@ import Footer from "../../components/Footer.astro";
 import IndexHero from "../../components/IndexHero.astro";
 import IndexSearchToolbar from "../../components/IndexSearchToolbar.astro";
 import ProjectGrid from "../../components/ProjectGrid.astro";
+import ProjectDevices from "../../components/ProjectDevices.astro";
 ---
 
 <ContentLayout
@@ -14,6 +15,7 @@ import ProjectGrid from "../../components/ProjectGrid.astro";
   pageClass="projects-page index-hero"
 >
   <IndexHero word="project" />
+  <ProjectDevices />
   <Fragment slot="after-content">
     <Gap size="small" variant="filled" />
     <IndexSearchToolbar collection="projects" />
@@ -25,6 +27,10 @@ import ProjectGrid from "../../components/ProjectGrid.astro";
 </ContentLayout>
 
 <style>
+  :global(.projects-page .content-page__header) {
+    width: fit-content;
+  }
+
   :global(.project-grid:has(+ .gap)) {
     z-index: 1;
   }
