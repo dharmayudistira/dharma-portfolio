@@ -1,0 +1,353 @@
+---
+import { ArrowLeft, ArrowRight } from "lucide";
+import MorphIcon from "morphicons/astro";
+import { workHistory } from "../data/work-history";
+
+const firstYear = Math.min(...workHistory.map((entry) => Number(entry.start.slice(0, 4))));
+const lastYear = Math.max(...workHistory.map((entry) => entry.end
+  ? Number(entry.end.slice(0, 4))
+  : new Date().getUTCFullYear()));
+const years = Array.from({ length: lastYear - firstYear + 1 }, (_, index) => {
+  const year = firstYear + index;
+  return { year, entries: workHistory.filter((entry) => Number(entry.start.slice(0, 4)) === year) };
+});
+const dateFormat = new Intl.DateTimeFormat("en", { month: "short", year: "numeric", timeZone: "UTC" });
+const formatDate = (date: string) => dateFormat.format(new Date(`${date}-01T00:00:00Z`));
+---
+
+<section class="work-history" aria-labelledby="work-history-heading">
+  <header class="work-history__heading">
+    <div class="work-history__heading-inner">
+      <h2 id="work-history-heading">Work history</h2>
+      <div class="work-history__controls" data-work-history-controls role="group" aria-label="Work history navigation" hidden>
+        <button type="button" data-work-history-previous aria-label="Previous work entry" aria-controls="work-history-timeline" disabled>
+          <MorphIcon icon={ArrowLeft} size={16} strokeWidth={1.25} aria-hidden="true" />
+        </button>
+        <button type="button" data-work-history-next aria-label="Next work entry" aria-controls="work-history-timeline" disabled>
+          <MorphIcon icon={ArrowRight} size={16} strokeWidth={1.25} aria-hidden="true" />
+        </button>
+      </div>
+      <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+      <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+    </div>
+  </header>
+  <div class="work-history__frame">
+    <div class="work-history__timeline">
+      <span class="work-history__axis" aria-hidden="true">Year</span>
+      <div id="work-history-timeline" class="work-history__viewport" data-work-history-viewport tabindex="0" role="region" aria-label="Work history timeline">
+        <ol class="work-history__track" role="list">
+          {years.map(({ year, entries }) => (
+            <li
+              class:list={["work-history__year", { "work-history__year--milestone": entries.length > 0 }]}
+              aria-hidden={entries.length === 0 ? "true" : undefined}
+            >
+              <span class="work-history__year-label" aria-hidden="true">{year}</span>
+              {entries.map((entry) => (
+                <article class="work-history__entry">
+                  <h3>
+                    <a href={entry.companyUrl} target="_blank" rel="noopener noreferrer">{entry.company}</a>
+                  </h3>
+                  <p class="work-history__role">{entry.role}</p>
+                  <p class="work-history__dates">
+                    <time datetime={entry.start}>{formatDate(entry.start)}</time>
+                    {" – "}
+                    {entry.end
+                      ? <time datetime={entry.end}>{formatDate(entry.end)}</time>
+                      : <span class="work-history__present">Present</span>}
+                  </p>
+                  <p class="work-history__description">{entry.description}</p>
+                </article>
+              ))}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+    <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+    <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+  </div>
+</section>
+
+<script>
+  import "../scripts/work-history";
+</script>
+
+<style>
+  .work-history {
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .work-history__frame,
+  .work-history__heading-inner {
+    position: relative;
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin-inline: auto;
+  }
+
+  .work-history__frame {
+    padding: 32px clamp(20px, 5vw, 64px) clamp(40px, 5vw, 64px);
+  }
+
+  .work-history__heading {
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .work-history__heading-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 64px;
+    padding: 10px clamp(20px, 5vw, 64px);
+  }
+
+  .work-history__heading h2 {
+    margin: 0;
+    font: 500 24px/1.2 var(--font-sans);
+    letter-spacing: -0.035em;
+  }
+
+  .work-history__controls {
+    display: flex;
+  }
+
+  .work-history__controls[hidden] {
+    display: none;
+  }
+
+  .work-history__controls button {
+    display: grid;
+    place-items: center;
+    width: var(--arrow-button-size);
+    height: var(--arrow-button-size);
+    padding: 0;
+    border: 1px solid var(--technical-line-soft);
+    background: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+
+  .work-history__controls button + button {
+    border-inline-start: 0;
+  }
+
+  .work-history__controls button:not(:disabled):hover {
+    background: var(--surface-raised);
+  }
+
+  .work-history__controls button:disabled {
+    color: var(--technical-copy);
+    cursor: default;
+  }
+
+  .work-history__controls button:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 1px solid var(--foreground);
+    outline-offset: 3px;
+  }
+
+  .work-history__axis {
+    margin: 0;
+    color: var(--muted);
+    font: 400 11px/20px var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .work-history__timeline {
+    --work-history-rail: 40px;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .work-history__viewport {
+    --work-history-fade-start: #000;
+    --work-history-fade-end: #000;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    mask-image: linear-gradient(to right, var(--work-history-fade-start), #000 24px, #000 calc(100% - 24px), var(--work-history-fade-end));
+  }
+
+  .work-history__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .work-history__viewport[data-scroll-start] {
+    --work-history-fade-start: transparent;
+  }
+
+  .work-history__viewport[data-scroll-end] {
+    --work-history-fade-end: transparent;
+  }
+
+  .work-history__viewport:focus-visible {
+    outline: 1px solid var(--foreground);
+    outline-offset: 4px;
+  }
+
+  .work-history__track {
+    position: relative;
+    display: flex;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .work-history__track::before {
+    position: absolute;
+    inset-block-start: var(--work-history-rail);
+    inset-inline: 0;
+    border-block-start: 1px dashed var(--technical-line-soft);
+    content: "";
+  }
+
+  .work-history__year {
+    position: relative;
+    flex: 0 0 80px;
+    padding-inline-end: 24px;
+  }
+
+  .work-history__year--milestone {
+    flex-basis: 320px;
+    scroll-snap-align: start;
+  }
+
+  .work-history__year:last-child {
+    scroll-snap-align: end;
+  }
+
+  .work-history__year::before {
+    position: absolute;
+    inset-block-start: var(--work-history-rail);
+    inset-inline-start: 0;
+    width: 1px;
+    height: 12px;
+    background: var(--technical-line-strong);
+    transform: translateY(-50%);
+    content: "";
+  }
+
+  .work-history__year-label {
+    display: block;
+    color: var(--muted);
+    font: 400 12px/20px var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .work-history__entry {
+    margin-block-start: 44px;
+  }
+
+  .work-history__entry + .work-history__entry {
+    margin-block-start: 24px;
+  }
+
+  .work-history__entry h3 {
+    margin: 0;
+    font: 500 18px/1.4 var(--font-sans);
+  }
+
+  .work-history__entry a {
+    color: var(--foreground);
+    text-decoration: underline dashed;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .work-history__entry a:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  .work-history__role {
+    margin: 8px 0 0;
+    font: 400 15px/1.6 var(--font-sans);
+  }
+
+  .work-history__dates {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font: 400 12px/1.5 var(--font-mono);
+  }
+
+  .work-history__present {
+    color: var(--foreground);
+  }
+
+  .work-history__description {
+    margin: 16px 0 0;
+    color: var(--muted);
+    font: 400 15px/1.6 var(--font-sans);
+  }
+
+  @media (max-width: 767px) {
+    .work-history__heading-inner {
+      flex-wrap: wrap;
+      gap: 8px 16px;
+    }
+
+    .work-history__controls {
+      display: none;
+    }
+
+    .work-history__timeline {
+      display: block;
+    }
+
+    .work-history__axis {
+      display: none;
+    }
+
+    .work-history__viewport {
+      overflow: visible;
+      scroll-behavior: auto;
+      scroll-snap-type: none;
+      mask-image: none;
+    }
+
+    .work-history__track {
+      display: block;
+      width: auto;
+      padding: 0;
+    }
+
+    .work-history__track::before {
+      inset-block: 10px 0;
+      inset-inline: 0 auto;
+      border-block-start: 0;
+      border-inline-start: 1px dashed var(--technical-line-soft);
+    }
+
+    .work-history__year {
+      display: none;
+    }
+
+    .work-history__year--milestone {
+      display: block;
+      padding: 0;
+      padding-inline-start: 24px;
+    }
+
+    .work-history__year--milestone ~ .work-history__year--milestone {
+      margin-block-start: 32px;
+    }
+
+    .work-history__year::before {
+      inset-block-start: 10px;
+      width: 12px;
+      height: 1px;
+      transform: translateX(-50%);
+    }
+
+    .work-history__entry {
+      margin-block-start: 16px;
+    }
+  }
+</style>

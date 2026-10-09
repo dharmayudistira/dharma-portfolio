@@ -10,6 +10,7 @@
   --content-max-width: 1024px;
   --content-half-width: 512px;
   --page-gutter: 24px;
+  --arrow-button-size: 32px;
   --surface: #07090a;
   --surface-raised: #0c0f10;
   --foreground: #e5e2e1;
@@ -37,6 +38,12 @@
   --technical-line-strong: rgb(23 25 26 / 38%);
   --technical-copy: rgb(23 25 26 / 48%);
   --stack-copy: rgb(23 25 26 / 62%);
+}
+
+@media (any-pointer: coarse) {
+  :root {
+    --arrow-button-size: 44px;
+  }
 }
 
 html,
@@ -1627,8 +1634,8 @@ html[data-intro="seen"] .intro {
 }
 
 .featured-projects__controls button {
-  width: 44px;
-  height: 44px;
+  width: var(--arrow-button-size);
+  height: var(--arrow-button-size);
   padding: 0;
   display: grid;
   place-items: center;
@@ -2066,7 +2073,8 @@ html[data-intro="seen"] .intro {
   color: var(--technical-copy);
 }
 
-.site-footer__social-bar {
+.social-links {
+  position: relative;
   width: min(
     var(--content-max-width),
     calc(100% - var(--page-gutter) - var(--page-gutter))
@@ -2082,13 +2090,17 @@ html[data-intro="seen"] .intro {
   border-bottom: 0;
 }
 
-.site-footer__socials {
+.social-links > .gap__cross {
+  pointer-events: none;
+}
+
+.social-links__nav {
   display: flex;
   align-items: stretch;
   border-inline-start: 1px solid var(--technical-line-soft);
 }
 
-.site-footer__social-link {
+.social-links__link {
   width: 42px;
   min-height: 40px;
   display: grid;
@@ -2100,24 +2112,24 @@ html[data-intro="seen"] .intro {
     opacity 180ms ease;
 }
 
-.site-footer__social-link--upwork {
+.social-links__link--upwork {
   width: 62px;
 }
 
-.site-footer__social-link + .site-footer__social-link {
+.social-links__link + .social-links__link {
   border-inline-start: 1px solid var(--technical-line-soft);
 }
 
-.site-footer__social-link:hover {
+.social-links__link:hover {
   color: var(--foreground);
 }
 
-.site-footer__social-link:focus-visible {
+.social-links__link:focus-visible {
   outline: 1px solid var(--foreground);
   outline-offset: -4px;
 }
 
-.site-footer__social-icon {
+.social-links__icon {
   width: 18px;
   height: 18px;
   display: block;
@@ -2126,33 +2138,33 @@ html[data-intro="seen"] .intro {
   transition: opacity 180ms ease;
 }
 
-.site-footer__social-link:hover .site-footer__social-icon,
-.site-footer__social-link:focus-visible .site-footer__social-icon {
+.social-links__link:hover .social-links__icon,
+.social-links__link:focus-visible .social-links__icon {
   opacity: 1;
 }
 
-.site-footer__social-icon--upwork {
+.social-links__icon--upwork {
   width: 42px;
   height: 14px;
 }
 
-.site-footer__social-icon--light-theme {
+.social-links__icon--light-theme {
   display: none;
 }
 
-.site-footer__social-icon--github {
+.social-links__icon--github {
   filter: invert(1);
 }
 
-:root[data-theme="light"] .site-footer__social-icon--dark-theme {
+:root[data-theme="light"] .social-links__icon--dark-theme {
   display: none;
 }
 
-:root[data-theme="light"] .site-footer__social-icon--light-theme {
+:root[data-theme="light"] .social-links__icon--light-theme {
   display: block;
 }
 
-:root[data-theme="light"] .site-footer__social-icon--github {
+:root[data-theme="light"] .social-links__icon--github {
   filter: none;
 }
 
@@ -2674,11 +2686,6 @@ html[data-intro="seen"] .intro {
 
   .featured-projects__role {
     font-size: 9px;
-  }
-
-  .featured-projects__controls button {
-    width: 44px;
-    height: 44px;
   }
 
   .featured-projects__project {

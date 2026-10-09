@@ -1,6 +1,18 @@
 ---
-import ContentLayout from "../layouts/ContentLayout.astro";
+import MorphIcon from "morphicons/astro";
+import { Volume } from "lucide";
+import namePronunciation from "../assets/dharma-pronounce.m4a?url";
+import paperTexture from "../assets/crumpled-paper.webp";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Footer from "../components/Footer.astro";
+import Gap from "../components/Gap.astro";
+import Mascot from "../components/Mascot.astro";
+import ProfileSpider from "../components/ProfileSpider.astro";
+import ProfileStack from "../components/ProfileStack.astro";
+import SocialLinks from "../components/SocialLinks.astro";
+import WorkHistory from "../components/WorkHistory.astro";
 
+const roles = ["Product Engineer", "Frontend Engineer", "Mobile Engineer"];
 const profileUrl = Astro.site
   ? new URL("/profile/", Astro.site).toString()
   : undefined;
@@ -23,16 +35,624 @@ const jsonLd = profileUrl
   : undefined;
 ---
 
-<ContentLayout
+<BaseLayout
   title="Profile"
   description="Product engineer focused on thoughtful frontend and mobile experiences."
   canonicalUrl={profileUrl}
   jsonLd={jsonLd}
 >
-  <article class="prose">
-    <p>
-      I design and build digital products across frontend and mobile, with a focus on
-      considered interaction, strong systems, and reliable implementation.
-    </p>
-  </article>
-</ContentLayout>
+  <main class="profile-page">
+    <div class="profile-page__drawing" aria-hidden="true">
+      <svg class="profile-page__grid" width="100%" height="100%" fill="none">
+        <defs>
+          <pattern id="profile-grid" width="54.638" height="53.624" patternUnits="userSpaceOnUse">
+            <path d="M0 0V53.624M0 0H54.638" stroke="currentColor" stroke-width="1.1" opacity=".2" />
+            <path d="M27.319 0V53.624M0 26.812H54.638" stroke="currentColor" stroke-width="1.55" stroke-dasharray="3.17 3.17" opacity=".2" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#profile-grid)" opacity=".55" />
+        <line x1="6%" y1="50%" x2="94%" y2="50%" stroke="currentColor" stroke-width=".8" stroke-dasharray="6 8" opacity=".42" />
+      </svg>
+      <svg class="profile-page__geometry" viewBox="0 0 200 200" fill="none">
+        <g stroke="currentColor" stroke-width=".8">
+          <circle cx="100" cy="100" r="76" />
+          <circle cx="100" cy="100" r="46.97" opacity=".45" />
+          <path d="M100 8V192M8 100H192" stroke-dasharray="6 8" />
+          <path d="M56 176.21L146 20.33M100 100H176" />
+          <path d="M142 100A42 42 0 0 0 121 63.63M140 95L142 100L146 96M121 69L121 63.63L126 65" />
+          <path d="M100 44A56 56 0 0 0 44 100M95 42L100 44L96 48M42 95L44 100L48 96" />
+          <path d="M96 24H104M96 176H104M24 96V104M176 96V104" />
+          <circle cx="100" cy="100" r="2" fill="currentColor" />
+        </g>
+        <g class="profile-page__angles" fill="currentColor">
+          <text x="144" y="82">60°</text>
+          <text x="39" y="52">90°</text>
+        </g>
+      </svg>
+      <img
+        class="profile-page__texture"
+        src={paperTexture.src}
+        alt=""
+        width={paperTexture.width}
+        height={paperTexture.height}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <header class="profile-page__header">
+      <div class="profile-page__frame">
+        <span class="gap__cross gap__cross--top-left" aria-hidden="true" />
+        <span class="gap__cross gap__cross--top-right" aria-hidden="true" />
+        <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+        <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+        <div class="profile-page__mascot">
+          <Mascot />
+        </div>
+        <div class="profile-page__mascot-note" aria-hidden="true">
+          <svg viewBox="0 0 44 30" fill="none">
+            <path d="M41 3C37 17 22 24 3 22M3 22L10 16M3 22L12 25" />
+          </svg>
+          <span>click me</span>
+        </div>
+        <div class="profile-page__identity">
+          <div class="profile-page__name">
+            <h1>Dharma Yudistira</h1>
+            <button
+              class="icon-button profile-page__pronunciation"
+              type="button"
+              data-pronunciation
+              aria-label="Pronounce Dharma Yudistira"
+              title="Pronounce Dharma Yudistira"
+              hidden
+            >
+              <MorphIcon icon={Volume} size={18} strokeWidth={1.5} aria-hidden="true" />
+              <svg
+                class="profile-page__sound-waves"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path data-pronunciation-wave d="M14 10a3 3 0 0 1 0 4" />
+                <path data-pronunciation-wave d="M17 7a7 7 0 0 1 0 10" />
+                <path data-pronunciation-wave d="M19.5 4a11 11 0 0 1 0 16" />
+              </svg>
+            </button>
+            <audio src={namePronunciation} data-pronunciation-audio preload="none" />
+          </div>
+          <span
+            class="profile-page__pronunciation-status"
+            data-pronunciation-status
+            role="status"
+            hidden
+          />
+          <p>
+            <span class="visually-hidden">{roles.join(", ")}</span>
+            <span class="profile-page__roles" data-profile-roles aria-hidden="true">
+              {roles.map((role, index) => (
+                <span
+                  class="profile-page__role"
+                  data-profile-role
+                  data-active={index === 0 ? "" : undefined}
+                >
+                  {role}
+                </span>
+              ))}
+            </span>
+          </p>
+        </div>
+      </div>
+      <ProfileSpider />
+    </header>
+    <Gap size="small" variant="filled" />
+    <div class="profile-page__social-bar">
+      <SocialLinks />
+      <div class="profile-page__social-note" aria-hidden="true">
+        <svg class="profile-page__social-arrow--desktop" viewBox="0 0 64 40" fill="none" focusable="false">
+          <path d="M58 36C54 16 36 10 3 6" />
+          <path d="M3 6L12 2M3 6L9 14" />
+        </svg>
+        <svg class="profile-page__social-arrow--mobile" viewBox="0 0 88 40" fill="none" focusable="false">
+          <path d="M74 36C51 35 26 30 10 20" />
+          <path d="M10 20L19 21M10 20L12 29" />
+        </svg>
+        <span>follow me</span>
+      </div>
+    </div>
+    <section class="profile-page__introduction" aria-labelledby="profile-introduction-heading">
+      <h2 id="profile-introduction-heading">hi everyone,</h2>
+      <div class="profile-page__introduction-copy">
+        <p>
+          Currently I'm working as Product Engineer at{" "}
+          <a
+            class="profile-page__introduction-link"
+            href="https://zero-one-group.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Zero One Group</a>, building web and mobile products.
+        </p>
+        <p>
+          4+ years of experience. I enjoy the challenge of turning problems into useful products that make things easier for people.
+        </p>
+      </div>
+      <figure class="profile-page__quote">
+        <blockquote class="profile-page__quote-text">
+          <p>
+            <span class="profile-page__quote-mark" aria-hidden="true">&ldquo;</span>Give
+            me six hours to chop down a tree and I will spend the first four
+            sharpening the axe.<span class="profile-page__quote-mark" aria-hidden="true">&rdquo;</span>
+          </p>
+        </blockquote>
+        <figcaption class="profile-page__quote-attribution">
+          <span>
+            Attributed to{" "}
+            <a
+              class="profile-page__introduction-link profile-page__quote-author"
+              href="https://en.wikipedia.org/wiki/Abraham_Lincoln"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Abraham Lincoln</a>
+          </span>
+        </figcaption>
+      </figure>
+      <div class="profile-page__introduction-copy">
+        <p>
+          AI makes execution faster and cheaper while helping me bridge technical
+          gaps. That makes ‘sharpening the axe’ more important: understanding the
+          problem, questioning assumptions, and deciding what’s worth building.
+          My setup is{" "}
+          <a
+            class="profile-page__introduction-link"
+            href="https://github.com/dharmayudistira/doteyay"
+            target="_blank"
+            rel="noopener noreferrer"
+          >here</a>.
+        </p>
+      </div>
+      <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+      <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+    </section>
+    <hr class="profile-page__introduction-divider" />
+    <Gap size="small" variant="blank" corner="bottom-left" />
+    <WorkHistory />
+    <Gap size="small" variant="blank" corner="bottom-right" />
+    <ProfileStack />
+    <Gap size="medium" variant="filled" />
+  </main>
+  <Footer />
+</BaseLayout>
+
+<script>
+  import "../scripts/profile-roles";
+  import "../scripts/profile-pronunciation";
+</script>
+
+<style>
+  .profile-page {
+    --profile-frame-width: min(
+      var(--content-max-width),
+      calc(100% - var(--page-gutter) - var(--page-gutter))
+    );
+    --profile-row-padding: 8px;
+    --profile-role-line-height: 24px;
+    --profile-role-row-height: calc(var(--profile-role-line-height) + var(--profile-row-padding) * 2 + 1px);
+    --profile-mascot-column: clamp(112px, 20vw, 192px);
+    --profile-content-top: calc(var(--header-height) + clamp(144px, 18vw, 240px));
+    position: relative;
+    min-height: 100svh;
+    padding-block-start: var(--profile-content-top);
+  }
+
+  .profile-page + :global(.site-footer) {
+    border-block-start: 0;
+  }
+
+  .profile-page__header::after,
+  .profile-page__header + :global(.gap)::after {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(
+      (100% - var(--profile-frame-width)) / 2 + var(--profile-mascot-column)
+    );
+    border-inline-start: 1px dashed var(--technical-line-soft);
+    pointer-events: none;
+    content: "";
+  }
+
+  .profile-page__drawing {
+    position: absolute;
+    inset-block-start: var(--header-height);
+    inset-inline-start: calc((100% - var(--profile-frame-width)) / 2);
+    width: var(--profile-frame-width);
+    height: calc(var(--profile-content-top) - var(--header-height));
+    overflow: hidden;
+    background: var(--surface);
+    mask-image: linear-gradient(#000 40%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .profile-page__grid {
+    display: block;
+    color: var(--technical-line-strong);
+  }
+
+  .profile-page__geometry {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: calc(var(--profile-mascot-column) - var(--page-gutter));
+    width: min(100%, clamp(144px, 18vw, 200px));
+    height: auto;
+    transform: translateY(-50%);
+    color: var(--technical-line);
+  }
+
+  .profile-page__geometry :is(path, circle) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .profile-page__angles {
+    font: 400 13px var(--font-mono);
+    color: var(--technical-line-strong);
+  }
+
+  .profile-page__texture {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: overlay;
+    user-select: none;
+  }
+
+  @media (max-width: 575px) {
+    .profile-page__angles {
+      font-size: 18px;
+    }
+  }
+
+  .profile-page__header {
+    position: relative;
+    border-block: 1px dashed var(--technical-line-soft);
+  }
+
+  .profile-page > :global(.gap) {
+    border-block-start: 0;
+  }
+
+  .profile-page > :global(.gap :is(.gap__cross--top-left, .gap__cross--top-right)) {
+    display: none;
+  }
+
+  .profile-page__social-bar {
+    position: relative;
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .profile-page__social-note {
+    position: absolute;
+    inset-block-start: 28px;
+    inset-inline-end: calc((100% - var(--profile-frame-width)) / 2 + 16px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 88px;
+    color: var(--muted);
+    font: 500 18px/1 var(--font-hand);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .profile-page__social-note svg {
+    width: 64px;
+    height: 40px;
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .profile-page__social-note span {
+    align-self: flex-start;
+    margin-inline-start: 58px;
+    transform: translateX(-50%) rotate(-6deg);
+  }
+
+  .profile-page__social-arrow--mobile {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .profile-page__social-arrow--desktop {
+      display: none;
+    }
+
+    .profile-page__social-note .profile-page__social-arrow--mobile {
+      display: block;
+      width: 88px;
+      transform: translateX(-40px);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .profile-page__social-note {
+      inset-block-start: 16px;
+      inset-inline-end: auto;
+      inset-inline-start: calc((100% + var(--profile-frame-width)) / 2 + 16px);
+    }
+  }
+
+  .profile-page__introduction {
+    --profile-introduction-highlight: #fff;
+    position: relative;
+    width: var(--profile-frame-width);
+    margin-inline: auto;
+    padding: clamp(40px, 5vw, 64px) clamp(20px, 5vw, 64px) clamp(48px, 6vw, 80px);
+  }
+
+  :global([data-theme="light"]) .profile-page__introduction {
+    --profile-introduction-highlight: var(--foreground);
+  }
+
+  .profile-page__introduction-divider {
+    margin: 0;
+    border: 0;
+    border-block-start: 1px dashed var(--technical-line-soft);
+  }
+
+  .profile-page__introduction h2 {
+    margin: 0;
+    font: 500 clamp(36px, 4vw, 44px)/1.1 var(--font-hand);
+  }
+
+  .profile-page__introduction-copy {
+    margin-block-start: clamp(20px, 2.5vw, 24px);
+    color: var(--muted);
+    font: 400 15px/1.6 var(--font-sans);
+  }
+
+  .profile-page__introduction-copy p {
+    margin: 0;
+  }
+
+  .profile-page__introduction-copy p + p {
+    margin-block-start: 12px;
+  }
+
+  .profile-page__introduction-link {
+    display: inline-block;
+    color: var(--profile-introduction-highlight);
+    text-decoration: underline dashed;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .profile-page__introduction-link:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  .profile-page__quote {
+    max-width: 640px;
+    margin: clamp(24px, 3vw, 32px) auto 0;
+  }
+
+  .profile-page__quote-text {
+    margin: 0;
+    color: var(--foreground);
+    font: 500 clamp(26px, 2.5vw, 32px)/1.25 var(--font-hand);
+  }
+
+  .profile-page__quote-text p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .profile-page__quote-mark {
+    color: var(--muted);
+  }
+
+  .profile-page__quote-attribution {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-block-start: 20px;
+    color: var(--muted);
+    font: 400 14px/1.5 var(--font-sans);
+    text-align: end;
+  }
+
+  .profile-page__quote-attribution::before {
+    flex: 0 0 44px;
+    height: 1px;
+    background: var(--technical-line-soft);
+    content: "";
+  }
+
+  .profile-page__quote-author {
+    color: var(--foreground);
+  }
+
+  .profile-page__frame {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--profile-mascot-column) minmax(0, 1fr);
+    width: var(--profile-frame-width);
+    margin-inline: auto;
+  }
+
+  .profile-page__mascot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .profile-page__mascot :global(.mascot) {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .profile-page__mascot :global(.mascot__layer) {
+    /* Center the visible portrait within the sprite's transparent padding. */
+    transform-origin: 55% 51%;
+    transform: translate(-5%, -1%) scale(1.4);
+  }
+
+  .profile-page__mascot-note {
+    position: absolute;
+    inset-block-start: 8px;
+    inset-inline-start: calc(var(--profile-mascot-column) - 4px);
+    width: 40px;
+    padding-block-start: 24px;
+    color: var(--muted);
+    font: 500 18px/1 var(--font-hand);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .profile-page__mascot-note span {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: calc(100% * 41 / 44);
+    transform: translateX(-50%) rotate(6deg);
+  }
+
+  .profile-page__mascot-note svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .profile-page__identity {
+    align-self: end;
+  }
+
+  .profile-page__name,
+  .profile-page__identity p {
+    margin: 0;
+    padding: var(--profile-row-padding) 12px;
+    border-block-start: 1px dashed var(--technical-line-soft);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: var(--profile-role-line-height);
+  }
+
+  .profile-page__name {
+    font-size: 32px;
+    line-height: 1.25;
+  }
+
+  .profile-page__name h1 {
+    display: inline;
+    margin: 0;
+    font: inherit;
+  }
+
+  .profile-page__pronunciation {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-inline-start: 4px;
+    vertical-align: middle;
+    color: var(--muted);
+  }
+
+  .profile-page__pronunciation::after {
+    position: absolute;
+    inset: -8px;
+    content: "";
+  }
+
+  .profile-page__pronunciation:is(:hover, :focus-visible):not(:disabled) {
+    color: var(--foreground);
+  }
+
+  .profile-page__pronunciation:disabled {
+    cursor: default;
+  }
+
+  .profile-page__sound-waves {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .profile-page__pronunciation-status {
+    display: block;
+    padding: var(--profile-row-padding) 12px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .profile-page__identity p {
+    color: var(--muted);
+  }
+
+  .profile-page__roles {
+    display: inline-grid;
+    vertical-align: top;
+  }
+
+  .profile-page__role {
+    grid-area: 1 / 1;
+    justify-self: start;
+    visibility: hidden;
+    background-image: linear-gradient(
+      110deg,
+      var(--muted) calc(50% - 2em),
+      var(--foreground) 50%,
+      var(--muted) calc(50% + 2em)
+    );
+    background-size: calc(200% + 4em) 100%;
+    background-position: 0 0;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .profile-page__role[data-active] {
+    visibility: visible;
+  }
+
+  @media (max-width: 767px) {
+    .profile-page__mascot-note {
+      inset-block-start: -24px;
+      width: 32px;
+      padding-block-start: 20px;
+      font-size: 16px;
+    }
+
+    .profile-page__name,
+    .profile-page__identity p {
+      padding-inline: 8px;
+    }
+
+    .profile-page__name {
+      display: flex;
+      align-items: center;
+      font-size: clamp(16px, calc(6vw - 4px), 28px);
+      white-space: nowrap;
+    }
+
+    .profile-page__pronunciation {
+      flex: none;
+    }
+
+    .profile-page__identity p {
+      font-size: clamp(13px, 3.4vw, 16px);
+    }
+  }
+</style>

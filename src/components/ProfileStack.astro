@@ -1,0 +1,177 @@
+---
+import { STACK_LABELS, type StackId } from "../data/stacks";
+import astroIcon from "../assets/stack/astro.svg?url";
+import cssIcon from "../assets/stack/css.svg?url";
+import cursorIcon from "../assets/stack/cursor.svg?url";
+import dartIcon from "../assets/stack/dart.svg?url";
+import kotlinIcon from "../assets/stack/kotlin.svg?url";
+import nextjsIcon from "../assets/stack/nextjs.svg?url";
+import nodejsIcon from "../assets/stack/nodejs.svg?url";
+import postgresqlIcon from "../assets/stack/postgresql.svg?url";
+import reactIcon from "../assets/stack/react.svg?url";
+import typescriptIcon from "../assets/stack/typescript.svg?url";
+import vscodeIcon from "../assets/stack/vs-code.svg?url";
+
+const icons = {
+  astro: astroIcon,
+  css: cssIcon,
+  cursor: cursorIcon,
+  dart: dartIcon,
+  kotlin: kotlinIcon,
+  nextjs: nextjsIcon,
+  nodejs: nodejsIcon,
+  postgresql: postgresqlIcon,
+  react: reactIcon,
+  typescript: typescriptIcon,
+  "vs-code": vscodeIcon,
+} satisfies Record<StackId, string>;
+
+const categories = [
+  { label: "Languages", tools: ["typescript", "dart", "kotlin"] },
+  { label: "Frontend", tools: ["react", "nextjs", "astro", "css"] },
+  { label: "Backend & Database", tools: ["nodejs", "postgresql"] },
+  { label: "Workflow & AI", tools: ["vs-code", "cursor"] },
+] satisfies { label: string; tools: StackId[] }[];
+---
+
+<section class="profile-stack" aria-labelledby="profile-stack-heading">
+  <header class="profile-stack__heading">
+    <div class="profile-stack__frame">
+      <h2 id="profile-stack-heading">Stack</h2>
+      <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+      <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+    </div>
+  </header>
+  <div class="profile-stack__frame">
+    <dl class="profile-stack__categories">
+      {categories.map((category, index) => (
+        <div class="profile-stack__row">
+          <dt class="profile-stack__label">
+            <span class="profile-stack__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            {category.label}
+          </dt>
+          <dd class="profile-stack__tools">
+            <ul class="profile-stack__badges" role="list">
+              {category.tools.map((id) => (
+                <li class="profile-stack__badge">
+                  <span class="profile-stack__icon" style={`--stack-icon: url("${icons[id]}")`} aria-hidden="true" />
+                  {STACK_LABELS[id]}
+                </li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      ))}
+    </dl>
+    <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+    <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+  </div>
+</section>
+
+<style>
+  .profile-stack {
+    --profile-stack-padding: clamp(20px, 5vw, 64px);
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .profile-stack__frame {
+    position: relative;
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin-inline: auto;
+  }
+
+  .profile-stack__heading {
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .profile-stack h2 {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    margin: 0;
+    padding: 10px var(--profile-stack-padding);
+    font: 500 24px/1.2 var(--font-sans);
+    letter-spacing: -0.035em;
+  }
+
+  .profile-stack__categories {
+    margin: 0;
+  }
+
+  .profile-stack__row {
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, 3fr);
+  }
+
+  .profile-stack__row + .profile-stack__row {
+    border-block-start: 1px solid var(--technical-line-soft);
+  }
+
+  .profile-stack__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    padding-inline-start: var(--profile-stack-padding);
+    border-inline-end: 1px dashed var(--technical-line-soft);
+    font: 400 14px/1.5 var(--font-sans);
+  }
+
+  .profile-stack__number {
+    color: var(--muted);
+    font: 400 12px/1.5 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .profile-stack__tools {
+    min-width: 0;
+    margin: 0;
+    padding: 16px;
+  }
+
+  .profile-stack__badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .profile-stack__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border: 1px solid var(--technical-line-soft);
+    border-radius: 999px;
+    background: var(--surface-raised);
+    color: var(--foreground);
+    font: 400 12px/18px var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .profile-stack__icon {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    background: var(--muted);
+    mask: var(--stack-icon) center / contain no-repeat;
+  }
+
+  @media (max-width: 575px) {
+    .profile-stack__row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .profile-stack__label {
+      padding: 16px var(--profile-stack-padding) 8px;
+      border-inline-end: 0;
+    }
+
+    .profile-stack__tools {
+      padding: 0 var(--profile-stack-padding) 16px;
+    }
+  }
+</style>

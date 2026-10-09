@@ -11,5 +11,17 @@ const { SITE_URL: site } = loadEnv(
 
 export default defineConfig({
   site,
-  integrations: [mdx(), ...(site ? [sitemap()] : [])],
+  integrations: [
+    {
+      name: "separate-vite-caches",
+      hooks: {
+        "astro:config:setup": ({ command, updateConfig }) => {
+          // Astro check/sync must not replace a running dev server's dependencies.
+          updateConfig({ vite: { cacheDir: `node_modules/.vite/${command}` } });
+        },
+      },
+    },
+    mdx(),
+    ...(site ? [sitemap()] : []),
+  ],
 });

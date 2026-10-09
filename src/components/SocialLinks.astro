@@ -1,0 +1,112 @@
+---
+import { Mail } from "lucide";
+import MorphIcon from "morphicons/astro";
+import githubIcon from "../assets/social/github.svg";
+import instagramBlack from "../assets/social/instagram-black.svg";
+import instagramWhite from "../assets/social/instagram-white.svg";
+import linkedinBlack from "../assets/social/linkedin-black.svg";
+import linkedinWhite from "../assets/social/linkedin-white.svg";
+import upworkBlack from "../assets/social/upwork-black.svg";
+import upworkWhite from "../assets/social/upwork-white.svg";
+import xBlack from "../assets/social/x-black.svg";
+import xWhite from "../assets/social/x-white.svg";
+---
+
+<div class="social-links">
+  <nav class="social-links__nav" aria-label="Social media and contact links">
+    <a
+      class="social-links__link"
+      href="https://x.com/justamannothero"
+      rel="me noreferrer"
+      aria-label="Dharma on X"
+    >
+      <img
+        class="social-links__icon social-links__icon--dark-theme"
+        src={xWhite.src}
+        alt=""
+      />
+      <img
+        class="social-links__icon social-links__icon--light-theme"
+        src={xBlack.src}
+        alt=""
+      />
+    </a>
+
+    <a
+      class="social-links__link"
+      href="https://www.instagram.com/dharmayudistira_/"
+      rel="me noreferrer"
+      aria-label="Dharma on Instagram"
+    >
+      <img
+        class="social-links__icon social-links__icon--dark-theme"
+        src={instagramWhite.src}
+        alt=""
+      />
+      <img
+        class="social-links__icon social-links__icon--light-theme"
+        src={instagramBlack.src}
+        alt=""
+      />
+    </a>
+
+    <a
+      class="social-links__link"
+      href="https://www.linkedin.com/in/dharmayudistira/"
+      rel="me noreferrer"
+      aria-label="Dharma on LinkedIn"
+    >
+      <img
+        class="social-links__icon social-links__icon--dark-theme"
+        src={linkedinWhite.src}
+        alt=""
+      />
+      <img
+        class="social-links__icon social-links__icon--light-theme"
+        src={linkedinBlack.src}
+        alt=""
+      />
+    </a>
+
+    <a
+      class="social-links__link"
+      href="https://github.com/dharmayudistira"
+      rel="me noreferrer"
+      aria-label="Dharma on GitHub"
+    >
+      <img
+        class="social-links__icon social-links__icon--github"
+        src={githubIcon.src}
+        alt=""
+      />
+    </a>
+
+    <a
+      class="social-links__link social-links__link--upwork"
+      href="https://www.upwork.com/freelancers/~01eced17d5102f0a7e"
+      rel="me noreferrer"
+      aria-label="Dharma on Upwork"
+    >
+      <img
+        class="social-links__icon social-links__icon--upwork social-links__icon--dark-theme"
+        src={upworkWhite.src}
+        alt=""
+      />
+      <img
+        class="social-links__icon social-links__icon--upwork social-links__icon--light-theme"
+        src={upworkBlack.src}
+        alt=""
+      />
+    </a>
+
+    <a
+      class="social-links__link"
+      href="mailto:dharmayudistira2000@gmail.com"
+      aria-label="Email Dharma"
+    >
+      <MorphIcon icon={Mail} size={18} strokeWidth={1.5} aria-hidden="true" />
+    </a>
+  </nav>
+  <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+  <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+</div>

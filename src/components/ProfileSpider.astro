@@ -1,0 +1,102 @@
+---
+import spider from "../assets/profile-spider.svg?raw";
+import kernel from "../vendor/hairline/kernel.js?raw";
+---
+
+<div class="profile-spider">
+  <svg class="profile-spider__rope" viewBox="0 0 8 100" preserveAspectRatio="none" fill="none" aria-hidden="true">
+    <path d="M2 0C2 42 4 72 4 100M4 0C4 42 6 72 6 100" />
+  </svg>
+  <button class="profile-spider__figure" type="button" aria-label="Swing Spider-Man" disabled>
+    <Fragment set:html={spider} />
+  </button>
+</div>
+
+<script is:inline set:html={kernel} />
+<script>
+  import "../scripts/profile-spider";
+</script>
+
+<style>
+  .profile-spider {
+    --profile-figure-height: calc(var(--profile-role-row-height) * 7.5);
+    position: absolute;
+    z-index: 1;
+    /* The header's border sits one pixel below the shared content anchor. */
+    inset-block-start: calc(var(--header-height) - var(--profile-content-top) - 1px);
+    inset-block-end: -0.5px;
+    inset-inline-end: calc(
+      (100% - var(--profile-frame-width)) / 2 + var(--page-gutter) +
+      clamp(0px, var(--profile-frame-width) - 900px, var(--profile-mascot-column) / 2)
+    );
+    width: calc(var(--profile-figure-height) * 220 / 280);
+    pointer-events: none;
+  }
+
+  .profile-spider__rope {
+    position: absolute;
+    inset-block-start: 0;
+    /* The figure's viewBox starts at x=80; its strand begins at (124, 51). */
+    inset-inline-start: calc(100% * 44 / 220 - 4px);
+    width: 8px;
+    height: calc(100% - var(--profile-figure-height) * 229 / 280);
+    overflow: visible;
+  }
+
+  .profile-spider__figure {
+    position: absolute;
+    inset-block-end: 0;
+    width: 100%;
+    height: var(--profile-figure-height);
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    appearance: none;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .profile-spider__figure:focus-visible {
+    outline: 1px solid var(--foreground);
+    outline-offset: 4px;
+  }
+
+  .profile-spider__figure :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .profile-spider[data-ready] .profile-spider__rope { display: none; }
+
+  .profile-spider :global(path) {
+    fill: var(--surface);
+    stroke: var(--technical-copy);
+    stroke-width: 0.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .profile-spider :global(.nf),
+  .profile-spider__rope :global(path) {
+    fill: none;
+  }
+
+  .profile-spider :global(.lo) {
+    stroke: var(--technical-line);
+  }
+
+  .profile-spider :global(.hi) {
+    stroke: var(--foreground);
+  }
+
+  .profile-spider :global(.fo) { stroke: none; }
+  .profile-spider :global(.dot) { fill: var(--technical-copy); stroke: none; }
+
+  @media (max-width: 767px) {
+    .profile-spider { display: none; }
+  }
+</style>
