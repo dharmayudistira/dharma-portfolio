@@ -2,144 +2,193 @@ import { testimonials } from "../data/testimonials";
 
 const sections = document.querySelectorAll<HTMLElement>("[data-testimonials]");
 
-const shuffle = (values: number[]) => {
-  const shuffled = [...values];
-
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const target = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]];
-  }
-
-  return shuffled;
-};
-
 sections.forEach((section) => {
   if (section.dataset.ready === "true") return;
 
   const cards = Array.from(
     section.querySelectorAll<HTMLElement>("[data-testimonial-card]"),
   );
+  const buttons = Array.from(
+    section.querySelectorAll<HTMLButtonElement>("[data-testimonial-page]"),
+  );
+  const controls = section.querySelector<HTMLElement>("[data-testimonial-controls]");
+  const announcer = section.querySelector<HTMLElement>("[data-testimonial-announcer]");
+  const content = Array.from(
+    section.querySelectorAll<HTMLElement>(
+      "[data-testimonial-quote], [data-testimonial-identity]",
+    ),
+  );
+  const hoverTargets = Array.from(
+    section.querySelectorAll<HTMLElement>("[data-testimonial-card], .testimonials__pagination"),
+  );
   const mobileQuery = window.matchMedia("(max-width: 768px)");
-  const allIndices = testimonials.map((_, index) => index);
+  const hoverQuery = window.matchMedia("(hover: hover)");
 
-  if (cards.length === 0 || testimonials.length <= cards.length) return;
+  if (cards.length === 0 || buttons.length === 0 || !controls || !announcer) return;
 
   section.dataset.ready = "true";
 
-  let bag = shuffle(allIndices.slice(cards.length));
-  let slotCursor = 0;
-  let isTransitioning = false;
+  let pageSize = mobileQuery.matches ? 1 : cards.length;
+  let activePage = 0;
+  let transitionId = 0;
+  let isInView = false;
+  let progress: Animation | undefined;
+  let animations: Animation[] = [];
 
-  const getIndex = (card: HTMLElement) => Number(card.dataset.testimonialIndex);
-  const refillBag = (excluded: Set<number>) => {
-    bag = shuffle(allIndices.filter((index) => !excluded.has(index)));
-  };
-  const takeNext = (excluded: Set<number>) => {
-    let candidatePosition = bag.findIndex((index) => !excluded.has(index));
+  const pageCount = () => Math.ceil(testimonials.length / pageSize);
+  const syncPlayback = () => {
+    if (!progress) return;
 
-    if (candidatePosition < 0) {
-      refillBag(excluded);
-      candidatePosition = 0;
+    const isHovered = hoverQuery.matches && hoverTargets.some((target) => target.matches(":hover"));
+    const isPaused = document.hidden || !isInView || isHovered ||
+      section.querySelector(":focus-visible") !== null;
+
+    // A completed clock must wait while paused and must never restart on resume.
+    if (progress.effect?.getComputedTiming().progress === 1) {
+      if (!isPaused) void showPage((activePage + 1) % pageCount());
+    } else if (isPaused) {
+      progress.pause();
+    } else if (progress.playState === "paused") {
+      progress.play();
     }
-
-    return bag.splice(candidatePosition, 1)[0];
   };
-  const writeCard = (card: HTMLElement, testimonialIndex: number) => {
-    const testimonial = testimonials[testimonialIndex];
-    const quote = card.querySelector<HTMLElement>("[data-testimonial-quote]");
-    const name = card.querySelector<HTMLElement>("[data-testimonial-name]");
-    const company = card.querySelector<HTMLElement>("[data-testimonial-company]");
+  const resetProgress = () => {
+    progress?.cancel();
+    const fill = buttons[activePage]?.querySelector<HTMLElement>("[data-testimonial-progress]");
+    if (!fill || pageCount() <= 1) return;
 
-    if (!testimonial || !quote || !name || !company) return false;
-
-    quote.textContent = testimonial.quote;
-    name.textContent = testimonial.name;
-    company.textContent = testimonial.company;
-    card.dataset.testimonialIndex = String(testimonialIndex);
-    return true;
-  };
-  const swapCard = async (card: HTMLElement, testimonialIndex: number) => {
-    const content = Array.from(
-      card.querySelectorAll<HTMLElement>(
-        "[data-testimonial-quote], [data-testimonial-identity]",
-      ),
+    // The fill is also the autoplay clock, so pausing cannot put them out of sync.
+    progress = fill.animate(
+      [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }],
+      { duration: 6000, easing: "linear", fill: "forwards" },
     );
-    const exitAnimations = content.map((element) => element.animate(
-      [
+    // Recheck the current clock: an old finish event can arrive after a dot click.
+    progress.onfinish = syncPlayback;
+    syncPlayback();
+  };
+  const writePage = () => {
+    cards.forEach((card, index) => {
+      const testimonialIndex = activePage * pageSize + index;
+      const testimonial = testimonials[testimonialIndex];
+      const quote = card.querySelector<HTMLElement>("[data-testimonial-quote]");
+      const name = card.querySelector<HTMLElement>("[data-testimonial-name]");
+      const company = card.querySelector<HTMLElement>("[data-testimonial-company]");
+
+      card.hidden = index >= pageSize || !testimonial;
+      if (card.hidden || !testimonial || !quote || !name || !company) return;
+
+      quote.textContent = testimonial.quote;
+      name.textContent = testimonial.name;
+      company.textContent = testimonial.company;
+      card.dataset.testimonialIndex = String(testimonialIndex);
+    });
+
+    buttons.forEach((button, index) => {
+      button.hidden = index >= pageCount();
+      button.tabIndex = index === activePage ? 0 : -1;
+      button.setAttribute("aria-current", String(index === activePage));
+      const first = index * pageSize + 1;
+      const last = Math.min(first + pageSize - 1, testimonials.length);
+      button.setAttribute("aria-label", pageSize === 1
+        ? `Show testimonial ${first} of ${testimonials.length}`
+        : `Show testimonials ${first} to ${last} of ${testimonials.length}`);
+    });
+    controls.hidden = pageCount() <= 1;
+  };
+  const animateContent = async (keyframes: Keyframe[], duration: number) => {
+    animations.forEach((animation) => animation.cancel());
+    animations = content.map((element) => element.animate(keyframes, {
+      duration,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fill: "both",
+    }));
+    await Promise.allSettled(animations.map(({ finished }) => finished));
+  };
+  const showPage = async (nextPage: number, animate = true, announce = false) => {
+    const id = ++transitionId;
+    activePage = nextPage;
+    progress?.cancel();
+    progress = undefined;
+    animations.forEach((animation) => animation.cancel());
+
+    if (animate) {
+      await animateContent([
         { opacity: 1, transform: "translateY(0)" },
         { opacity: 0, transform: "translateY(-6px)" },
-      ],
-      {
-        duration: 180,
-        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-        fill: "both",
-      },
-    ));
-
-    await Promise.allSettled(exitAnimations.map(({ finished }) => finished));
-
-    if (!writeCard(card, testimonialIndex)) {
-      exitAnimations.forEach((animation) => animation.cancel());
-      return;
+      ], 180);
+      if (id !== transitionId) return;
     }
 
-    exitAnimations.forEach((animation) => animation.cancel());
+    writePage();
+    announcer.textContent = announce
+      ? `Testimonial page ${activePage + 1} of ${pageCount()}`
+      : "";
 
-    const enterAnimations = content.map((element) => element.animate(
-      [
+    if (animate) {
+      await animateContent([
         { opacity: 0, transform: "translateY(8px)" },
         { opacity: 1, transform: "translateY(0)" },
-      ],
-      {
-        duration: 320,
-        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-        fill: "both",
-      },
-    ));
+      ], 320);
+      if (id !== transitionId) return;
+    }
 
-    await Promise.allSettled(enterAnimations.map(({ finished }) => finished));
-    enterAnimations.forEach((animation) => animation.cancel());
+    animations.forEach((animation) => animation.cancel());
+    animations = [];
+    resetProgress();
   };
-  const normalizeDesktopCards = () => {
-    if (mobileQuery.matches) return;
 
-    const visible = new Set<number>();
-
-    cards.forEach((card) => {
-      const currentIndex = getIndex(card);
-
-      if (!visible.has(currentIndex)) {
-        visible.add(currentIndex);
-        return;
-      }
-
-      const nextIndex = takeNext(visible);
-      if (nextIndex === undefined || !writeCard(card, nextIndex)) return;
-      visible.add(nextIndex);
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      void showPage(index, index !== activePage, true);
     });
-  };
-  const rotate = async () => {
-    if (isTransitioning || document.hidden) return;
+    button.addEventListener("keydown", (event) => {
+      let nextPage: number;
+      switch (event.key) {
+        case "ArrowLeft":
+          nextPage = (index - 1 + pageCount()) % pageCount();
+          break;
+        case "ArrowRight":
+          nextPage = (index + 1) % pageCount();
+          break;
+        case "Home":
+          nextPage = 0;
+          break;
+        case "End":
+          nextPage = pageCount() - 1;
+          break;
+        default:
+          return;
+      }
+      event.preventDefault();
+      buttons[nextPage]?.focus();
+      void showPage(nextPage, nextPage !== activePage, true);
+    });
+  });
 
-    const visibleCards = mobileQuery.matches ? cards.slice(0, 1) : cards;
-    const card = visibleCards[slotCursor % visibleCards.length];
+  hoverTargets.forEach((target) => {
+    target.addEventListener("pointerenter", syncPlayback);
+    target.addEventListener("pointerleave", syncPlayback);
+  });
+  section.addEventListener("focusin", syncPlayback);
+  section.addEventListener("focusout", () => queueMicrotask(syncPlayback));
+  section.addEventListener("keydown", syncPlayback);
+  hoverQuery.addEventListener("change", syncPlayback);
+  document.addEventListener("visibilitychange", syncPlayback);
+  window.addEventListener("focus", syncPlayback);
+  window.addEventListener("pageshow", syncPlayback);
 
-    if (!card) return;
-
-    const visibleIndices = new Set(visibleCards.map(getIndex));
-    const nextIndex = takeNext(visibleIndices);
-
-    if (nextIndex === undefined) return;
-
-    isTransitioning = true;
-    await swapCard(card, nextIndex);
-    slotCursor = (slotCursor + 1) % visibleCards.length;
-    isTransitioning = false;
-  };
+  new IntersectionObserver(([entry]) => {
+    isInView = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+    syncPlayback();
+  }, { threshold: 0.25 }).observe(section);
 
   mobileQuery.addEventListener("change", () => {
-    slotCursor = 0;
-    normalizeDesktopCards();
+    const firstIndex = activePage * pageSize;
+    const hadFocus = controls.contains(document.activeElement);
+    pageSize = mobileQuery.matches ? 1 : cards.length;
+    void showPage(Math.floor(firstIndex / pageSize), false);
+    if (hadFocus) buttons[activePage]?.focus();
   });
-  window.setInterval(rotate, 2500);
+
+  void showPage(0, false);
 });

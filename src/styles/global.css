@@ -1001,7 +1001,8 @@ html[data-intro="seen"] .intro {
 
 .gap__cross,
 .stack__cross,
-.section-label__cross {
+.section-label__cross,
+.testimonials__cross {
   position: absolute;
   z-index: 30;
   width: 11px;
@@ -1015,7 +1016,9 @@ html[data-intro="seen"] .intro {
 .stack__cross::before,
 .stack__cross::after,
 .section-label__cross::before,
-.section-label__cross::after {
+.section-label__cross::after,
+.testimonials__cross::before,
+.testimonials__cross::after {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1027,14 +1030,16 @@ html[data-intro="seen"] .intro {
 
 .gap__cross::before,
 .stack__cross::before,
-.section-label__cross::before {
+.section-label__cross::before,
+.testimonials__cross::before {
   width: 11px;
   height: 1px;
 }
 
 .gap__cross::after,
 .stack__cross::after,
-.section-label__cross::after {
+.section-label__cross::after,
+.testimonials__cross::after {
   width: 1px;
   height: 11px;
 }
@@ -1438,12 +1443,29 @@ html[data-intro="seen"] .intro {
   outline-offset: -5px;
 }
 
+.testimonials__cards {
+  border-bottom: 1px dashed var(--technical-line-soft);
+}
+
 .testimonials__frame {
+  position: relative;
   width: min(
     var(--content-max-width),
     calc(100% - var(--page-gutter) - var(--page-gutter))
   );
   margin-inline: auto;
+}
+
+.testimonials__cross {
+  top: 100%;
+}
+
+.testimonials__cross--left {
+  left: 0;
+}
+
+.testimonials__cross--right {
+  left: 100%;
 }
 
 .testimonials__list {
@@ -1466,6 +1488,67 @@ html[data-intro="seen"] .intro {
 
 .testimonials__list > li:last-child {
   border-inline-end: 0;
+}
+
+.testimonials__controls {
+  display: flex;
+  justify-content: center;
+  padding-block: 16px;
+}
+
+.testimonials__pagination {
+  height: var(--arrow-button-size);
+  padding-inline: 6px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--technical-line-soft);
+  border-radius: 999px;
+  background: transparent;
+}
+
+.testimonials__page {
+  width: 24px;
+  height: 100%;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: width 400ms cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.testimonials__page[aria-current="true"] {
+  width: 40px;
+}
+
+.testimonials__page:focus-visible {
+  outline: 1px solid var(--foreground);
+  outline-offset: -3px;
+}
+
+.testimonials__dot {
+  position: relative;
+  width: calc(100% - 18px);
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--muted);
+  transition: background-color 150ms ease;
+}
+
+.testimonials__page[aria-current="false"]:hover .testimonials__dot {
+  background: var(--foreground);
+}
+
+.testimonials__progress {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--foreground);
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
 .testimonial-card {
