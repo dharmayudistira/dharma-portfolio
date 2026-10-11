@@ -1,0 +1,223 @@
+---
+title: "This is H1: Blog"
+description: "This is the blog description."
+publishedAt: 2026-10-09
+updatedAt: 2026-10-10
+category: engineering
+tags:
+  - astro
+  - design-systems
+  - static-sites
+cover: "../../assets/mdx-demo.svg"
+featured: false
+draft: false
+---
+
+import ContentImage from "../../components/ContentImage.astro";
+import Callout from "../../components/Callout.astro";
+import demoCover from "../../assets/mdx-demo.svg";
+
+## This is H2
+
+### This is H3
+
+#### This is H4
+
+##### This is H5
+
+###### This is H6
+
+## This is a paragraph
+
+This is a short paragraph.
+
+This is a longer paragraph. It contains several sentences so you can see how the text wraps onto multiple lines. Use it to review the line length, spacing, and reading experience on desktop and mobile.
+
+This is a line before a break.<br />
+This is a line after a break.
+
+## This is text formatting
+
+**This is bold text.**
+
+*This is italic text.*
+
+***This is bold and italic text.***
+
+~~This is strikethrough text.~~
+
+<mark>This is highlighted text.</mark>
+
+## These are links
+
+[This is an internal link.](/projects/mdx-demo-project/)
+
+[This is an external link.](https://example.com/)
+
+[This is an anchor link.](#this-is-h2)
+
+## This is an unordered list
+
+- This is a list item.
+- This is another list item.
+  - This is a nested list item.
+  - This is another nested list item.
+    - This is a deeply nested list item.
+- This is the final list item.
+
+## This is an ordered list
+
+1. This is the first item.
+2. This is the second item.
+   1. This is a nested item.
+   2. This is another nested item.
+3. This is the third item.
+
+## This is a task list
+
+- [x] This is a completed task.
+- [ ] This is an incomplete task.
+
+## This is a blockquote
+
+> This is a blockquote.
+
+<blockquote>
+  <p>This is a blockquote with attribution.</p>
+  <footer>This is the author, <cite>this is the source</cite></footer>
+</blockquote>
+
+## These are callouts
+
+<Callout type="note">
+
+This is a note callout.
+
+</Callout>
+
+<Callout type="info">
+
+This is an info callout.
+
+</Callout>
+
+<Callout type="tip">
+
+This is a tip callout.
+
+</Callout>
+
+<Callout type="success">
+
+This is a success callout.
+
+</Callout>
+
+<Callout type="warning">
+
+This is a warning callout.
+
+</Callout>
+
+<Callout type="danger">
+
+This is a danger callout.
+
+</Callout>
+
+<Callout type="note" title="This is a custom title">
+
+This is a callout with a custom title.
+
+</Callout>
+
+## This is inline code
+
+This is `inline code` inside a sentence.
+
+## This is a code block
+
+```ts
+interface Example {
+  title: string;
+  complete: boolean;
+}
+
+const example: Example = {
+  title: "This is a code block.",
+  complete: true,
+};
+```
+
+## This is a plain-text block
+
+```text
+This is plain text.
+  This line is indented.
+    This line is indented again.
+```
+
+## This is a table
+
+<div className="prose__table-scroll" role="region" aria-label="Example table" tabIndex={0}>
+
+| Left aligned | Center aligned | Right aligned | Long content |
+| :--- | :---: | ---: | :--- |
+| This is a cell. | Center | 100 | `this-is-a-long-table-value-to-demonstrate-horizontal-scrolling` |
+| This is another cell. | Center | 200 | This is another value. |
+| This is the last cell. | Center | 300 | This is the last value. |
+
+</div>
+
+## This is an image
+
+<ContentImage src={demoCover} alt="Three connected cards labeled Observe, Explore, and Decide." />
+
+## This is a figure with a caption
+
+<figure>
+  <ContentImage src={demoCover} alt="Three connected cards labeled Observe, Explore, and Decide." />
+  <figcaption>This is a caption.</figcaption>
+</figure>
+
+## This is a linked image
+
+<a href="/projects/mdx-demo-project/">
+  <ContentImage src={demoCover} alt="Open the companion project demo." />
+</a>
+
+## This is a horizontal rule
+
+---
+
+## This is a disclosure
+
+<details>
+  <summary>This is the disclosure title.</summary>
+  <p>This is the content inside the disclosure.</p>
+</details>
+
+## This is a definition list
+
+<dl>
+  <dt>This is a term.</dt>
+  <dd>This is its definition.</dd>
+  <dt>This is another term.</dt>
+  <dd>This is another definition.</dd>
+</dl>
+
+## These are keyboard keys
+
+<kbd>Tab</kbd> and <kbd>Enter</kbd> are keyboard keys.
+
+## This is superscript and subscript
+
+This is superscript: x<sup>2</sup>.
+
+This is subscript: H<sub>2</sub>O.
+
+## This is a footnote
+
+This sentence has a footnote.[^example]
+
+[^example]: This is the footnote text.

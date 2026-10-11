@@ -1,0 +1,25 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+}
+
+const { src, alt } = Astro.props;
+const isVector = src.format === "svg";
+const width = Math.min(src.width, 944);
+// Auto uses the rendered container; the fallback may fetch a larger image.
+const sizes = `auto, (min-width: ${width}px) ${width}px, 100vw`;
+---
+
+<Image
+  src={src}
+  alt={alt}
+  width={width}
+  layout={isVector ? "none" : "constrained"}
+  sizes={isVector ? undefined : sizes}
+  loading="lazy"
+  decoding="async"
+/>

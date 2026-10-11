@@ -1,9 +1,10 @@
 ---
 interface Props {
   word: "project" | "blogs";
+  showWord?: boolean;
 }
 
-const { word } = Astro.props;
+const { word, showWord = true } = Astro.props;
 ---
 
 <svg
@@ -25,20 +26,22 @@ const { word } = Astro.props;
 
   <rect class="index-drawing__grid" x="0" y="74.555" width="1153" height="723.96" fill={`url(#${word}-grid)`} />
 
-  <text
-    class="index-drawing__word"
-    x="45"
-    y="349"
-    textLength="1063"
-    lengthAdjust="spacingAndGlyphs"
-    fill={`url(#${word}-hatch)`}
-    stroke="currentColor"
-    stroke-width=".48"
-    font-family="var(--font-sans)"
-    font-size="282"
-    font-weight="800"
-    letter-spacing="-15"
-  >{word}</text>
+  {showWord && (
+    <text
+      class="index-drawing__word"
+      x="45"
+      y="349"
+      textLength="1063"
+      lengthAdjust="spacingAndGlyphs"
+      fill={`url(#${word}-hatch)`}
+      stroke="currentColor"
+      stroke-width=".48"
+      font-family="var(--font-sans)"
+      font-size="282"
+      font-weight="800"
+      letter-spacing="-15"
+    >{word}</text>
+  )}
 
   <g stroke="currentColor" stroke-width=".8" opacity=".42">
     {word === "blogs" ? (

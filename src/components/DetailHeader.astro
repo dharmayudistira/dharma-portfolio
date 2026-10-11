@@ -1,0 +1,107 @@
+---
+import HeaderBackdrop from "./HeaderBackdrop.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  word: "project" | "blogs";
+}
+
+const { title, description, word } = Astro.props;
+---
+
+<header class="detail-header">
+  <HeaderBackdrop word={word} showWord={false} />
+  <div class="detail-header__frame detail-header__intro">
+    <h1>{title}</h1>
+    <p>{description}</p>
+  </div>
+  <div class="detail-header__details">
+    <dl class="detail-header__frame">
+      <slot />
+    </dl>
+  </div>
+</header>
+
+<style>
+  .detail-header {
+    --detail-frame-width: min(
+      var(--content-max-width),
+      calc(100% - var(--page-gutter) - var(--page-gutter))
+    );
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 312px;
+    isolation: isolate;
+  }
+
+  .detail-header :global(.header-backdrop) {
+    width: var(--detail-frame-width);
+    margin-inline: auto;
+  }
+
+  .detail-header__frame {
+    width: var(--detail-frame-width);
+    margin-inline: auto;
+    padding-inline: 40px;
+  }
+
+  .detail-header__intro {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-block: 40px;
+    overflow-wrap: anywhere;
+  }
+
+  .detail-header__intro h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+  }
+
+  .detail-header__intro p {
+    max-width: 620px;
+    margin: 16px 0 0;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .detail-header__details {
+    border-block: 1px dashed var(--technical-line);
+  }
+
+  .detail-header__details dl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 32px;
+    margin-block: 0;
+    padding-block: 12px;
+    font: 400 0.75rem/1.5 var(--font-sans);
+  }
+
+  .detail-header__details :global(dd) {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 767px) {
+    .detail-header__frame {
+      padding-inline: 20px;
+    }
+
+    .detail-header__intro {
+      padding-block: 32px;
+    }
+
+    .detail-header__details dl > :global(div) {
+      min-width: 0;
+    }
+  }
+</style>

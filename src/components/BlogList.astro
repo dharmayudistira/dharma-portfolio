@@ -15,9 +15,9 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
       <li
         class="blog-list__item"
         data-blog-item
-        data-blog-category={post.data.category}
-        data-blog-tags={post.data.tags.join(" ")}
-        data-blog-search={`${post.data.title} ${post.data.description} ${BLOG_CATEGORY_LABELS[post.data.category]} ${post.data.tags.map((id) => BLOG_TAG_LABELS[id]).join(" ")}`}
+        data-search-title={post.data.title}
+        data-search-metadata={`${BLOG_CATEGORY_LABELS[post.data.category]} ${post.data.tags.map((id) => BLOG_TAG_LABELS[id]).join(" ")}`}
+        data-search-description={post.data.description}
       >
         <article class="blog-list__article">
           <span class="blog-list__row-guide blog-list__row-guide--top" aria-hidden="true">
@@ -95,7 +95,7 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
       </span>
     </span>
     <h2>No blogs found</h2>
-    <p>Try another keyword or clear your search and filters.</p>
+    <p>Try fewer keywords or clear your search.</p>
     <span class="blog-list__row-guide" aria-hidden="true">
       <span class="blog-list__guide-frame">
         <span class="gap__cross gap__cross--top-left" />

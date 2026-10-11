@@ -1,7 +1,12 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
+import { Monitor, Smartphone } from "lucide";
+import MorphIcon from "morphicons/astro";
+import DetailHeader from "../../components/DetailHeader.astro";
+import Footer from "../../components/Footer.astro";
+import Gap from "../../components/Gap.astro";
 import { STACK_LABELS } from "../../data/stacks";
-import ContentLayout from "../../layouts/ContentLayout.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects", ({ data }) => !data.draft);
@@ -18,6 +23,14 @@ interface Props {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
+const platforms = project.data.platform.split("·").map((value) => {
+  const label = value.trim();
+  const icon = /^(web|website)$/i.test(label)
+    ? Monitor
+    : /^mobile$/i.test(label) ? Smartphone : undefined;
+
+  return { label, icon };
+});
 const canonical = Astro.site
   ? new URL(`/projects/${project.id}/`, Astro.site).toString()
   : undefined;
@@ -40,14 +53,99 @@ const jsonLd = canonical
   : undefined;
 ---
 
-<ContentLayout
+<BaseLayout
   title={project.data.title}
   description={project.data.summary}
   image={image}
   canonicalUrl={canonical}
   jsonLd={jsonLd}
 >
-  <article class="prose">
-    <Content />
-  </article>
-</ContentLayout>
+  <main class="project-page">
+    <DetailHeader title={project.data.title} description={project.data.summary} word="project">
+      <div>
+        <dt class="visually-hidden">Role</dt>
+        <dd class="project-page__detail project-page__detail--role">
+          <span class="project-page__role-prefix">as</span>
+          <span>{project.data.role}</span>
+        </dd>
+      </div>
+      <div>
+        <dt class="visually-hidden">Platform</dt>
+        <dd class="project-page__platforms">
+          {platforms.map(({ label, icon }) => (
+            <span class="project-page__detail" title={label}>
+              {icon
+                ? <MorphIcon icon={icon} size={16} strokeWidth={1.5} label={label} />
+                : <span>{label}</span>}
+            </span>
+          ))}
+        </dd>
+      </div>
+    </DetailHeader>
+    <div class="project-page__frame project-page__content">
+      <article class="prose">
+        <Content />
+      </article>
+    </div>
+  </main>
+  <Gap size="medium" variant="filled" />
+  <Footer />
+</BaseLayout>
+
+<style>
+  .project-page {
+    --project-frame-width: min(
+      var(--content-max-width),
+      calc(100% - var(--page-gutter) - var(--page-gutter))
+    );
+    min-height: 100svh;
+    padding-block-start: var(--header-height);
+  }
+
+  .project-page__frame {
+    width: var(--project-frame-width);
+    margin-inline: auto;
+    padding-inline: 40px;
+  }
+
+  .project-page__detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .project-page__detail :global(svg) {
+    flex-shrink: 0;
+  }
+
+  .project-page__detail--role {
+    align-items: baseline;
+  }
+
+  .project-page__role-prefix {
+    flex-shrink: 0;
+    color: var(--muted);
+    font: 500 16px/1 var(--font-hand);
+  }
+
+  .project-page__platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+
+  .project-page__content {
+    padding-block-end: 120px;
+  }
+
+  .project-page__content .prose {
+    max-width: none;
+  }
+
+  @media (max-width: 767px) {
+    .project-page__frame {
+      padding-inline: 20px;
+    }
+  }
+</style>

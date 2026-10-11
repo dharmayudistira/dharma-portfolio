@@ -11,6 +11,12 @@ const { SITE_URL: site } = loadEnv(
 
 export default defineConfig({
   site,
+  markdown: {
+    shikiConfig: {
+      themes: { light: "github-light", dark: "github-dark" },
+      defaultColor: false,
+    },
+  },
   integrations: [
     {
       name: "separate-vite-caches",

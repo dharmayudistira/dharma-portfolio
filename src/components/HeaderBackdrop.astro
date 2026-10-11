@@ -1,0 +1,55 @@
+---
+import IndexDrawing from "./IndexDrawing.astro";
+import paperTexture from "../assets/crumpled-paper.webp";
+
+interface Props {
+  word: "project" | "blogs";
+  showWord?: boolean;
+}
+
+const { word, showWord = true } = Astro.props;
+---
+
+<div class="header-backdrop" aria-hidden="true">
+  <IndexDrawing word={word} showWord={showWord} />
+  <img
+    class="header-backdrop__texture"
+    src={paperTexture.src}
+    alt=""
+    width={paperTexture.width}
+    height={paperTexture.height}
+    loading="lazy"
+    decoding="async"
+  />
+</div>
+
+<style>
+  .header-backdrop {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: var(--header-backdrop-height, 100%);
+    overflow: hidden;
+    background: var(--surface);
+    mask-image: linear-gradient(#000 40%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .header-backdrop :global(svg) {
+    position: absolute;
+    top: var(--header-backdrop-drawing-top, 0px);
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+  }
+
+  .header-backdrop__texture {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: overlay;
+    user-select: none;
+  }
+</style>

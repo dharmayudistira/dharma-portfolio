@@ -66,6 +66,17 @@ propose an intentional schema change with its route and metadata impact.
 - Use embedded components only when they add material value.
 - Do not place secrets or executable third-party snippets in MDX.
 
+For images in project and blog MDX, use `ContentImage` with an imported local
+asset. It preserves the aspect ratio, loads lazily, and handles responsive
+image selection. Keep captions in a surrounding `<figure>` and `<figcaption>`.
+
+```mdx
+import ContentImage from "../../components/ContentImage.astro";
+import screenshot from "../../assets/screenshot.webp";
+
+<ContentImage src={screenshot} alt="Describe what the screenshot shows." />
+```
+
 ## Metadata
 
 - Every public page needs a unique title and useful description.

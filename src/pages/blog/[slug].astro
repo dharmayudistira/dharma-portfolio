@@ -1,6 +1,12 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
-import ContentLayout from "../../layouts/ContentLayout.astro";
+import { Calendar, Clock } from "lucide";
+import MorphIcon from "morphicons/astro";
+import DetailHeader from "../../components/DetailHeader.astro";
+import Footer from "../../components/Footer.astro";
+import Gap from "../../components/Gap.astro";
+import { BLOG_CATEGORY_LABELS, formatBlogDate, getBlogReadingMinutes } from "../../data/blog";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
@@ -41,7 +47,7 @@ const jsonLd = canonical
   : undefined;
 ---
 
-<ContentLayout
+<BaseLayout
   title={post.data.title}
   description={post.data.description}
   image={image}
@@ -49,7 +55,90 @@ const jsonLd = canonical
   ogType="article"
   jsonLd={jsonLd}
 >
-  <article class="prose">
-    <Content />
-  </article>
-</ContentLayout>
+  <main class="blog-page">
+    <DetailHeader
+      title={post.data.title}
+      description={post.data.description}
+      word="blogs"
+    >
+      <div>
+        <dt class="visually-hidden">Published and reading time</dt>
+        <dd class="blog-page__metadata">
+          <time datetime={post.data.publishedAt.toISOString()}>
+            <MorphIcon icon={Calendar} size={14} strokeWidth={1.5} aria-hidden="true" />
+            {formatBlogDate(post.data.publishedAt)}
+          </time>
+          <span class="blog-page__reading-time">
+            <MorphIcon icon={Clock} size={14} strokeWidth={1.5} aria-hidden="true" />
+            {getBlogReadingMinutes(post.body)} min read
+          </span>
+        </dd>
+      </div>
+      <div>
+        <dt class="visually-hidden">Category</dt>
+        <dd class="blog-page__category">{BLOG_CATEGORY_LABELS[post.data.category]}</dd>
+      </div>
+    </DetailHeader>
+    <div class="blog-page__content">
+      <article class="prose">
+        <Content />
+      </article>
+    </div>
+  </main>
+  <Gap size="medium" variant="filled" />
+  <Footer />
+</BaseLayout>
+
+<style>
+  .blog-page {
+    min-height: 100svh;
+    padding-block-start: var(--header-height);
+  }
+
+  .blog-page__metadata {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+  }
+
+  .blog-page__metadata time,
+  .blog-page__reading-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .blog-page__metadata :global(svg) {
+    flex-shrink: 0;
+  }
+
+  .blog-page__category {
+    padding: 6px 8px;
+    border: 1px solid var(--technical-line-soft);
+    color: var(--muted);
+    font: 400 0.6875rem/1.4 var(--font-mono);
+    text-transform: uppercase;
+  }
+
+  .blog-page__content {
+    width: min(
+      var(--content-max-width),
+      calc(100% - var(--page-gutter) - var(--page-gutter))
+    );
+    margin-inline: auto;
+    padding-inline: 40px;
+    padding-block-end: 120px;
+  }
+
+  .blog-page__content .prose {
+    max-width: none;
+  }
+
+  @media (max-width: 767px) {
+    .blog-page__content {
+      padding-inline: 20px;
+    }
+  }
+</style>
