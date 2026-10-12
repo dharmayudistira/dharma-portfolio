@@ -2,8 +2,9 @@
 import MorphIcon from "morphicons/astro";
 import { getCollection } from "astro:content";
 import { Briefcase, FileText, House, Menu, Search, Sun, UserRound, VolumeX, X } from "lucide";
-import { BLOG_CATEGORY_LABELS, BLOG_TAG_LABELS } from "../data/blog";
-import { STACK_LABELS } from "../data/stacks";
+import { getBlogSearchFields } from "../data/blog";
+import { getProjectSearchFields } from "../data/projects";
+import { SITE_IDENTITY } from "../data/site";
 
 const pathname = Astro.url.pathname;
 const links = [
@@ -23,21 +24,19 @@ const [projects, posts] = await Promise.all([
 const contentResults = [
   ...projects.map((project) => ({
     href: `/projects/${project.id}/`,
-    label: project.data.title,
-    value: `${project.data.title} ${project.data.summary} ${project.data.stack.map((id) => STACK_LABELS[id]).join(" ")}`.toLowerCase(),
+    ...getProjectSearchFields(project),
   })),
   ...posts.map((post) => ({
     href: `/blog/${post.id}/`,
-    label: post.data.title,
-    value: `${post.data.title} ${post.data.description} ${BLOG_CATEGORY_LABELS[post.data.category]} ${post.data.tags.map((id) => BLOG_TAG_LABELS[id]).join(" ")}`.toLowerCase(),
+    ...getBlogSearchFields(post),
   })),
 ];
 ---
 
 <header class="app-bar">
   <div class="app-bar__inner">
-    <a class="app-bar__brand" href="/" aria-label="Dharma Yudistira, home">
-      Dharma
+    <a class="app-bar__brand" href="/" aria-label={`${SITE_IDENTITY.name}, home`}>
+      {SITE_IDENTITY.shortName}
     </a>
 
     <nav class="app-bar__nav" aria-label="Primary navigation">
@@ -88,9 +87,9 @@ const contentResults = [
       id="mobile-navigation-title"
       class="app-bar__brand"
       href="/"
-      aria-label="Dharma Yudistira, home"
+      aria-label={`${SITE_IDENTITY.name}, home`}
     >
-      Dharma
+      {SITE_IDENTITY.shortName}
     </a>
     <form method="dialog">
       <button class="icon-button" type="submit" aria-label="Close navigation" autofocus>
@@ -142,7 +141,7 @@ const contentResults = [
         <a
           href={href}
           data-search-result
-          data-search-value={label.toLowerCase()}
+          data-search-title={label}
           aria-current={isActive(href) ? "page" : undefined}
         >
           <MorphIcon icon={icon} size={17} strokeWidth={1.5} />
@@ -156,8 +155,14 @@ const contentResults = [
     <section class="site-search__section site-search__section--content" aria-labelledby="site-search-content">
       <h3 id="site-search-content">Type to search projects &amp; posts</h3>
       <div class="site-search__content-results">
-        {contentResults.map(({ href, label, value }) => (
-          <a href={href} data-search-result data-search-value={value}>{label}</a>
+        {contentResults.map(({ href, title, metadata, description }) => (
+          <a
+            href={href}
+            data-search-result
+            data-search-title={title}
+            data-search-metadata={metadata}
+            data-search-description={description}
+          >{title}</a>
         ))}
       </div>
     </section>
@@ -197,6 +202,7 @@ const contentResults = [
     setSoundEnabled,
     setSoundVolume,
   } from "../scripts/ui-sfx";
+  import { createSearchIndex, searchIndex } from "../scripts/search-matching";
 
   const themeStorageKey = "dharma:theme";
   installSoundUnlock();
@@ -240,7 +246,13 @@ const contentResults = [
     const searchInput = document.querySelector<HTMLInputElement>("[data-search-input]");
     const searchResults = Array.from(
       document.querySelectorAll<HTMLElement>("[data-search-result]"),
-    );
+    ).map((element) => ({
+      element,
+      title: element.dataset.searchTitle ?? "",
+      metadata: element.dataset.searchMetadata ?? "",
+      description: element.dataset.searchDescription ?? "",
+    }));
+    const searchEntries = createSearchIndex(searchResults);
     const searchEmpty = document.querySelector<HTMLElement>("[data-search-empty]");
     const soundButton = document.querySelector<HTMLButtonElement>("[data-sound-toggle]");
     const soundIcons = document.querySelectorAll<MorphIconElement>("[data-sound-icon]");
@@ -361,13 +373,13 @@ const contentResults = [
     });
 
     const filterSearchResults = () => {
-      const query = searchInput?.value.trim().toLowerCase() ?? "";
+      const matches = new Set(searchIndex(searchEntries, searchInput?.value ?? ""));
       let visibleCount = 0;
 
       searchResults.forEach((result) => {
-        const matches = result.dataset.searchValue?.includes(query) ?? false;
-        result.hidden = !matches;
-        if (matches) visibleCount += 1;
+        const visible = matches.has(result);
+        result.element.hidden = !visible;
+        if (visible) visibleCount += 1;
       });
 
       if (searchEmpty) searchEmpty.hidden = visibleCount > 0;

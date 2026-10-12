@@ -4,6 +4,7 @@ import { Volume } from "lucide";
 import namePronunciation from "../assets/dharma-pronounce.m4a?url";
 import paperTexture from "../assets/crumpled-paper.webp";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import CommunityActivity from "../components/CommunityActivity.astro";
 import Footer from "../components/Footer.astro";
 import Gap from "../components/Gap.astro";
 import Mascot from "../components/Mascot.astro";
@@ -11,8 +12,9 @@ import ProfileSpider from "../components/ProfileSpider.astro";
 import ProfileStack from "../components/ProfileStack.astro";
 import SocialLinks from "../components/SocialLinks.astro";
 import WorkHistory from "../components/WorkHistory.astro";
+import { SITE_IDENTITY } from "../data/site";
 
-const roles = ["Product Engineer", "Frontend Engineer", "Mobile Engineer"];
+const roles = [SITE_IDENTITY.role, "Frontend Engineer", "Mobile Engineer"];
 const profileUrl = Astro.site
   ? new URL("/profile/", Astro.site).toString()
   : undefined;
@@ -24,11 +26,11 @@ const jsonLd = profileUrl
       mainEntity: {
         "@id": `${profileUrl}#person`,
         "@type": "Person",
-        name: "Dharma Yudistira",
-        jobTitle: "Product Engineer",
+        name: SITE_IDENTITY.name,
+        jobTitle: SITE_IDENTITY.role,
         worksFor: {
           "@type": "Organization",
-          name: "Zero One Group",
+          name: SITE_IDENTITY.employer.name,
         },
       },
     }
@@ -96,13 +98,13 @@ const jsonLd = profileUrl
         </div>
         <div class="profile-page__identity">
           <div class="profile-page__name">
-            <h1>Dharma Yudistira</h1>
+            <h1>{SITE_IDENTITY.name}</h1>
             <button
               class="icon-button profile-page__pronunciation"
               type="button"
               data-pronunciation
-              aria-label="Pronounce Dharma Yudistira"
-              title="Pronounce Dharma Yudistira"
+              aria-label={`Pronounce ${SITE_IDENTITY.name}`}
+              title={`Pronounce ${SITE_IDENTITY.name}`}
               hidden
             >
               <MorphIcon icon={Volume} size={18} strokeWidth={1.5} aria-hidden="true" />
@@ -167,13 +169,13 @@ const jsonLd = profileUrl
       <h2 id="profile-introduction-heading">hi everyone,</h2>
       <div class="profile-page__introduction-copy">
         <p>
-          Currently I'm working as Product Engineer at{" "}
+          Currently I'm working as {SITE_IDENTITY.role} at{" "}
           <a
             class="profile-page__introduction-link"
-            href="https://zero-one-group.com/"
+            href={SITE_IDENTITY.employer.url}
             target="_blank"
             rel="noopener noreferrer"
-          >Zero One Group</a>, building web and mobile products.
+          >{SITE_IDENTITY.employer.name}</a>, building web and mobile products.
         </p>
         <p>
           4+ years of experience. I enjoy the challenge of turning problems into useful products that make things easier for people.
@@ -219,6 +221,7 @@ const jsonLd = profileUrl
     <hr class="profile-page__introduction-divider" />
     <Gap size="small" variant="blank" corner="bottom-left" />
     <WorkHistory />
+    <CommunityActivity />
     <Gap size="small" variant="blank" corner="bottom-right" />
     <ProfileStack />
     <Gap size="medium" variant="filled" />

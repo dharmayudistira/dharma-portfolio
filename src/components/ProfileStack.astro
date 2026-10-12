@@ -1,37 +1,58 @@
 ---
-import { STACK_LABELS, type StackId } from "../data/stacks";
+import { STACK_CATEGORIES, STACKS, type StackId } from "../data/stacks";
+import androidIcon from "../assets/stack/android.svg?url";
 import astroIcon from "../assets/stack/astro.svg?url";
+import blocIcon from "../assets/stack/bloc.svg?url";
+import claudeIcon from "../assets/stack/claude.svg?url";
+import cloudflareIcon from "../assets/stack/cloudflare.svg?url";
+import codexIcon from "../assets/stack/codex.svg?url";
 import cssIcon from "../assets/stack/css.svg?url";
-import cursorIcon from "../assets/stack/cursor.svg?url";
 import dartIcon from "../assets/stack/dart.svg?url";
+import flutterIcon from "../assets/stack/flutter.svg?url";
+import getxIcon from "../assets/stack/getx.svg?url";
+import higgsfieldIcon from "../assets/stack/higgsfield.svg?url";
 import kotlinIcon from "../assets/stack/kotlin.svg?url";
+import monorepoIcon from "../assets/stack/monorepo.svg?url";
+import mongodbIcon from "../assets/stack/mongodb.svg?url";
+import nestjsIcon from "../assets/stack/nestjs.svg?url";
 import nextjsIcon from "../assets/stack/nextjs.svg?url";
 import nodejsIcon from "../assets/stack/nodejs.svg?url";
 import postgresqlIcon from "../assets/stack/postgresql.svg?url";
 import reactIcon from "../assets/stack/react.svg?url";
+import riverpodIcon from "../assets/stack/riverpod.svg?url";
+import supabaseIcon from "../assets/stack/supabase.svg?url";
+import tanstackIcon from "../assets/stack/tanstack.svg?url";
 import typescriptIcon from "../assets/stack/typescript.svg?url";
-import vscodeIcon from "../assets/stack/vs-code.svg?url";
+import vercelIcon from "../assets/stack/vercel.svg?url";
+import viewmodelIcon from "../assets/stack/viewmodel.svg?url";
 
 const icons = {
+  android: androidIcon,
   astro: astroIcon,
+  bloc: blocIcon,
+  claude: claudeIcon,
+  cloudflare: cloudflareIcon,
+  codex: codexIcon,
   css: cssIcon,
-  cursor: cursorIcon,
   dart: dartIcon,
+  flutter: flutterIcon,
+  getx: getxIcon,
+  higgsfield: higgsfieldIcon,
   kotlin: kotlinIcon,
+  monorepo: monorepoIcon,
+  mongodb: mongodbIcon,
+  nestjs: nestjsIcon,
   nextjs: nextjsIcon,
   nodejs: nodejsIcon,
   postgresql: postgresqlIcon,
   react: reactIcon,
+  riverpod: riverpodIcon,
+  supabase: supabaseIcon,
+  tanstack: tanstackIcon,
   typescript: typescriptIcon,
-  "vs-code": vscodeIcon,
+  vercel: vercelIcon,
+  viewmodel: viewmodelIcon,
 } satisfies Record<StackId, string>;
-
-const categories = [
-  { label: "Languages", tools: ["typescript", "dart", "kotlin"] },
-  { label: "Frontend", tools: ["react", "nextjs", "astro", "css"] },
-  { label: "Backend & Database", tools: ["nodejs", "postgresql"] },
-  { label: "Workflow & AI", tools: ["vs-code", "cursor"] },
-] satisfies { label: string; tools: StackId[] }[];
 ---
 
 <section class="profile-stack" aria-labelledby="profile-stack-heading">
@@ -44,18 +65,18 @@ const categories = [
   </header>
   <div class="profile-stack__frame">
     <dl class="profile-stack__categories">
-      {categories.map((category, index) => (
+      {STACK_CATEGORIES.map((category, index) => (
         <div class="profile-stack__row">
           <dt class="profile-stack__label">
             <span class="profile-stack__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-            {category.label}
+            {category}
           </dt>
           <dd class="profile-stack__tools">
             <ul class="profile-stack__badges" role="list">
-              {category.tools.map((id) => (
+              {STACKS.filter((stack) => stack.category === category).map(({ id, label }) => (
                 <li class="profile-stack__badge">
                   <span class="profile-stack__icon" style={`--stack-icon: url("${icons[id]}")`} aria-hidden="true" />
-                  {STACK_LABELS[id]}
+                  {label}
                 </li>
               ))}
             </ul>

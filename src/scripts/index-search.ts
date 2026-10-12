@@ -8,12 +8,12 @@ const setupIndexSearch = () => {
   const input = toolbar?.querySelector<HTMLInputElement>("[data-index-search-input]");
   const icon = toolbar?.querySelector<MorphIconElement>("[data-index-search-icon]");
   const status = toolbar?.querySelector<HTMLElement>("[data-index-search-status]");
-  const collection = toolbar?.dataset.searchCollection === "blog" ? "blog" : "project";
-  const list = document.querySelector<HTMLElement>(`[data-${collection}-list]`);
-  const empty = document.querySelector<HTMLElement>(`[data-${collection}-empty]`);
+  const itemKind = toolbar?.dataset.searchCollection === "blog" ? "blog" : "project";
+  const list = document.querySelector<HTMLElement>(`[data-${itemKind}-list]`);
+  const empty = document.querySelector<HTMLElement>(`[data-${itemKind}-empty]`);
   if (!toolbar || !form || !input || !status || !list || !empty) return;
 
-  const items = Array.from(list.querySelectorAll<HTMLElement>(`[data-${collection}-item]`)).map((element) => ({
+  const items = Array.from(list.querySelectorAll<HTMLElement>(`[data-${itemKind}-item]`)).map((element) => ({
     element,
     title: element.dataset.searchTitle ?? "",
     metadata: element.dataset.searchMetadata ?? "",
@@ -38,7 +38,7 @@ const setupIndexSearch = () => {
     results.forEach(({ element }) => list.append(element));
     list.hidden = results.length === 0;
     empty.hidden = results.length > 0;
-    const noun = collection === "blog" ? "post" : "project";
+    const noun = itemKind === "blog" ? "post" : "project";
     status.textContent = `${results.length} ${noun}${results.length === 1 ? "" : "s"} found`;
     setBusy(false);
   };

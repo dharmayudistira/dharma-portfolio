@@ -1,6 +1,5 @@
 ---
 import landscape from "../assets/footer-landscape.svg?raw";
-import kernel from "../vendor/hairline/kernel.js?raw";
 ---
 
 <div class="footer-landscape" aria-hidden="true">
@@ -9,7 +8,6 @@ import kernel from "../vendor/hairline/kernel.js?raw";
   </div>
 </div>
 
-<script is:inline set:html={kernel} />
 <script>
   import { mountFooterLandscape } from "../scripts/footer-landscape";
   import type { HairlineKernel, Point } from "../vendor/hairline/types";

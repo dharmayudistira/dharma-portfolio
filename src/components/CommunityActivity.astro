@@ -1,0 +1,397 @@
+---
+import { ArrowLeft, ArrowRight } from "lucide";
+import MorphIcon from "morphicons/astro";
+import { communityActivities } from "../data/community-activity";
+
+const firstYear = Math.min(...communityActivities.map((entry) => Number(entry.start.slice(0, 4))));
+const lastYear = Math.max(...communityActivities.map((entry) => Number((entry.end ?? entry.start).slice(0, 4))));
+const years = Array.from({ length: lastYear - firstYear + 1 }, (_, index) => {
+  const year = firstYear + index;
+  return { year, entries: communityActivities.filter((entry) => Number(entry.start.slice(0, 4)) === year) };
+});
+const dateFormat = new Intl.DateTimeFormat("en", { month: "short", year: "numeric", timeZone: "UTC" });
+const formatDate = (date: string) => date.length === 4
+  ? date
+  : dateFormat.format(new Date(`${date}-01T00:00:00Z`));
+---
+
+<section class="community-activity" aria-labelledby="community-activity-heading">
+  <header class="community-activity__heading">
+    <div class="community-activity__heading-inner">
+      <h2 id="community-activity-heading">Community</h2>
+      <div class="community-activity__controls" data-community-activity-controls role="group" aria-label="Community activity navigation" hidden>
+        <button type="button" data-community-activity-previous aria-label="Previous community activity" aria-controls="community-activity-timeline" disabled>
+          <span class="community-activity__control-icon"><MorphIcon icon={ArrowLeft} size={16} strokeWidth={1.25} aria-hidden="true" /></span>
+        </button>
+        <button type="button" data-community-activity-next aria-label="Next community activity" aria-controls="community-activity-timeline">
+          <span class="community-activity__control-icon"><MorphIcon icon={ArrowRight} size={16} strokeWidth={1.25} aria-hidden="true" /></span>
+        </button>
+      </div>
+      <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+      <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+    </div>
+  </header>
+  <div class="community-activity__frame">
+    <div class="community-activity__timeline">
+      <span class="community-activity__axis" aria-hidden="true">Year</span>
+      <div class="community-activity__viewport" id="community-activity-timeline" data-community-activity-viewport tabindex="0" role="region" aria-label="Community activity timeline">
+        <ol class="community-activity__track" role="list">
+          {years.map(({ year, entries }) => (
+            <li
+              class:list={["community-activity__year", { "community-activity__year--milestone": entries.length > 0 }]}
+              aria-hidden={entries.length === 0 ? "true" : undefined}
+            >
+              <span class="community-activity__year-label" aria-hidden="true">{year}</span>
+              {entries.map((entry) => (
+                <article class="community-activity__entry">
+                  <h3>
+                    {entry.organizationUrl
+                      ? <a href={entry.organizationUrl} target="_blank" rel="noopener noreferrer">{entry.organization}</a>
+                      : entry.organization}
+                  </h3>
+                  <p class="community-activity__role">{entry.role}</p>
+                  <p class="community-activity__dates">
+                    <time datetime={entry.start}>{formatDate(entry.start)}</time>
+                    {entry.end && <>{" – "}<time datetime={entry.end}>{formatDate(entry.end)}</time></>}
+                  </p>
+                  {entry.description && <p class="community-activity__description">{entry.description}</p>}
+                  {entry.bullets && (
+                    <ul class="community-activity__bullets">
+                      {entry.bullets.map((bullet) => (
+                        <li>
+                          {typeof bullet === "string"
+                            ? bullet
+                            : <>{bullet.before}<a href={bullet.href} target="_blank" rel="noopener noreferrer">{bullet.text}</a>{bullet.after}</>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+              ))}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+    <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
+    <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
+  </div>
+</section>
+
+<script>
+  import "../scripts/community-activity";
+</script>
+
+<style>
+  .community-activity {
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .community-activity__frame,
+  .community-activity__heading-inner {
+    position: relative;
+    width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    margin-inline: auto;
+  }
+
+  .community-activity__frame {
+    padding: 32px clamp(20px, 5vw, 64px) clamp(40px, 5vw, 64px);
+  }
+
+  .community-activity__heading {
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .community-activity__heading-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 64px;
+    padding: 10px clamp(20px, 5vw, 64px);
+  }
+
+  .community-activity h2 {
+    margin: 0;
+    font: 500 24px/1.2 var(--font-sans);
+    letter-spacing: -0.035em;
+  }
+
+  .community-activity__controls {
+    display: flex;
+  }
+
+  .community-activity__controls[hidden] {
+    display: none;
+  }
+
+  .community-activity__controls button {
+    display: grid;
+    place-items: center;
+    width: var(--arrow-button-size);
+    height: var(--arrow-button-size);
+    padding: 0;
+    border: 1px solid var(--technical-line-soft);
+    background: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+  }
+
+  .community-activity__controls button + button {
+    border-inline-start: 0;
+  }
+
+  .community-activity__controls button:not(:disabled):hover {
+    background: var(--surface-raised);
+  }
+
+  .community-activity__controls button:disabled {
+    color: var(--technical-copy);
+    cursor: default;
+  }
+
+  .community-activity__controls button:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 1px solid var(--foreground);
+    outline-offset: 3px;
+  }
+
+  .community-activity__control-icon {
+    display: grid;
+    place-items: center;
+  }
+
+  .community-activity__axis {
+    color: var(--muted);
+    font: 400 11px/20px var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .community-activity__timeline {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .community-activity__viewport {
+    --community-activity-fade-start: #000;
+    --community-activity-fade-end: #000;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    mask-image: linear-gradient(to right, var(--community-activity-fade-start), #000 24px, #000 calc(100% - 24px), var(--community-activity-fade-end));
+  }
+
+  .community-activity__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .community-activity__viewport[data-scroll-start] {
+    --community-activity-fade-start: transparent;
+  }
+
+  .community-activity__viewport[data-scroll-end] {
+    --community-activity-fade-end: transparent;
+  }
+
+  .community-activity__viewport:focus-visible {
+    outline: 1px solid var(--foreground);
+    outline-offset: 4px;
+  }
+
+  .community-activity__track {
+    position: relative;
+    display: flex;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .community-activity__track::before {
+    position: absolute;
+    inset-block-start: 40px;
+    inset-inline: 0;
+    border-block-start: 1px dashed var(--technical-line-soft);
+    content: "";
+  }
+
+  .community-activity__year {
+    position: relative;
+    flex: 0 0 80px;
+    padding-inline-end: 24px;
+  }
+
+  .community-activity__year--milestone {
+    flex-basis: 320px;
+    scroll-snap-align: start;
+  }
+
+  .community-activity__year:last-child {
+    scroll-snap-align: end;
+  }
+
+  .community-activity__year::before {
+    position: absolute;
+    inset-block-start: 40px;
+    inset-inline-start: 0;
+    width: 1px;
+    height: 12px;
+    background: var(--technical-line-strong);
+    transform: translateY(-50%);
+    content: "";
+  }
+
+  .community-activity__year-label {
+    display: block;
+    color: var(--muted);
+    font: 400 12px/20px var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .community-activity__entry {
+    margin-block-start: 44px;
+  }
+
+  .community-activity__entry + .community-activity__entry {
+    margin-block-start: 24px;
+  }
+
+  .community-activity__entry h3 {
+    margin: 0;
+    font: 500 18px/1.4 var(--font-sans);
+  }
+
+  .community-activity__entry a {
+    color: var(--foreground);
+    text-decoration: underline dashed;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .community-activity__entry a:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  .community-activity__role {
+    margin: 8px 0 0;
+    font: 400 15px/1.6 var(--font-sans);
+  }
+
+  .community-activity__dates {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font: 400 12px/1.5 var(--font-mono);
+  }
+
+  .community-activity__description {
+    margin: 16px 0 0;
+    color: var(--muted);
+    font: 400 15px/1.6 var(--font-sans);
+  }
+
+  .community-activity__bullets {
+    margin: 16px 0 0;
+    padding-inline-start: 20px;
+    color: var(--muted);
+    font: 400 15px/1.6 var(--font-sans);
+  }
+
+  .community-activity__description + .community-activity__bullets {
+    margin-block-start: 8px;
+  }
+
+  .community-activity__bullets li + li {
+    margin-block-start: 4px;
+  }
+
+  @media (max-width: 767px) {
+    .community-activity__heading-inner {
+      flex-wrap: wrap;
+      gap: 8px 16px;
+    }
+
+    .community-activity__controls button {
+      width: max(44px, var(--arrow-button-size));
+      height: max(44px, var(--arrow-button-size));
+    }
+
+    .community-activity__control-icon {
+      transform: rotate(90deg);
+    }
+
+    .community-activity__axis {
+      display: none;
+    }
+
+    .community-activity__timeline {
+      display: block;
+    }
+
+    .community-activity__viewport {
+      max-block-size: min(60dvh, 520px);
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--technical-line-strong) transparent;
+      scroll-snap-type: none;
+      mask-image: none;
+    }
+
+    .community-activity__viewport::-webkit-scrollbar {
+      display: block;
+      width: 4px;
+    }
+
+    .community-activity__viewport::-webkit-scrollbar-thumb {
+      background: var(--technical-line-strong);
+    }
+
+    .community-activity__track {
+      display: block;
+      width: auto;
+      min-width: 0;
+    }
+
+    .community-activity__track::before {
+      inset-block: 10px 0;
+      inset-inline: 0 auto;
+      border-block-start: 0;
+      border-inline-start: 1px dashed var(--technical-line-soft);
+    }
+
+    .community-activity__year {
+      display: none;
+    }
+
+    .community-activity__year--milestone {
+      display: block;
+      padding: 0;
+      padding-inline-start: 24px;
+    }
+
+    .community-activity__year--milestone ~ .community-activity__year--milestone {
+      margin-block-start: 32px;
+    }
+
+    .community-activity__year::before {
+      inset-block-start: 10px;
+      width: 12px;
+      height: 1px;
+      transform: translateX(-50%);
+    }
+
+    .community-activity__year-label {
+      display: none;
+    }
+
+    .community-activity__entry {
+      margin-block-start: 0;
+    }
+  }
+</style>

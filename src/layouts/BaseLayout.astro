@@ -3,10 +3,12 @@ import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/caveat";
 import "../styles/global.css";
+import hairlineKernel from "../vendor/hairline/kernel.js?raw";
 
 import AppBar from "../components/AppBar.astro";
 import EntranceOverlay from "../components/EntranceOverlay.astro";
 import PageGuides from "../components/PageGuides.astro";
+import { SITE_IDENTITY } from "../data/site";
 
 type JsonLd = Record<string, unknown>;
 
@@ -19,10 +21,10 @@ interface Props {
   jsonLd?: JsonLd | JsonLd[];
 }
 
-const siteName = "Dharma Yudistira";
+const siteName = SITE_IDENTITY.name;
 const {
   title = siteName,
-  description = "Dharma Yudistira, product engineer working across frontend and mobile experiences.",
+  description = `${siteName}, product engineer working across frontend and mobile experiences.`,
   image,
   canonicalUrl,
   ogType = "website",
@@ -42,7 +44,7 @@ const introMode = pathname === "/"
   : pathname === "/projects/" || pathname === "/projects"
     ? "projects"
     : pathname === "/blog/" || pathname === "/blog"
-      ? "blogs"
+      ? "blog"
       : "shell";
 const serializedJsonLd = jsonLd
   ? JSON.stringify(jsonLd).replace(/</g, "\\u003c")
@@ -104,5 +106,6 @@ const serializedJsonLd = jsonLd
     <slot />
     <PageGuides />
     <EntranceOverlay mode={introMode} />
+    <script is:inline set:html={hairlineKernel} />
   </body>
 </html>

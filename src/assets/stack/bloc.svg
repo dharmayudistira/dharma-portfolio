@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 94 546 650">
+  <defs>
+    <mask id="bloc-faces" maskUnits="userSpaceOnUse" x="0" y="94" width="546" height="650">
+      <path d="M546 577.117L275.922 744L2.59691 579.714L0 260.883L272.026 94L544.702 257.636L546 577.117Z" fill="white"/>
+      <path d="M63 300.5L274 426.5L482.5 298M274 426.5L275.5 672.5" fill="none" stroke="black" stroke-width="38" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  <rect x="0" y="94" width="546" height="650" mask="url(#bloc-faces)"/>
+</svg>

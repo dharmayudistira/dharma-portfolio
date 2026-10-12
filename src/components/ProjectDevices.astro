@@ -1,13 +1,8 @@
----
-import kernel from "../vendor/hairline/kernel.js?raw";
----
-
 <div class="project-hero__devices" data-hairline="devices" aria-hidden="true">
   <svg viewBox="0 0 400 320" aria-hidden="true"></svg>
   <span class="project-hero__readout"></span>
 </div>
 
-<script is:inline set:html={kernel} />
 <script>
   import { mountProjectDevices } from "../scripts/project-devices";
   import type { HairlineKernel } from "../vendor/hairline/types";

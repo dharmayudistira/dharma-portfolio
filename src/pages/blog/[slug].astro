@@ -62,16 +62,18 @@ const jsonLd = canonical
       word="blogs"
     >
       <div>
-        <dt class="visually-hidden">Published and reading time</dt>
+        <dt class="visually-hidden">Published{post.body?.trim() ? " and reading time" : ""}</dt>
         <dd class="blog-page__metadata">
           <time datetime={post.data.publishedAt.toISOString()}>
             <MorphIcon icon={Calendar} size={14} strokeWidth={1.5} aria-hidden="true" />
             {formatBlogDate(post.data.publishedAt)}
           </time>
-          <span class="blog-page__reading-time">
-            <MorphIcon icon={Clock} size={14} strokeWidth={1.5} aria-hidden="true" />
-            {getBlogReadingMinutes(post.body)} min read
-          </span>
+          {post.body?.trim() && (
+            <span class="blog-page__reading-time">
+              <MorphIcon icon={Clock} size={14} strokeWidth={1.5} aria-hidden="true" />
+              {getBlogReadingMinutes(post.body)} min read
+            </span>
+          )}
         </dd>
       </div>
       <div>

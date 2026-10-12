@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "astro",
+  "redirects": [
+    { "source": "/about", "destination": "/profile/", "permanent": true },
+    { "source": "/works", "destination": "/projects/", "permanent": true },
+    { "source": "/works/agentai", "destination": "/projects/agent-ai/", "permanent": true },
+    { "source": "/works/truequity", "destination": "/projects/", "permanent": true },
+    { "source": "/works/:slug", "destination": "/projects/:slug/", "permanent": true },
+    { "source": "/blogs", "destination": "/blog/", "permanent": true },
+    { "source": "/blogs/:slug", "destination": "/blog/:slug/", "permanent": true },
+    { "source": "/sitemap.xml", "destination": "/sitemap-index.xml", "permanent": true }
+  ]
+}

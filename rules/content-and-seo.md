@@ -38,8 +38,8 @@ for display; selections such as the marquee keep their own ID order.
 
 ## Required Blog Data
 
-Posts require `title`, `description`, `publishedAt`, `category`, `cover`, and `draft`.
-Optional fields are `updatedAt`, `tags`, `featured`, and `canonicalUrl`.
+Posts require `title`, `description`, `publishedAt`, `category`, and `draft`.
+Optional fields are `updatedAt`, `tags`, `cover`, `featured`, and `canonicalUrl`.
 
 Choose one `category` ID from `BLOG_CATEGORIES` in `src/data/blog.ts`:
 `engineering`, `design`, or `product`. Categories are broad areas; `tags` are

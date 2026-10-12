@@ -1,8 +1,9 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import { BLOG_CATEGORY_LABELS, BLOG_TAG_LABELS, formatBlogDate, getBlogReadingMinutes } from "../data/blog";
+import { BLOG_CATEGORY_LABELS, formatBlogDate, getBlogReadingMinutes, getBlogSearchFields } from "../data/blog";
 import Gap from "./Gap.astro";
+import UnderlineMark from "./UnderlineMark.astro";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
@@ -16,7 +17,7 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
         class="blog-list__item"
         data-blog-item
         data-search-title={post.data.title}
-        data-search-metadata={`${BLOG_CATEGORY_LABELS[post.data.category]} ${post.data.tags.map((id) => BLOG_TAG_LABELS[id]).join(" ")}`}
+        data-search-metadata={getBlogSearchFields(post).metadata}
         data-search-description={post.data.description}
       >
         <article class="blog-list__article">
@@ -28,30 +29,23 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
           </span>
           <a class="blog-list__link" href={`/blog/${post.id}/`} aria-labelledby={`blog-title-${post.id}`}>
             <div class="blog-list__cover">
-              <Image
-                src={post.data.cover}
-                alt={`Cover for ${post.data.title}`}
-                widths={[160, 240, 480, 640, 960]}
-                sizes="(max-width: 575px) calc(100vw - 64px), (max-width: 640px) calc(100vw - 80px), (min-width: 1280px) 200px, 24vw"
-                loading="lazy"
-                decoding="async"
-              />
+              {post.data.cover ? (
+                <Image
+                  src={post.data.cover}
+                  alt={`Cover for ${post.data.title}`}
+                  widths={[160, 240, 480, 640, 960]}
+                  sizes="(max-width: 575px) calc(100vw - 64px), (max-width: 640px) calc(100vw - 80px), (min-width: 1280px) 200px, 24vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span class="blog-list__cover-empty" aria-hidden="true" />
+              )}
             </div>
             <div class="blog-list__copy">
               <div class="blog-list__title">
                 <h2 id={`blog-title-${post.id}`}>{post.data.title}</h2>
-                <svg
-                  class="blog-list__title-mark"
-                  viewBox="0 0 100 8"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path
-                    d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
-                    vector-effect="non-scaling-stroke"
-                  />
-                </svg>
+                <UnderlineMark class="blog-list__title-mark" />
               </div>
               <p>{post.data.description}</p>
             </div>
@@ -64,8 +58,12 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
                   </span>
                 </span>
                 <time datetime={post.data.publishedAt.toISOString()}>{formatBlogDate(post.data.publishedAt)}</time>
-                <span aria-hidden="true">·</span>
-                <span>{getBlogReadingMinutes(post.body)} min read</span>
+                {post.body?.trim() && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span>{getBlogReadingMinutes(post.body)} min read</span>
+                  </>
+                )}
                 <span class="blog-list__row-guide blog-list__row-guide--meta-bottom" aria-hidden="true">
                   <span class="blog-list__guide-frame">
                     <span class="gap__cross gap__cross--top-left" />
@@ -191,7 +189,8 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
     border-inline-end: 1px dashed var(--technical-line-soft);
   }
 
-  .blog-list__cover img {
+  .blog-list__cover img,
+  .blog-list__cover-empty {
     width: 100%;
     height: auto;
     display: block;
@@ -252,7 +251,8 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
     text-transform: uppercase;
   }
 
-  .blog-list__link:is(:hover, :focus-visible) .blog-list__cover img {
+  .blog-list__link:is(:hover, :focus-visible) .blog-list__cover img,
+  .blog-list__link:is(:hover, :focus-visible) .blog-list__cover-empty {
     border-color: var(--muted);
   }
 
@@ -265,7 +265,8 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
       align-items: stretch;
     }
 
-    .blog-list__cover img {
+    .blog-list__cover img,
+    .blog-list__cover-empty {
       aspect-ratio: auto;
     }
   }

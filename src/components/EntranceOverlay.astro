@@ -2,7 +2,7 @@
 import hand from "../assets/hand-pencil-sketch.svg";
 
 interface Props {
-  mode: "home" | "projects" | "blogs" | "shell";
+  mode: "home" | "projects" | "blog" | "shell";
 }
 
 const { mode } = Astro.props;
@@ -26,7 +26,7 @@ const handwrittenHeadings = {
       "M250 71L253 70",
     ],
   },
-  blogs: {
+  blog: {
     text: "blogs.",
     width: 190,
     strokeWidth: 14,
@@ -42,7 +42,7 @@ const handwrittenHeadings = {
     ],
   },
 } as const;
-const handwriting = mode === "projects" || mode === "blogs"
+const handwriting = mode === "projects" || mode === "blog"
   ? handwrittenHeadings[mode]
   : undefined;
 const maskId = `intro-${mode}-ink`;

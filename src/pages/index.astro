@@ -5,14 +5,14 @@ import Footer from "../components/Footer.astro";
 import Gap from "../components/Gap.astro";
 import Hero from "../components/Hero.astro";
 import TechMarquee from "../components/TechMarquee.astro";
-import Testimonials from "../components/Testimonials.astro";
+import { SITE_IDENTITY } from "../data/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const jsonLd = Astro.site
   ? {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: "Dharma Yudistira",
+      name: SITE_IDENTITY.name,
       url: Astro.site.toString(),
     }
   : undefined;
@@ -24,8 +24,6 @@ const jsonLd = Astro.site
   <TechMarquee />
   <Gap size="small" variant="filled" corner="bottom-right" />
   <FeaturedBlogs />
-  <Gap size="small" variant="blank" />
-  <Testimonials />
   <Gap size="small" variant="filled" corner="bottom-left" />
   <FeaturedProjects />
   <Gap size="medium" variant="filled" corner="bottom-right" />

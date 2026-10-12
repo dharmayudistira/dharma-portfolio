@@ -21,14 +21,14 @@ sections.forEach((section) => {
   const hoverTargets = Array.from(
     section.querySelectorAll<HTMLElement>("[data-testimonial-card], .testimonials__pagination"),
   );
-  const mobileQuery = window.matchMedia("(max-width: 768px)");
+  const singleCardQuery = window.matchMedia("(max-width: 1199px)");
   const hoverQuery = window.matchMedia("(hover: hover)");
 
   if (cards.length === 0 || buttons.length === 0 || !controls || !announcer) return;
 
   section.dataset.ready = "true";
 
-  let pageSize = mobileQuery.matches ? 1 : cards.length;
+  let pageSize = singleCardQuery.matches ? 1 : cards.length;
   let activePage = 0;
   let transitionId = 0;
   let isInView = false;
@@ -182,10 +182,10 @@ sections.forEach((section) => {
     syncPlayback();
   }, { threshold: 0.25 }).observe(section);
 
-  mobileQuery.addEventListener("change", () => {
+  singleCardQuery.addEventListener("change", () => {
     const firstIndex = activePage * pageSize;
     const hadFocus = controls.contains(document.activeElement);
-    pageSize = mobileQuery.matches ? 1 : cards.length;
+    pageSize = singleCardQuery.matches ? 1 : cards.length;
     void showPage(Math.floor(firstIndex / pageSize), false);
     if (hadFocus) buttons[activePage]?.focus();
   });

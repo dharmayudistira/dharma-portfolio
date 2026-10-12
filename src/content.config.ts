@@ -40,7 +40,7 @@ const blog = defineCollection({
       updatedAt: z.coerce.date().optional(),
       category: z.enum(BLOG_CATEGORY_IDS),
       tags: z.array(z.enum(BLOG_TAG_IDS)).default([]),
-      cover: image(),
+      cover: image().optional(),
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),
       canonicalUrl: z.url().optional(),

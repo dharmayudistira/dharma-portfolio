@@ -230,8 +230,7 @@ button {
 .app-bar a:focus-visible,
 .site-search a:focus-visible,
 .site-search button:focus-visible,
-.site-search input:focus-visible,
-.content-index a:focus-visible {
+.site-search input:focus-visible {
   outline: 1px solid var(--foreground);
   outline-offset: 4px;
 }
@@ -1111,7 +1110,7 @@ html[data-intro="seen"] .intro {
   width: max-content;
   display: flex;
   flex: none;
-  animation: stack-marquee 30s linear infinite;
+  animation: stack-marquee 50s linear infinite;
   will-change: transform;
 }
 
@@ -1293,13 +1292,18 @@ html[data-intro="seen"] .intro {
   justify-self: end;
 }
 
+.featured-blogs__primary-meta--no-reading-time {
+  grid-template-columns: auto 1fr;
+}
+
 .featured-blogs__cover {
   min-height: 0;
   padding: 28px;
   display: block;
 }
 
-.featured-blogs__cover img {
+.featured-blogs__cover img,
+.featured-blogs__cover-empty {
   width: 100%;
   height: 100%;
   min-height: 260px;
@@ -1314,7 +1318,7 @@ html[data-intro="seen"] .intro {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
   border-inline-start: 1px dashed var(--technical-line-soft);
   list-style: none;
 }
@@ -1473,6 +1477,7 @@ html[data-intro="seen"] .intro {
 }
 
 .testimonials__list {
+  --testimonial-footer-height: 78px;
   margin: 0;
   padding: 0;
   display: grid;
@@ -1558,7 +1563,7 @@ html[data-intro="seen"] .intro {
 .testimonial-card {
   height: 312px;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) 78px;
+  grid-template-rows: minmax(0, 1fr) var(--testimonial-footer-height);
   overflow: hidden;
 }
 
@@ -2009,7 +2014,7 @@ html[data-intro="seen"] .intro {
   grid-template-areas:
     "crafted build updated focus"
     "deployed source license typeface"
-    "stack stack analytics agents"
+    "stack stack stack agents"
     "inspired inspired inspired inspired";
 }
 
@@ -2062,10 +2067,6 @@ html[data-intro="seen"] .intro {
 
 .site-footer__detail--stack {
   grid-area: stack;
-}
-
-.site-footer__detail--analytics {
-  grid-area: analytics;
 }
 
 .site-footer__detail--agents {
@@ -2377,68 +2378,6 @@ html[data-intro="seen"] .intro {
   line-height: 1.5;
 }
 
-.content-index {
-  margin-top: 96px;
-}
-
-.content-index__list {
-  margin: 0;
-  padding: 0;
-  border-top: 1px dashed var(--technical-line-soft);
-  list-style: none;
-}
-
-.content-index__list li {
-  border-bottom: 1px dashed var(--technical-line-soft);
-}
-
-.content-index__list a {
-  padding: 28px 0;
-  display: grid;
-  grid-template-columns: 48px 1fr auto;
-  align-items: start;
-  gap: 24px;
-}
-
-.content-index__number,
-.content-index__year,
-.content-index__list time {
-  color: var(--muted);
-  font: 400 10px/1.4 var(--font-mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.content-index__list strong,
-.content-index__list small {
-  display: block;
-}
-
-.content-index__list strong {
-  font-size: clamp(1.2rem, 2vw, 1.65rem);
-  font-weight: 500;
-  line-height: 1.1;
-}
-
-.content-index__list small {
-  max-width: 560px;
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-.content-index__empty {
-  margin: 0;
-  padding-block: 32px;
-  border-top: 1px dashed var(--technical-line-soft);
-  border-bottom: 1px dashed var(--technical-line-soft);
-  color: var(--muted);
-  font: 400 11px/1.5 var(--font-mono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .prose {
   --prose-inset: clamp(1rem, 2.5vw, 1.5rem);
   max-width: 720px;
@@ -2729,6 +2668,40 @@ html[data-intro="seen"] .intro {
   }
 }
 
+@media (max-width: 1199px) {
+  .testimonials__list {
+    position: relative;
+    display: block;
+  }
+
+  .testimonials__list::before {
+    content: "";
+    position: absolute;
+    inset-block-start: calc(100% - var(--testimonial-footer-height));
+    inset-inline: 0;
+    border-top: 1px dashed var(--technical-line-soft);
+    pointer-events: none;
+  }
+
+  .testimonials__list > li:nth-child(n + 2) {
+    display: none;
+  }
+
+  .testimonials__list > li:first-child {
+    border-inline-end: 0;
+  }
+
+  .testimonial-card {
+    width: min(100%, 640px);
+    height: 250px;
+    margin-inline: auto;
+  }
+
+  .testimonial-card__footer {
+    border-top: 0;
+  }
+}
+
 @media (max-width: 1024px) {
   .section-label__inner {
     justify-content: flex-start;
@@ -2745,10 +2718,6 @@ html[data-intro="seen"] .intro {
 
   .featured-blogs__choice svg {
     display: none;
-  }
-
-  .testimonials__list {
-    gap: 16px;
   }
 }
 
@@ -2958,7 +2927,8 @@ html[data-intro="seen"] .intro {
     padding: 24px;
   }
 
-  .featured-blogs__cover img {
+  .featured-blogs__cover img,
+  .featured-blogs__cover-empty {
     height: auto;
     min-height: 0;
     aspect-ratio: 4 / 3;
@@ -2972,24 +2942,6 @@ html[data-intro="seen"] .intro {
   .featured-blogs__item {
     min-height: 220px;
     padding: 26px 24px;
-  }
-
-  .testimonials__list {
-    display: block;
-  }
-
-  .testimonials__list > li:nth-child(n + 2) {
-    display: none;
-  }
-
-  .testimonials__list > li:first-child {
-    border-inline-end: 0;
-  }
-
-  .testimonial-card {
-    width: min(100%, 360px);
-    height: 320px;
-    margin-inline: auto;
   }
 
   .featured-projects__toolbar {
@@ -3084,7 +3036,7 @@ html[data-intro="seen"] .intro {
       "deployed source"
       "license typeface"
       "stack stack"
-      "analytics agents"
+      "agents agents"
       "inspired inspired";
   }
 
@@ -3096,8 +3048,7 @@ html[data-intro="seen"] .intro {
   .site-footer__detail--crafted,
   .site-footer__detail--updated,
   .site-footer__detail--deployed,
-  .site-footer__detail--license,
-  .site-footer__detail--analytics {
+  .site-footer__detail--license {
     border-inline-end: 1px dashed var(--technical-line-soft);
   }
 
@@ -3112,25 +3063,16 @@ html[data-intro="seen"] .intro {
   .content-page__header h1 {
     font-size: clamp(3.2rem, 18vw, 5rem);
   }
-
-  .content-index {
-    margin-top: 72px;
-  }
-
-  .content-index__list a {
-    grid-template-columns: 32px 1fr;
-    gap: 16px;
-  }
-
-  .content-index__year,
-  .content-index__list time {
-    grid-column: 2;
-  }
 }
 
 @media (max-width: 575px) {
   :root {
     --page-gutter: 16px;
+  }
+
+  .testimonial-card {
+    width: min(100%, 360px);
+    height: 320px;
   }
 
   .featured-blogs__choice {
@@ -3158,6 +3100,11 @@ html[data-intro="seen"] .intro {
   .featured-blogs__primary-meta > :last-child {
     grid-column: 1 / -1;
     justify-self: start;
+  }
+
+  .featured-blogs__primary-meta--no-reading-time > :last-child {
+    grid-column: auto;
+    justify-self: end;
   }
 
   .featured-blogs__cover {

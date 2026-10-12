@@ -1,5 +1,6 @@
 ---
 import GoldenRatio from "./GoldenRatio.astro";
+import { SITE_IDENTITY } from "../data/site";
 ---
 
 <main class="hero">
@@ -28,7 +29,7 @@ import GoldenRatio from "./GoldenRatio.astro";
         </div>
 
         <p class="hero__meta">
-          <span>Zero One Group</span>
+          <span>{SITE_IDENTITY.employer.name}</span>
           <i aria-hidden="true"></i>
           <span>Frontend · Mobile</span>
         </p>

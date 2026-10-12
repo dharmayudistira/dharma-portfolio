@@ -1,12 +1,13 @@
 # Stack icon sources
 
-All icons except VS Code come from [Simple Icons](https://github.com/simple-icons/simple-icons/tree/98820a4dc8c363ca72fa2c0d294ea4a0a9bba75d/icons), released under [CC0 1.0](https://github.com/simple-icons/simple-icons/blob/98820a4dc8c363ca72fa2c0d294ea4a0a9bba75d/LICENSE.md).
+All icons except BLoC, Riverpod, Monorepo, ViewModel, Codex, and Higgsfield come from [Simple Icons](https://github.com/simple-icons/simple-icons/tree/98820a4dc8c363ca72fa2c0d294ea4a0a9bba75d/icons), released under [CC0 1.0](https://github.com/simple-icons/simple-icons/blob/98820a4dc8c363ca72fa2c0d294ea4a0a9bba75d/LICENSE.md).
 
-The VS Code icon comes from [SVGL](https://github.com/pheralb/svgl/blob/f9b726cee1d1f3c697a18c880185e89d9a55bb70/static/library/vscode.svg). Its MIT license is reproduced below. Brand names and logos belong to their respective owners.
+The BLoC mark is adapted from its [official SVG](https://github.com/felangel/bloc/blob/master/docs/src/assets/light-bloc-logo.svg). The Riverpod mark is adapted from its [official SVG](https://github.com/rrousselGit/riverpod/blob/master/website/static/img/logo.svg). The Codex badge uses the OpenAI mark from the [OpenAI Developers favicon](https://developers.openai.com/favicon.svg). The Higgsfield badge uses the mark from its [official icon](https://github.com/higgsfield-ai/skills/blob/main/assets/icon.svg). The Monorepo and ViewModel symbols were drawn for this site. Brand names and logos belong to their respective owners.
 
 MIT License
 
-Copyright (c) 2022 Pablo Hdez
+Copyright (c) 2026 Felix Angelov
+Copyright (c) 2020 Remi Rousselet
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

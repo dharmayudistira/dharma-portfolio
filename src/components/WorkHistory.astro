@@ -1,75 +1,86 @@
 ---
-import { ArrowLeft, ArrowRight } from "lucide";
+import { ChevronDown, ChevronUp } from "lucide";
 import MorphIcon from "morphicons/astro";
+import { STACK_LABELS } from "../data/stacks";
 import { workHistory } from "../data/work-history";
 
-const firstYear = Math.min(...workHistory.map((entry) => Number(entry.start.slice(0, 4))));
-const lastYear = Math.max(...workHistory.map((entry) => entry.end
-  ? Number(entry.end.slice(0, 4))
-  : new Date().getUTCFullYear()));
-const years = Array.from({ length: lastYear - firstYear + 1 }, (_, index) => {
-  const year = firstYear + index;
-  return { year, entries: workHistory.filter((entry) => Number(entry.start.slice(0, 4)) === year) };
-});
 const dateFormat = new Intl.DateTimeFormat("en", { month: "short", year: "numeric", timeZone: "UTC" });
 const formatDate = (date: string) => dateFormat.format(new Date(`${date}-01T00:00:00Z`));
 ---
 
 <section class="work-history" aria-labelledby="work-history-heading">
   <header class="work-history__heading">
-    <div class="work-history__heading-inner">
-      <h2 id="work-history-heading">Work history</h2>
-      <div class="work-history__controls" data-work-history-controls role="group" aria-label="Work history navigation" hidden>
-        <button type="button" data-work-history-previous aria-label="Previous work entry" aria-controls="work-history-timeline" disabled>
-          <MorphIcon icon={ArrowLeft} size={16} strokeWidth={1.25} aria-hidden="true" />
-        </button>
-        <button type="button" data-work-history-next aria-label="Next work entry" aria-controls="work-history-timeline" disabled>
-          <MorphIcon icon={ArrowRight} size={16} strokeWidth={1.25} aria-hidden="true" />
-        </button>
-      </div>
+    <div class="work-history__frame work-history__heading-inner">
+      <h2 id="work-history-heading">Work History</h2>
       <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
       <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
     </div>
   </header>
   <div class="work-history__frame">
-    <div class="work-history__timeline">
-      <span class="work-history__axis" aria-hidden="true">Year</span>
-      <div id="work-history-timeline" class="work-history__viewport" data-work-history-viewport tabindex="0" role="region" aria-label="Work history timeline">
-        <ol class="work-history__track" role="list">
-          {years.map(({ year, entries }) => (
-            <li
-              class:list={["work-history__year", { "work-history__year--milestone": entries.length > 0 }]}
-              aria-hidden={entries.length === 0 ? "true" : undefined}
-            >
-              <span class="work-history__year-label" aria-hidden="true">{year}</span>
-              {entries.map((entry) => (
-                <article class="work-history__entry">
-                  <h3>
-                    <a href={entry.companyUrl} target="_blank" rel="noopener noreferrer">{entry.company}</a>
-                  </h3>
-                  <p class="work-history__role">{entry.role}</p>
-                  <p class="work-history__dates">
+    <ol class="work-history__list" role="list">
+      {workHistory.map((entry, index) => (
+        <li class="work-history__entry">
+          <div class="work-history__mark">
+            <a class:list={["work-history__logo", { "work-history__logo--circle": entry.logoShape === "circle", "work-history__logo--on-light": entry.logoOnLight }]} href={entry.companyUrl} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${entry.company} website`}>
+              {entry.logo && <img src={entry.logo} alt="" width="36" height="36" loading="lazy" decoding="async" />}
+            </a>
+          </div>
+          <div class="work-history__content">
+            <h3 class="work-history__intro" aria-label={entry.company}>
+              <button class="work-history__toggle" type="button" aria-expanded={index === 0} aria-controls={`work-history-description-${index}`} data-work-history-toggle>
+                <span class="work-history__identity">
+                  <span class="work-history__company">{entry.company}</span>
+                  <span class="work-history__role">
+                    <span class="work-history__as">as</span> {entry.role}
+                    <span class="work-history__employment">{entry.employmentType}</span>
+                  </span>
+                </span>
+                <span class="work-history__meta">
+                  <span class="work-history__dates">
                     <time datetime={entry.start}>{formatDate(entry.start)}</time>
                     {" – "}
                     {entry.end
                       ? <time datetime={entry.end}>{formatDate(entry.end)}</time>
-                      : <span class="work-history__present">Present</span>}
-                  </p>
-                  <p class="work-history__description">{entry.description}</p>
-                </article>
-              ))}
-            </li>
-          ))}
-        </ol>
-      </div>
-    </div>
+                      : "Present"}
+                  </span>
+                  <span class="work-history__chevron" aria-hidden="true">
+                    <MorphIcon icon={index === 0 ? ChevronUp : ChevronDown} size={16} strokeWidth={1.5} data-work-history-icon />
+                  </span>
+                </span>
+              </button>
+            </h3>
+            <ul id={`work-history-description-${index}`} class="work-history__bullets" hidden={index !== 0}>
+              {entry.bullets.map((bullet) => <li>{bullet}</li>)}
+            </ul>
+            <ul class="work-history__stack" aria-label={`${entry.company} stack`} role="list">
+              {entry.stack.map((id) => <li>{STACK_LABELS[id]}</li>)}
+            </ul>
+          </div>
+        </li>
+      ))}
+    </ol>
     <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />
     <span class="gap__cross gap__cross--bottom-right" aria-hidden="true" />
   </div>
 </section>
 
 <script>
-  import "../scripts/work-history";
+  import { ChevronDown, ChevronUp } from "lucide";
+  import type { MorphIconElement } from "morphicons/element";
+
+  document.querySelectorAll<HTMLButtonElement>("[data-work-history-toggle]").forEach((button) => {
+    const description = document.getElementById(button.getAttribute("aria-controls") ?? "");
+    const icon = button.querySelector<MorphIconElement>("[data-work-history-icon]");
+    if (!description || !icon) return;
+
+    button.addEventListener("click", async () => {
+      const expanded = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!expanded));
+      description.hidden = expanded;
+      await customElements.whenDefined("morph-icon");
+      icon.morphTo(expanded ? ChevronDown : ChevronUp, "bouncy");
+    });
+  });
 </script>
 
 <style>
@@ -77,277 +88,263 @@ const formatDate = (date: string) => dateFormat.format(new Date(`${date}-01T00:0
     border-block-end: 1px dashed var(--technical-line-soft);
   }
 
-  .work-history__frame,
-  .work-history__heading-inner {
+  .work-history__heading {
+    border-block-end: 1px dashed var(--technical-line-soft);
+  }
+
+  .work-history__frame {
     position: relative;
     width: min(var(--content-max-width), calc(100% - var(--page-gutter) - var(--page-gutter)));
     margin-inline: auto;
   }
 
-  .work-history__frame {
-    padding: 32px clamp(20px, 5vw, 64px) clamp(40px, 5vw, 64px);
-  }
-
-  .work-history__heading {
-    border-block-end: 1px dashed var(--technical-line-soft);
-  }
-
   .work-history__heading-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
     min-height: 64px;
     padding: 10px clamp(20px, 5vw, 64px);
   }
 
-  .work-history__heading h2 {
+  .work-history h2 {
     margin: 0;
     font: 500 24px/1.2 var(--font-sans);
     letter-spacing: -0.035em;
   }
 
-  .work-history__controls {
-    display: flex;
-  }
-
-  .work-history__controls[hidden] {
-    display: none;
-  }
-
-  .work-history__controls button {
-    display: grid;
-    place-items: center;
-    width: var(--arrow-button-size);
-    height: var(--arrow-button-size);
-    padding: 0;
-    border: 1px solid var(--technical-line-soft);
-    background: transparent;
-    color: var(--foreground);
-    cursor: pointer;
-    transition: background-color 180ms ease, color 180ms ease;
-  }
-
-  .work-history__controls button + button {
-    border-inline-start: 0;
-  }
-
-  .work-history__controls button:not(:disabled):hover {
-    background: var(--surface-raised);
-  }
-
-  .work-history__controls button:disabled {
-    color: var(--technical-copy);
-    cursor: default;
-  }
-
-  .work-history__controls button:focus-visible {
-    position: relative;
-    z-index: 1;
-    outline: 1px solid var(--foreground);
-    outline-offset: 3px;
-  }
-
-  .work-history__axis {
+  .work-history__list {
     margin: 0;
-    color: var(--muted);
-    font: 400 11px/20px var(--font-mono);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .work-history__timeline {
-    --work-history-rail: 40px;
-    display: grid;
-    grid-template-columns: 56px minmax(0, 1fr);
-  }
-
-  .work-history__viewport {
-    --work-history-fade-start: #000;
-    --work-history-fade-end: #000;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-    scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
-    mask-image: linear-gradient(to right, var(--work-history-fade-start), #000 24px, #000 calc(100% - 24px), var(--work-history-fade-end));
-  }
-
-  .work-history__viewport::-webkit-scrollbar {
-    display: none;
-  }
-
-  .work-history__viewport[data-scroll-start] {
-    --work-history-fade-start: transparent;
-  }
-
-  .work-history__viewport[data-scroll-end] {
-    --work-history-fade-end: transparent;
-  }
-
-  .work-history__viewport:focus-visible {
-    outline: 1px solid var(--foreground);
-    outline-offset: 4px;
-  }
-
-  .work-history__track {
-    position: relative;
-    display: flex;
-    width: max-content;
-    min-width: 100%;
-    margin: 0;
-    padding: 0;
+    padding: 0 clamp(20px, 5vw, 64px);
     list-style: none;
   }
 
-  .work-history__track::before {
-    position: absolute;
-    inset-block-start: var(--work-history-rail);
-    inset-inline: 0;
-    border-block-start: 1px dashed var(--technical-line-soft);
-    content: "";
-  }
-
-  .work-history__year {
-    position: relative;
-    flex: 0 0 80px;
-    padding-inline-end: 24px;
-  }
-
-  .work-history__year--milestone {
-    flex-basis: 320px;
-    scroll-snap-align: start;
-  }
-
-  .work-history__year:last-child {
-    scroll-snap-align: end;
-  }
-
-  .work-history__year::before {
-    position: absolute;
-    inset-block-start: var(--work-history-rail);
-    inset-inline-start: 0;
-    width: 1px;
-    height: 12px;
-    background: var(--technical-line-strong);
-    transform: translateY(-50%);
-    content: "";
-  }
-
-  .work-history__year-label {
-    display: block;
-    color: var(--muted);
-    font: 400 12px/20px var(--font-mono);
-    font-variant-numeric: tabular-nums;
-  }
-
   .work-history__entry {
-    margin-block-start: 44px;
+    --work-history-mark-size: 36px;
+    --work-history-mark-gap: 20px;
+    display: grid;
+    grid-template-columns: var(--work-history-mark-size) minmax(0, 1fr);
+    column-gap: var(--work-history-mark-gap);
+    padding-block: 28px;
   }
 
-  .work-history__entry + .work-history__entry {
-    margin-block-start: 24px;
+  .work-history__mark {
+    position: relative;
   }
 
-  .work-history__entry h3 {
-    margin: 0;
-    font: 500 18px/1.4 var(--font-sans);
+  .work-history__mark::before {
+    position: absolute;
+    inset-block: var(--work-history-mark-size) 12px;
+    inset-inline-start: 50%;
+    width: calc(50% + var(--work-history-mark-gap));
+    border-inline-start: 1px solid var(--technical-line-strong);
+    border-block-end: 1px solid var(--technical-line-strong);
+    border-end-start-radius: 12px;
+    content: "";
   }
 
-  .work-history__entry a {
-    color: var(--foreground);
-    text-decoration: underline dashed;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.2em;
+  .work-history__logo {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: var(--work-history-mark-size);
+    height: var(--work-history-mark-size);
+    padding: 1px;
+    border: 1px solid var(--technical-line-strong);
+    border-radius: 5px;
+    background: var(--surface);
+    overflow: hidden;
   }
 
-  .work-history__entry a:focus-visible {
-    outline: 1px solid currentColor;
+  .work-history__logo--on-light {
+    background: #fff;
+  }
+
+  .work-history__logo--circle {
+    border-radius: 50%;
+  }
+
+  .work-history__logo:focus-visible {
+    outline: 1px solid var(--foreground);
     outline-offset: 4px;
   }
 
-  .work-history__role {
-    margin: 8px 0 0;
-    font: 400 15px/1.6 var(--font-sans);
+  .work-history__logo:hover {
+    border-color: var(--foreground);
   }
 
-  .work-history__dates {
-    margin: 8px 0 0;
+  .work-history__logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: contain;
+  }
+
+  .work-history__content {
+    min-width: 0;
+  }
+
+  .work-history__intro {
+    margin: 0;
+  }
+
+  .work-history__toggle {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .work-history__toggle:focus-visible {
+    outline: 1px solid var(--foreground);
+    outline-offset: 4px;
+  }
+
+  .work-history__identity {
+    min-width: 0;
+  }
+
+  .work-history__company {
+    display: block;
+    font: 600 16px/24px var(--font-sans);
+    letter-spacing: -0.02em;
+  }
+
+  .work-history__role {
+    display: block;
+    margin-block-start: 2px;
+    font: 400 14px/20px var(--font-sans);
+  }
+
+  .work-history__meta {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .work-history__as {
+    margin-inline-end: 4px;
+    font: 600 18px/1 var(--font-hand);
+  }
+
+  .work-history__employment {
+    margin-inline-start: 6px;
     color: var(--muted);
     font: 400 12px/1.5 var(--font-mono);
   }
 
-  .work-history__present {
-    color: var(--foreground);
+  .work-history__employment::before {
+    content: "· ";
   }
 
-  .work-history__description {
-    margin: 16px 0 0;
+  .work-history__dates {
+    margin-block-start: 2px;
     color: var(--muted);
-    font: 400 15px/1.6 var(--font-sans);
+    font: 400 12px/1.5 var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .work-history__chevron {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--technical-line-strong);
+    border-radius: 6px;
+  }
+
+  .work-history__toggle:hover .work-history__chevron {
+    border-color: var(--foreground);
+  }
+
+  .work-history__bullets {
+    margin: 16px 0 0;
+    padding-inline-start: 20px;
+    color: var(--muted);
+    font: 400 14px/22px var(--font-sans);
+  }
+
+  .work-history__bullets li + li {
+    margin-block-start: 2px;
+  }
+
+  .work-history__stack {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+    margin: 16px 0 0;
+    padding: 0 0 0 12px;
+    list-style: none;
+  }
+
+  .work-history__stack::before {
+    position: absolute;
+    inset-inline-start: -5px;
+    inset-block-end: 7.5px;
+    width: 9px;
+    height: 9px;
+    border: 1px solid var(--technical-line-strong);
+    border-radius: 50%;
+    background: var(--surface);
+    content: "";
+  }
+
+  .work-history__stack li {
+    padding: 2px 8px;
+    border: 1px solid var(--technical-line-soft);
+    border-radius: 999px;
+    background: var(--surface-raised);
+    color: var(--foreground);
+    font: 400 12px/18px var(--font-mono);
+    white-space: nowrap;
   }
 
   @media (max-width: 767px) {
-    .work-history__heading-inner {
-      flex-wrap: wrap;
-      gap: 8px 16px;
-    }
-
-    .work-history__controls {
-      display: none;
-    }
-
-    .work-history__timeline {
-      display: block;
-    }
-
-    .work-history__axis {
-      display: none;
-    }
-
-    .work-history__viewport {
-      overflow: visible;
-      scroll-behavior: auto;
-      scroll-snap-type: none;
-      mask-image: none;
-    }
-
-    .work-history__track {
-      display: block;
-      width: auto;
-      padding: 0;
-    }
-
-    .work-history__track::before {
-      inset-block: 10px 0;
-      inset-inline: 0 auto;
-      border-block-start: 0;
-      border-inline-start: 1px dashed var(--technical-line-soft);
-    }
-
-    .work-history__year {
-      display: none;
-    }
-
-    .work-history__year--milestone {
-      display: block;
-      padding: 0;
-      padding-inline-start: 24px;
-    }
-
-    .work-history__year--milestone ~ .work-history__year--milestone {
-      margin-block-start: 32px;
-    }
-
-    .work-history__year::before {
-      inset-block-start: 10px;
-      width: 12px;
-      height: 1px;
-      transform: translateX(-50%);
-    }
-
     .work-history__entry {
-      margin-block-start: 16px;
+      --work-history-mark-size: 32px;
+      --work-history-mark-gap: 16px;
+      padding-block: 24px;
+    }
+
+    .work-history__toggle {
+      position: relative;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .work-history__company {
+      padding-inline-end: 32px;
+    }
+
+    .work-history__meta {
+      align-items: flex-start;
+    }
+
+    .work-history__chevron {
+      position: absolute;
+      inset-block-start: 2px;
+      inset-inline-end: 0;
+    }
+
+    .work-history__employment {
+      display: block;
+      margin: 2px 0 0;
+    }
+
+    .work-history__employment::before {
+      content: none;
     }
   }
 </style>

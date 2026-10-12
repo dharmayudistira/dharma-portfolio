@@ -1,4 +1,5 @@
 const sessionKey = "dharma:intro-seen";
+const entranceSpeed = 1.5;
 const intro = document.querySelector<HTMLElement>(".intro");
 
 if (intro) {
@@ -37,7 +38,7 @@ if (intro) {
 
       if (mode === "home") {
         await playHomeIntro(gsap);
-      } else if (mode === "projects" || mode === "blogs") {
+      } else if (mode === "projects" || mode === "blog") {
         await playHeadingIntro(gsap);
       } else {
         playShellIntro(gsap);
@@ -336,7 +337,8 @@ async function playHomeIntro(
       autoAlpha: 0,
       duration: 0.85,
       ease: "power2.inOut",
-    });
+    })
+    .timeScale(entranceSpeed);
 }
 
 async function playHeadingIntro(
@@ -468,6 +470,8 @@ async function playHeadingIntro(
   timeline
     .to(handAnchor, { autoAlpha: 0, y: 50, duration: 0.35 })
     .to(intro, { autoAlpha: 0, duration: 0.65 }, "<0.15");
+
+  timeline.timeScale(entranceSpeed);
 }
 
 function playShellIntro(
@@ -592,7 +596,8 @@ function playShellIntro(
       "<",
     )
     .to(handAnchor, { autoAlpha: 0, duration: 0.3 })
-    .to(intro, { autoAlpha: 0, duration: 0.65, ease: "power2.inOut" }, "<-0.1");
+    .to(intro, { autoAlpha: 0, duration: 0.65, ease: "power2.inOut" }, "<-0.1")
+    .timeScale(entranceSpeed);
 }
 
 function createShellLine(

@@ -1,17 +1,5 @@
 ---
-import { STACK_LABELS, type StackId } from "../data/stacks";
-
-const stack = [
-  "vs-code",
-  "cursor",
-  "react",
-  "nextjs",
-  "typescript",
-  "nodejs",
-  "postgresql",
-  "dart",
-  "kotlin",
-] satisfies readonly StackId[];
+import { STACKS } from "../data/stacks";
 ---
 
 <section class="stack" aria-labelledby="stack-title">
@@ -24,10 +12,10 @@ const stack = [
     <div class="stack__marquee">
       <div class="stack__track">
         <ul class="stack__group">
-          {stack.map((id) => <li>{STACK_LABELS[id]}</li>)}
+          {STACKS.map(({ label }) => <li>{label}</li>)}
         </ul>
         <ul class="stack__group" aria-hidden="true">
-          {stack.map((id) => <li>{STACK_LABELS[id]}</li>)}
+          {STACKS.map(({ label }) => <li>{label}</li>)}
         </ul>
       </div>
     </div>

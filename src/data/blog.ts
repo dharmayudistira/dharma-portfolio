@@ -1,3 +1,5 @@
+import type { CollectionEntry } from "astro:content";
+
 export const BLOG_CATEGORIES = [
   { id: "engineering", label: "Engineering" },
   { id: "design", label: "Design" },
@@ -5,16 +7,16 @@ export const BLOG_CATEGORIES = [
 ] as const;
 
 export const BLOG_TAGS = [
-  { id: "astro", label: "Astro" },
   { id: "performance", label: "Performance" },
-  { id: "static-sites", label: "Static Sites" },
-  { id: "animation", label: "Animation" },
-  { id: "interaction-design", label: "Interaction Design" },
-  { id: "design-systems", label: "Design Systems" },
-  { id: "design-tokens", label: "Design Tokens" },
-  { id: "web", label: "Web" },
+  { id: "flutter", label: "Flutter" },
+  { id: "react-native", label: "React Native" },
   { id: "mobile", label: "Mobile" },
-  { id: "cross-platform", label: "Cross-platform" },
+  { id: "android", label: "Android" },
+  { id: "ios", label: "iOS" },
+  { id: "book", label: "Book" },
+  { id: "ai", label: "AI" },
+  { id: "career-reflection", label: "Career Reflection" },
+  { id: "effective-engineering", label: "Effective Engineering" },
 ] as const;
 
 export type BlogCategoryId = (typeof BLOG_CATEGORIES)[number]["id"];
@@ -30,6 +32,12 @@ export const BLOG_CATEGORY_LABELS = Object.fromEntries(
 export const BLOG_TAG_LABELS = Object.fromEntries(
   BLOG_TAGS.map(({ id, label }) => [id, label] as const),
 );
+
+export const getBlogSearchFields = (post: CollectionEntry<"blog">) => ({
+  title: post.data.title,
+  metadata: `${BLOG_CATEGORY_LABELS[post.data.category]} ${post.data.tags.map((id) => BLOG_TAG_LABELS[id]).join(" ")}`,
+  description: post.data.description,
+});
 
 export const getBlogReadingMinutes = (body: string | undefined): number => {
   const wordCount = (body ?? "")

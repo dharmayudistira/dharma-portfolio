@@ -3,15 +3,15 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { ArrowLeft, ArrowRight } from "lucide";
 import MorphIcon from "morphicons/astro";
+import { compareProjectsByTimeline } from "../data/projects";
 import { STACK_LABELS } from "../data/stacks";
 import SectionLabel from "./SectionLabel.astro";
+import UnderlineMark from "./UnderlineMark.astro";
 
 const projects = (await getCollection(
   "projects",
   ({ data }) => !data.draft && data.featured,
-))
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
-  .slice(0, 3);
+)).sort(compareProjectsByTimeline);
 const projectCount = projects.length;
 const formatIndex = (index: number) => String(index + 1).padStart(2, "0");
 const initialProjectIndex = formatIndex(0);
@@ -103,18 +103,7 @@ const initialProjectIndex = formatIndex(0);
                     <a class="featured-projects__case-study" href={`/projects/${project.id}/`}>
                       <span class="featured-projects__case-study-label">
                         <span>View case study</span>
-                        <svg
-                          class="featured-projects__case-study-mark"
-                          viewBox="0 0 100 8"
-                          preserveAspectRatio="none"
-                          aria-hidden="true"
-                          focusable="false"
-                        >
-                          <path
-                            d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
-                            vector-effect="non-scaling-stroke"
-                          />
-                        </svg>
+                        <UnderlineMark class="featured-projects__case-study-mark" />
                       </span>
                       <MorphIcon icon={ArrowRight} size={18} strokeWidth={1.25} aria-hidden="true" />
                     </a>

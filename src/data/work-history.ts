@@ -1,30 +1,69 @@
+import dicodingLogo from "../assets/work-history/dicoding.jpg?url";
+import neurafarmLogo from "../assets/work-history/neurafarm.png?url";
+import zeroOneGroupLogo from "../assets/work-history/zero-one-group.svg?url";
+import type { StackId } from "./stacks";
+
 export interface WorkExperience {
   company: string;
   companyUrl: string;
+  logo?: string;
+  logoShape?: "circle" | "rounded-square";
+  logoOnLight?: boolean;
   role: string;
+  employmentType: "Internship" | "Part-time" | "Full-time";
   start: string;
   end: string | null;
-  description: string;
+  bullets: readonly string[];
+  stack: readonly StackId[];
 }
 
-// Fictional entries for the work-history preview.
-export const workHistory = [
+export const workHistory: readonly WorkExperience[] = [
   {
-    company: "Example Studio",
-    companyUrl: "https://example.com/",
-    role: "Frontend Engineer",
-    start: "2022-06",
-    end: "2024-02",
-    description:
-      "Built responsive dashboards and customer-facing interfaces, working with designers to turn product ideas into reliable web experiences.",
-  },
-  {
-    company: "Example Labs",
-    companyUrl: "https://example.org/",
+    company: "Zero One Group",
+    companyUrl: "https://zero-one-group.com/",
+    logo: zeroOneGroupLogo,
+    logoShape: "circle",
     role: "Product Engineer",
-    start: "2024-03",
+    employmentType: "Full-time",
+    start: "2022-09",
     end: null,
-    description:
-      "Building web and mobile products, from early prototypes to polished releases, with a focus on usability and performance.",
+    bullets: [
+      "Migrated legacy codebases and standardized coding practices and development workflows.",
+      "Developed Flutter apps for retail investing (1,000+ downloads) and luxury resale (500K+ downloads).",
+      "Contributed web features to a climate finance hub with 300+ resources and events and an F&B commerce platform with 5,000+ SKUs.",
+      "Helped develop an AI workspace for real estate agents with 5 custom tools.",
+    ],
+    stack: ["flutter", "react", "nextjs", "tanstack", "monorepo"],
   },
-] satisfies readonly WorkExperience[];
+  {
+    company: "Dicoding Indonesia",
+    companyUrl: "https://www.dicoding.com/",
+    logo: dicodingLogo,
+    logoShape: "rounded-square",
+    role: "External Academy Reviewer",
+    employmentType: "Part-time",
+    start: "2021-08",
+    end: "2025-12",
+    bullets: [
+      "Reviewed thousands of student submissions across Android and Multiplatform learning paths.",
+      "Maintained rigorous quality standards and provided actionable technical feedback.",
+    ],
+    stack: ["android", "flutter"],
+  },
+  {
+    company: "Neurafarm",
+    companyUrl: "https://www.neurafarm.com/",
+    logo: neurafarmLogo,
+    logoShape: "rounded-square",
+    logoOnLight: true,
+    role: "Software Engineer - Mobile",
+    employmentType: "Internship",
+    start: "2021-06",
+    end: "2021-09",
+    bullets: [
+      "Built \"Sobat Tania\", a cross-platform internal app deployed across Web, Android, and iOS using Flutter.",
+      "Integrated with backend infrastructure and iterated on features based on direct user feedback.",
+    ],
+    stack: ["android", "flutter", "getx"],
+  },
+];

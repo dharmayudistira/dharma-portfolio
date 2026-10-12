@@ -2,11 +2,10 @@
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { STACK_LABELS } from "../data/stacks";
-import { PROJECT_TYPE_LABELS } from "../data/projects";
+import { compareProjectsByTimeline, getProjectSearchFields } from "../data/projects";
+import UnderlineMark from "./UnderlineMark.astro";
 
-const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
-);
+const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(compareProjectsByTimeline);
 ---
 
 <section class="project-grid" aria-label="Projects" data-project-grid>
@@ -16,7 +15,7 @@ const projects = (await getCollection("projects", ({ data }) => !data.draft)).so
         class="project-grid__item"
         data-project-item
         data-search-title={project.data.title}
-        data-search-metadata={`${project.data.projectType} ${PROJECT_TYPE_LABELS[project.data.projectType]} ${project.data.platform} ${project.data.role} ${project.data.year} ${project.data.stack.map((id) => `${id} ${STACK_LABELS[id]}`).join(" ")}`}
+        data-search-metadata={getProjectSearchFields(project).metadata}
         data-search-description={project.data.summary}
       >
         <article class="project-grid__project">
@@ -44,25 +43,16 @@ const projects = (await getCollection("projects", ({ data }) => !data.draft)).so
             )}
             <span class="project-grid__title">
               <h2 id={`project-title-${project.id}`}>{project.data.title}</h2>
-              <svg
-                class="project-grid__title-mark"
-                viewBox="0 0 100 8"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
-                  vector-effect="non-scaling-stroke"
-                />
-              </svg>
+              <UnderlineMark class="project-grid__title-mark" />
             </span>
             <p class="project-grid__summary">{project.data.summary}</p>
-            <ul class="project-grid__stack" aria-label="Stack">
-              {project.data.stack.map((id) => (
-                <li>{STACK_LABELS[id]}</li>
-              ))}
-            </ul>
+            {project.data.stack.length > 0 && (
+              <ul class="project-grid__stack" aria-label="Stack">
+                {project.data.stack.map((id) => (
+                  <li>{STACK_LABELS[id]}</li>
+                ))}
+              </ul>
+            )}
           </a>
         </article>
         <span class="project-grid__row-guide" aria-hidden="true">
@@ -193,17 +183,19 @@ const projects = (await getCollection("projects", ({ data }) => !data.draft)).so
     padding: 24px 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     list-style: none;
   }
 
   .project-grid__stack li {
     max-width: 100%;
-    padding: 6px 8px;
+    padding: 2px 8px;
     border: 1px solid var(--technical-line-soft);
-    color: var(--stack-copy);
-    font: 400 0.6875rem/1.2 var(--font-mono);
-    overflow-wrap: anywhere;
+    border-radius: 999px;
+    background: var(--surface-raised);
+    color: var(--foreground);
+    font: 400 12px/18px var(--font-mono);
+    white-space: nowrap;
   }
 
   .project-grid__card:is(:hover, :focus-visible) .project-grid__cover {

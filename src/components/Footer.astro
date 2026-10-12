@@ -4,6 +4,8 @@ import packageJson from "../../package.json";
 import Gap from "./Gap.astro";
 import FooterLandscape from "./FooterLandscape.astro";
 import SocialLinks from "./SocialLinks.astro";
+import UnderlineMark from "./UnderlineMark.astro";
+import { SITE_IDENTITY } from "../data/site";
 
 const deploymentCommit =
   process.env.VERCEL_GIT_COMMIT_SHA ??
@@ -20,7 +22,7 @@ const getBuildCommit = () => {
       encoding: "utf8",
     }).trim();
   } catch {
-    return "TBD";
+    return "unavailable";
   }
 };
 
@@ -39,7 +41,7 @@ const inspirations = [
   { name: "Theodorus Clarence", url: "https://theodorusclarence.com/" },
   { name: "Lucas Marques", url: "https://www.lucasmarkes.com/" },
 ];
-const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
+const repositoryUrl = SITE_IDENTITY.links.repository;
 ---
 
 <footer class="site-footer">
@@ -53,21 +55,10 @@ const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
       <div class="site-footer__detail site-footer__detail--crafted">
         <dt>Crafted by</dt>
         <dd>
-          <a class="site-footer__link" href="https://x.com/justamannothero" rel="me noreferrer">
+          <a class="site-footer__link" href={SITE_IDENTITY.links.x} rel="me noreferrer">
             <span class="site-footer__link-label">
-              <span>Dharma</span>
-              <svg
-                class="site-footer__link-mark"
-                viewBox="0 0 100 8"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
-                  vector-effect="non-scaling-stroke"
-                />
-              </svg>
+              <span>{SITE_IDENTITY.shortName}</span>
+              <UnderlineMark class="site-footer__link-mark" />
             </span>
           </a>
         </dd>
@@ -90,7 +81,7 @@ const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
 
       <div class="site-footer__detail site-footer__detail--deployed">
         <dt>Deployed on</dt>
-        <dd>TBD</dd>
+        <dd>Vercel</dd>
       </div>
 
       <div class="site-footer__detail site-footer__detail--source">
@@ -99,18 +90,7 @@ const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
           <a class="site-footer__link" href={repositoryUrl} rel="noreferrer">
             <span class="site-footer__link-label">
               <span>GitHub</span>
-              <svg
-                class="site-footer__link-mark"
-                viewBox="0 0 100 8"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
-                  vector-effect="non-scaling-stroke"
-                />
-              </svg>
+              <UnderlineMark class="site-footer__link-mark" />
             </span>
           </a>
         </dd>
@@ -122,18 +102,7 @@ const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
           <a class="site-footer__link" href={`${repositoryUrl}/blob/main/LICENSE`} rel="noreferrer">
             <span class="site-footer__link-label">
               <span>MIT License</span>
-              <svg
-                class="site-footer__link-mark"
-                viewBox="0 0 100 8"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
-                  vector-effect="non-scaling-stroke"
-                />
-              </svg>
+              <UnderlineMark class="site-footer__link-mark" />
             </span>
           </a>
         </dd>
@@ -151,16 +120,21 @@ const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
         </dd>
       </div>
 
-      <div class="site-footer__detail site-footer__detail--analytics">
-        <dt>Analytics</dt>
-        <dd>TBD</dd>
-      </div>
-
       <div class="site-footer__detail site-footer__detail--agents">
         <dt>For agents</dt>
         <dd class="site-footer__agents">
-          <span>llms.txt</span>
-          <span>index.md</span>
+          <a class="site-footer__link" href="/llms.txt">
+            <span class="site-footer__link-label">
+              <span>llms.txt</span>
+              <UnderlineMark class="site-footer__link-mark" />
+            </span>
+          </a>
+          <a class="site-footer__link" href="/index.md">
+            <span class="site-footer__link-label">
+              <span>index.md</span>
+              <UnderlineMark class="site-footer__link-mark" />
+            </span>
+          </a>
         </dd>
       </div>
 
@@ -175,18 +149,7 @@ const repositoryUrl = "https://github.com/dharmayudistira/dharma-portfolio";
                   <a class="site-footer__link" href={item.url} rel="noreferrer">
                     <span class="site-footer__link-label">
                       <span>{item.name}</span>
-                      <svg
-                        class="site-footer__link-mark"
-                        viewBox="0 0 100 8"
-                        preserveAspectRatio="none"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          d="M1 4.8C14 2.4 27 5.8 40 4.1C54 2.5 68 5.7 82 3.9C89 3 95 3.8 99 3.2"
-                          vector-effect="non-scaling-stroke"
-                        />
-                      </svg>
+                      <UnderlineMark class="site-footer__link-mark" />
                     </span>
                   </a>
                 </li>
