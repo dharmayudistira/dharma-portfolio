@@ -1,16 +1,11 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
-import type { ImageMetadata } from "astro";
 
 interface Props {
   title: string;
   description: string;
   showDescription?: boolean;
   pageClass?: string;
-  image?: ImageMetadata;
-  canonicalUrl?: string;
-  ogType?: "website" | "article";
-  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -18,21 +13,10 @@ const {
   description,
   showDescription = true,
   pageClass,
-  image,
-  canonicalUrl,
-  ogType,
-  jsonLd,
 } = Astro.props;
 ---
 
-<BaseLayout
-  title={title}
-  description={description}
-  image={image}
-  canonicalUrl={canonicalUrl}
-  ogType={ogType}
-  jsonLd={jsonLd}
->
+<BaseLayout title={title} description={description}>
   <main>
     <div class:list={["content-page", pageClass]}>
       <header class="content-page__header">
