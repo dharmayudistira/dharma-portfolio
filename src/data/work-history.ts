@@ -1,5 +1,5 @@
-import dicodingLogo from "../assets/work-history/dicoding.jpg?url";
-import neurafarmLogo from "../assets/work-history/neurafarm.png?url";
+import dicodingLogo from "../assets/work-history/dicoding.webp?url";
+import neurafarmLogo from "../assets/work-history/neurafarm.webp?url";
 import zeroOneGroupLogo from "../assets/work-history/zero-one-group.svg?url";
 import type { StackId } from "./stacks";
 

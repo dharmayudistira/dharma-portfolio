@@ -5,16 +5,18 @@ interface Props {
   title: string;
   description: string;
   word: "project" | "blogs";
+  byline?: string;
 }
 
-const { title, description, word } = Astro.props;
+const { title, description, word, byline } = Astro.props;
 ---
 
 <header class="detail-header">
   <HeaderBackdrop word={word} showWord={false} />
-  <div class="detail-header__frame detail-header__intro">
+  <div class:list={["detail-header__frame", "detail-header__intro", { "detail-header__intro--with-byline": byline }]}>
     <h1>{title}</h1>
     <p>{description}</p>
+    {byline && <p class="detail-header__byline">{byline}</p>}
   </div>
   <div class="detail-header__details">
     <dl class="detail-header__frame">
@@ -56,6 +58,10 @@ const { title, description, word } = Astro.props;
     overflow-wrap: anywhere;
   }
 
+  .detail-header__intro--with-byline {
+    padding-block-end: 12px;
+  }
+
   .detail-header__intro h1 {
     margin: 0;
     font-size: 1.5rem;
@@ -70,6 +76,12 @@ const { title, description, word } = Astro.props;
     color: var(--muted);
     font-size: 0.875rem;
     line-height: 1.6;
+  }
+
+  .detail-header__intro .detail-header__byline {
+    margin-block-start: 22px;
+    font-size: 0.75rem;
+    line-height: 1.5;
   }
 
   .detail-header__details {
@@ -98,6 +110,10 @@ const { title, description, word } = Astro.props;
 
     .detail-header__intro {
       padding-block: 32px;
+    }
+
+    .detail-header__intro--with-byline {
+      padding-block-end: 12px;
     }
 
     .detail-header__details dl > :global(div) {

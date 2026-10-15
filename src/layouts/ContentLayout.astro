@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import type { ImageMetadata } from "astro";
 
 interface Props {
   title: string;
   description: string;
   showDescription?: boolean;
   pageClass?: string;
-  image?: string;
+  image?: ImageMetadata;
   canonicalUrl?: string;
   ogType?: "website" | "article";
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Dharma Yudistira</title>
+  <rect width="64" height="64" rx="12" fill="#07090a" />
+  <path
+    d="M15 12h15c16 0 25 8 25 20S46 52 30 52H15V12Zm11 9v22h4c9 0 14-4 14-11s-5-11-14-11h-4Z"
+    fill="#f3f5f4"
+    fill-rule="evenodd"
+  />
+</svg>

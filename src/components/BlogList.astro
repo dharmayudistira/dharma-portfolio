@@ -196,8 +196,11 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
     display: block;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    border: 1px dashed var(--technical-line-strong);
     border-radius: 12px;
+  }
+
+  .blog-list__cover-empty {
+    border: 1px dashed var(--technical-line-strong);
   }
 
   .blog-list__copy {
@@ -251,7 +254,6 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
     text-transform: uppercase;
   }
 
-  .blog-list__link:is(:hover, :focus-visible) .blog-list__cover img,
   .blog-list__link:is(:hover, :focus-visible) .blog-list__cover-empty {
     border-color: var(--muted);
   }

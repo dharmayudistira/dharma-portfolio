@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { ArrowLeft, ArrowRight } from "lucide";
 import MorphIcon from "morphicons/astro";
@@ -111,10 +110,19 @@ const initialProjectIndex = formatIndex(0);
 
                   <div class="featured-projects__visual" data-project-visual>
                     {project.data.cover ? (
-                      <span class="featured-projects__visual-frame">
-                        <Image
-                          src={project.data.cover}
+                      <span
+                        class:list={[
+                          "featured-projects__visual-frame",
+                          {
+                            "featured-projects__visual-frame--bottom": project.id === "kickavenue",
+                          },
+                        ]}
+                      >
+                        <img
+                          src={project.data.cover.src}
                           alt={`Preview of ${project.data.title}`}
+                          width={project.data.cover.width}
+                          height={project.data.cover.height}
                           loading={index === 0 ? "eager" : "lazy"}
                           decoding="async"
                         />

@@ -2,6 +2,7 @@ import { getCollection } from "astro:content";
 import type { APIRoute } from "astro";
 import { compareProjectsByTimeline } from "../data/projects";
 import { SITE_IDENTITY } from "../data/site";
+import { STACKS } from "../data/stacks";
 
 export const GET: APIRoute = async ({ site }) => {
   const [projects, posts] = await Promise.all([
@@ -12,6 +13,9 @@ export const GET: APIRoute = async ({ site }) => {
   const featuredPost = posts.sort(
     (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
   ).find(({ data }) => data.featured) ?? posts[0];
+  const homePosts = featuredPost
+    ? [featuredPost, ...posts.filter(({ id }) => id !== featuredPost.id).slice(0, 3)]
+    : [];
   const lines = [
     `# ${SITE_IDENTITY.name}`,
     "",
@@ -23,11 +27,15 @@ export const GET: APIRoute = async ({ site }) => {
     `- [Projects](${url("/projects/")}): All published projects.`,
     `- [Blog](${url("/blog/")}): All published articles.`,
     "",
+    "## Technology stack",
+    "",
+    STACKS.map(({ label }) => label).join(", "),
+    "",
     "## Featured writing",
     "",
-    ...(featuredPost ? [
-      `- [${featuredPost.data.title}](${url(`/blog/${featuredPost.id}/`)}): ${featuredPost.data.description}`,
-    ] : []),
+    ...homePosts.map(({ id, data }) =>
+      `- [${data.title}](${url(`/blog/${id}/`)}): ${data.description}`
+    ),
     "",
     "## Featured projects",
     "",

@@ -73,36 +73,67 @@ const getCategory = ({ data }: BlogPost) => BLOG_CATEGORY_LABELS[data.category];
           </a>
         </article>
 
-        <ol class="featured-blogs__list">
-          {supportingPosts.map((post) => (
-            <li>
-              <article>
-                <a class="featured-blogs__item" href={`/blog/${post.id}/`}>
-                  <span class="featured-blogs__item-topline">
-                    <span>{getCategory(post)}</span>
-                    <MorphIcon icon={ArrowRight} size={22} strokeWidth={1.25} aria-hidden="true" />
-                  </span>
-
-                  <span class="featured-blogs__item-copy">
-                    <span class="featured-blogs__title">
-                      <h3>{post.data.title}</h3>
-                      <UnderlineMark class="featured-blogs__title-mark" />
+        <div class="featured-blogs__supporting">
+          <ol class:list={["featured-blogs__list", { "featured-blogs__list--with-coming-soon": supportingPosts.length < 3 }]}>
+            {supportingPosts.map((post) => (
+              <li>
+                <article>
+                  <a class="featured-blogs__item" href={`/blog/${post.id}/`}>
+                    <span class="featured-blogs__item-topline">
+                      <span>{getCategory(post)}</span>
+                      <MorphIcon icon={ArrowRight} size={22} strokeWidth={1.25} aria-hidden="true" />
                     </span>
-                    <p>{post.data.description}</p>
-                  </span>
 
-                  <span class="featured-blogs__item-meta">
-                    <time datetime={post.data.publishedAt.toISOString()}>
-                      {formatBlogDate(post.data.publishedAt)}
-                    </time>
-                    {post.body?.trim() && <span>{getBlogReadingMinutes(post.body)} min read</span>}
-                  </span>
-                </a>
-              </article>
-            </li>
-          ))}
-        </ol>
+                    <span class="featured-blogs__item-copy">
+                      <span class="featured-blogs__title">
+                        <h3>{post.data.title}</h3>
+                        <UnderlineMark class="featured-blogs__title-mark" />
+                      </span>
+                      <p>{post.data.description}</p>
+                    </span>
+
+                    <span class="featured-blogs__item-meta">
+                      <time datetime={post.data.publishedAt.toISOString()}>
+                        {formatBlogDate(post.data.publishedAt)}
+                      </time>
+                      {post.body?.trim() && <span>{getBlogReadingMinutes(post.body)} min read</span>}
+                    </span>
+                  </a>
+                </article>
+              </li>
+            ))}
+          </ol>
+          {supportingPosts.length < 3 && (
+            <div class="featured-blogs__coming-soon">
+              <div class="featured-blogs__riffle"></div>
+              <p>more writing coming soon.</p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )
 }
+
+<script>
+  import { riffle } from "@lucasmarkes/hairline";
+
+  const stage = document.querySelector<HTMLElement>(".featured-blogs__riffle");
+
+  if (stage) {
+    const laptop = window.matchMedia("(min-width: 1025px)");
+    let figure: ReturnType<typeof riffle> | undefined;
+
+    const syncFigure = () => {
+      if (laptop.matches && !figure) {
+        figure = riffle(stage, { intensity: 0.45 });
+      } else if (!laptop.matches && figure) {
+        figure.destroy();
+        figure = undefined;
+      }
+    };
+
+    syncFigure();
+    laptop.addEventListener("change", syncFigure);
+  }
+</script>

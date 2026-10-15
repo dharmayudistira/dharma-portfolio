@@ -34,7 +34,7 @@ const platforms = project.data.platform.split("·").map((value) => {
 const canonical = Astro.site
   ? new URL(`/projects/${project.id}/`, Astro.site).toString()
   : undefined;
-const image = project.data.cover?.src;
+const image = project.data.cover;
 const jsonLd = canonical
   ? {
       "@context": "https://schema.org",
@@ -44,7 +44,7 @@ const jsonLd = canonical
       datePublished: project.data.publishedAt.toISOString(),
       dateModified: project.data.updatedAt?.toISOString(),
       url: canonical,
-      image: image && Astro.site ? new URL(image, Astro.site).toString() : undefined,
+      image: image && Astro.site ? new URL(image.src, Astro.site).toString() : undefined,
       author: {
         "@id": new URL("/profile/#person", Astro.site).toString(),
       },

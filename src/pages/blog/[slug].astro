@@ -6,6 +6,7 @@ import DetailHeader from "../../components/DetailHeader.astro";
 import Footer from "../../components/Footer.astro";
 import Gap from "../../components/Gap.astro";
 import { BLOG_CATEGORY_LABELS, formatBlogDate, getBlogReadingMinutes } from "../../data/blog";
+import { SITE_IDENTITY } from "../../data/site";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
@@ -27,7 +28,9 @@ const generatedCanonical = Astro.site
   ? new URL(`/blog/${post.id}/`, Astro.site).toString()
   : undefined;
 const canonical = post.data.canonicalUrl ?? generatedCanonical;
-const image = post.data.cover?.src;
+const image = post.data.cover;
+const coAuthors = post.data.coAuthors ?? [];
+const authorNames = [SITE_IDENTITY.name, ...coAuthors];
 const jsonLd = canonical
   ? {
       "@context": "https://schema.org",
@@ -37,11 +40,17 @@ const jsonLd = canonical
       datePublished: post.data.publishedAt.toISOString(),
       dateModified: post.data.updatedAt?.toISOString(),
       url: canonical,
-      image: image && Astro.site ? new URL(image, Astro.site).toString() : undefined,
+      image: image && Astro.site ? new URL(image.src, Astro.site).toString() : undefined,
       author: Astro.site
-        ? {
-            "@id": new URL("/profile/#person", Astro.site).toString(),
-          }
+        ? [
+            {
+              "@type": "Person",
+              "@id": new URL("/profile/#person", Astro.site).toString(),
+              name: SITE_IDENTITY.name,
+              url: new URL("/profile/", Astro.site).toString(),
+            },
+            ...coAuthors.map((name) => ({ "@type": "Person", name })),
+          ]
         : undefined,
     }
   : undefined;
@@ -60,6 +69,7 @@ const jsonLd = canonical
       title={post.data.title}
       description={post.data.description}
       word="blogs"
+      byline={`By ${authorNames.join(", ")}`}
     >
       <div>
         <dt class="visually-hidden">Published{post.body?.trim() ? " and reading time" : ""}</dt>
