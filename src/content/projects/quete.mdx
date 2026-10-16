@@ -14,4 +14,61 @@ cover: "../../assets/projects/quete-thumbnail.webp"
 featured: false
 draft: false
 publishedAt: 2026-10-12
+updatedAt: 2026-10-16
 ---
+
+import { testimonials } from "../../data/testimonials";
+import videoPoster from "../../assets/projects/quete-video-poster.jpg";
+
+## Overview
+
+[Quête](https://www.queteapp.com/) is a fashion discovery website that helps shoppers explore independent brands through their fit, identity, and values. Its catalogue, filters, and shopping quiz give people different ways to discover products that suit them.
+
+I built Quête from scratch as a freelance project through Upwork, working as the sole developer across the frontend, backend, and deployment. The client brought a combination of designs, requirements, and product ideas, which formed the starting point for the build.
+
+## Preview
+
+<figure>
+  <video autoplay loop muted playsinline preload="metadata" poster={videoPoster.src} width="1600" height="1000" aria-label="Animated Quête showcase featuring its shopping quiz, product catalogue, product details, and mobile web experience">
+    <source src="/videos/quete-product-preview.mp4" type="video/mp4" />
+    <a href="/videos/quete-product-preview.mp4">Watch the Quête product preview</a>
+  </video>
+  <figcaption>Quête's quiz, catalogue, product details, and mobile web experience.</figcaption>
+</figure>
+
+## Client feedback
+
+This was a freelance engagement through Upwork. Naya Brown shared the following feedback:
+
+{testimonials
+  .filter((testimonial) => testimonial.name === "Naya Brown")
+  .map((testimonial) => (
+    <blockquote>
+      <p>{testimonial.quote}</p>
+      <footer><cite>{testimonial.name}, {testimonial.company}</cite></footer>
+    </blockquote>
+  ))}
+
+## Building and working with the client
+
+### Choosing a stack for handover
+
+I chose Next.js, Supabase, and Vercel because the client and I were familiar with them. The client's own developer would maintain the product after handover, making that familiarity a practical part of the decision.
+
+I handled the build and deployment, then completed the handover to the client's developer.
+
+### Managing the catalogue within scope
+
+An admin dashboard was outside the agreed contract scope, so the client managed the product catalogue in Google Sheets, a tool they already knew.
+
+I built a daily process to fetch the sheet and import product data into the database, with checks for duplicate products and input errors. Log monitoring flagged issues such as duplicates and broken URLs for periodic review. For duplicate products, the logs helped us identify which entry was valid.
+
+This approach let the client manage the catalogue through a familiar tool while the website used the imported data in its database.
+
+### Keeping communication clear
+
+We combined Google Meet conversations with asynchronous WhatsApp chat when clarifying requirements and reviewing progress. This supported direct communication about the designs, product needs, and implementation throughout the build.
+
+## Lessons learned
+
+Quête reinforced the value of choosing technology the next developer can maintain, finding practical solutions within the agreed scope, and keeping communication clear through delivery and handover. Those considerations shaped both the stack choice and the way catalogue management worked for the client.

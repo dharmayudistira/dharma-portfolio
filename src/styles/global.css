@@ -1171,7 +1171,8 @@ html[data-intro="seen"] .intro {
 .gap + .featured-blogs,
 .gap + .testimonials,
 .gap + .featured-projects,
-.gap + .site-footer {
+.gap + .site-footer,
+main:has(> .gap:last-child) + .site-footer {
   border-top: 0;
 }
 
@@ -2409,8 +2410,8 @@ html[data-intro="seen"] .intro {
   --prose-inset: clamp(1rem, 2.5vw, 1.5rem);
   max-width: 720px;
   margin-top: clamp(3rem, 6vw, 5.5rem);
-  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.05rem);
-  line-height: 1.75;
+  font-size: 0.875rem;
+  line-height: 1.7;
   overflow-wrap: anywhere;
 }
 
@@ -2421,23 +2422,23 @@ html[data-intro="seen"] .intro {
 }
 
 .prose h2 {
-  font-size: clamp(1.25rem, 1.125rem + 0.5vw, 1.375rem);
+  font-size: 1.25rem;
 }
 
 .prose h3 {
-  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
+  font-size: 1.125rem;
 }
 
 .prose h4 {
-  font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.125rem);
+  font-size: 1rem;
 }
 
 .prose h5 {
-  font-size: clamp(1rem, 0.9375rem + 0.25vw, 1.0625rem);
+  font-size: 0.9375rem;
 }
 
 .prose h6 {
-  font-size: clamp(0.9375rem, 0.875rem + 0.25vw, 1rem);
+  font-size: 0.875rem;
 }
 
 .prose p,
@@ -2500,10 +2501,37 @@ html[data-intro="seen"] .intro {
   margin-inline: 0;
 }
 
+.prose figure img {
+  margin-inline: auto;
+}
+
+.prose .decare-process__figure {
+  max-width: 570px;
+  margin-inline: auto;
+}
+
+.prose .simpan-showcase__figure,
+.prose .kickavenue-showcase__figure {
+  max-width: 550px;
+  margin-inline: auto;
+}
+
+.prose video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--technical-line-soft);
+  border-radius: 8px;
+}
+
+.prose figure figcaption {
+  text-align: center;
+}
+
 .prose :is(figcaption, blockquote footer) {
   margin-block-start: 12px;
   color: var(--muted);
-  font: 400 clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem)/1.6 var(--font-mono);
+  font: 400 0.75rem/1.6 var(--font-mono);
 }
 
 .prose blockquote {
@@ -2514,6 +2542,16 @@ html[data-intro="seen"] .intro {
 
 .prose blockquote p {
   color: var(--foreground);
+}
+
+.prose .prose-callout blockquote {
+  margin-block: 0;
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+.prose .prose-callout blockquote p {
+  margin-block: 0;
 }
 
 .prose :is(code, kbd) {
@@ -2616,7 +2654,7 @@ html[data-intro="seen"] .intro {
 
 .prose .footnotes {
   padding-block-start: 24px;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 }
 
 .prose [id] {

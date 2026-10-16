@@ -13,4 +13,56 @@ cover: "../../assets/projects/kickavenue-thumbnail.webp"
 featured: true
 draft: false
 publishedAt: 2026-10-12
+updatedAt: 2026-10-16
 ---
+
+import Callout from "../../components/Callout.astro";
+import videoPoster from "../../assets/projects/kickavenue-video-poster.jpg";
+
+<Callout type="info" title="Confidentiality note">
+  <p>This project was built under a professional engagement. Nonpublic product details, internal architecture, and business logic are covered by NDA and cannot be disclosed. What follows summarizes my personal contribution and the app's publicly reported reach.</p>
+  <details>
+    <summary>Important Links</summary>
+    <ul>
+      <li><a href="https://play.google.com/store/apps/details?id=com.kickavenue.androidshop">Google Play</a></li>
+      <li><a href="https://apps.apple.com/id/app/kick-avenue-shop-hype-here/id1478394222">App Store</a></li>
+      <li><a href="https://zero-one-group.com/case-studies/mobile-app-e-commerce-for-luxury-sneaker-marketplace">Zero One case study</a></li>
+    </ul>
+  </details>
+</Callout>
+
+At Zero One Group, I worked with other developers to rewrite Kick Avenue's marketplace app in Flutter for Android and iOS. The product supports buying and selling authenticated sneakers, streetwear, and luxury goods. My work spanned the app, with architecture and implementation shared across the team. The rebuild also became a pilot for our mobile division's new development standards.
+
+<figure class="kickavenue-showcase__figure">
+  <video autoplay loop muted playsinline preload="metadata" poster={videoPoster.src} width="1200" height="528" aria-label="Looping Kick Avenue app preview showing marketplace browsing and sneaker details across three phone screens">
+    <source src="/videos/kickavenue-app-preview.mp4" type="video/mp4" />
+    <a href="/videos/kickavenue-app-preview.mp4">Watch the Kick Avenue app preview</a>
+  </video>
+  <figcaption>Kick Avenue mobile app preview.</figcaption>
+</figure>
+
+## Piloting shared development standards
+
+Our mobile division wanted a consistent approach to code structure, state management, testing, and onboarding. We developed documented code conventions and adopted Riverpod as our shared state management approach.
+
+Our research included guidance from [Andrea Bizzotto, a Google Developer Expert for Dart and Flutter](https://codewithandrea.com/). We adapted that guidance into our own company standards. I helped research approaches, define conventions, apply them in the app, and review teammates' implementations.
+
+## Adapting checkout to the existing backend
+
+The client continued to maintain the backend. Endpoint improvements required back-and-forth communication and business or product approval. We ultimately adapted the mobile flows to the existing APIs, with no backend changes.
+
+Checkout made those constraints concrete. Country-specific voucher eligibility depended on the selected delivery address, while delivery fees also depended on where a product was being shipped from and to. Address, voucher selection, and delivery fees had to be considered together as the user moved through payment.
+
+Riverpod helped us manage that connected state within the mobile app. This gave us a practical example of how our new state management approach supported a flow shaped by the existing backend.
+
+We verified checkout through a combination of automated tests, manual walkthroughs, and QA, checking the behavior of those related choices.
+
+## Delivery and reach
+
+The revamped Android and iOS app [launched in 2023](https://zero-one-group.com/case-studies/mobile-app-e-commerce-for-luxury-sneaker-marketplace). As of October 2026, [Google Play lists **500,000+ Android downloads**](https://play.google.com/store/apps/details?id=com.kickavenue.androidshop).
+
+## What I took from the project
+
+Kick Avenue taught me to evaluate engineering standards through the product work they support. The rewrite gave our team a place to turn research into documented practices, apply them together, and review each other's work.
+
+Checkout also showed the importance of adapting to constraints owned by another team. Working with the existing APIs gave our Riverpod approach a concrete purpose: managing related mobile state while delivering within the client's backend boundaries.

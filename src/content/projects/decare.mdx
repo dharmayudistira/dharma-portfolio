@@ -13,4 +13,88 @@ repositoryUrl: "https://github.com/B21-CAP0075/DeCare-App"
 featured: false
 draft: false
 publishedAt: 2026-10-12
+updatedAt: 2026-10-15
 ---
+
+import ContentImage from "../../components/ContentImage.astro";
+import videoPoster from "../../assets/projects/decare-video-poster.jpg";
+import mmsePrompts from "../../assets/projects/decare-mmse-prompts.png";
+import scoring from "../../assets/projects/decare-scoring.png";
+import cloudHandoff from "../../assets/projects/decare-cloud-handoff.png";
+import predictionReturn from "../../assets/projects/decare-prediction-return.png";
+
+DeCare was our six-person [Bangkit Academy capstone](https://github.com/B21-CAP0075/DeCare-Intro) in 2021: an Android app for home caregivers that paired guided cognitive screening with a cloud prediction and daily care tools. I focused on app design and Android implementation while teammates built the model and cloud services. The full presentation below shows the problem and product.
+
+<figure>
+  <video controls playsinline preload="none" poster={videoPoster.src} width="1138" height="640" aria-label="Full 2021 DeCare team presentation">
+    <source src="/videos/decare-presentation.mp4" type="video/mp4" />
+    <a href="/videos/decare-presentation.mp4">Watch the full DeCare presentation</a>
+  </video>
+  <figcaption>Team presentation video (4 minutes, 5 seconds).</figcaption>
+</figure>
+
+## From answers to a result
+
+### 1. Eleven MMSE prompts
+
+The person being screened worked through eleven Mini-Mental State Examination (MMSE) prompts in DeCare while a caregiver stayed beside them. The app guided the sequence on the phone; the caregiver helped with the process and later reviewed answers that needed human judgment.
+
+<figure class="decare-process__figure">
+  <ContentImage
+    src={mmsePrompts}
+    alt="Illustration of DeCare's blue-and-purple Android screening interface: a person and caregiver work through eleven numbered MMSE prompts together."
+  />
+  <figcaption>
+    Illustration based on DeCare's original Android interface. <a href={mmsePrompts.src} target="_blank" rel="noopener noreferrer">View full size</a>.
+  </figcaption>
+</figure>
+
+### 2. Six app-scored, five caregiver-scored
+
+The Android app scored six responses automatically. The caregiver reviewed and scored the other five. After both parts were complete, the app added all eleven item scores into the MMSE total.
+
+<figure class="decare-process__figure">
+  <ContentImage
+    src={scoring}
+    alt="DeCare scoring illustration: six responses scored by the app and five reviewed and scored by the caregiver combine into one MMSE total on the phone."
+  />
+  <figcaption>
+    Two scoring paths become one total on the phone. <a href={scoring.src} target="_blank" rel="noopener noreferrer">View full size</a>.
+  </figcaption>
+</figure>
+
+### 3. The phone sends a score and profile to the cloud
+
+The app reconciled the eleven item scores into one MMSE total and showed it on the phone. When someone selected Predict, it paired that total with the patient's age, education, socioeconomic status, and sex and sent those values to the team's cloud endpoint. The cloud model processed them to produce a prediction.
+
+<figure class="decare-process__figure">
+  <ContentImage
+    src={cloudHandoff}
+    alt="DeCare handoff illustration: the phone combines eleven item scores into an MMSE total, pairs it with the patient's profile, and sends the total and profile to the cloud model."
+  />
+  <figcaption>
+    Phone total and profile sent to the cloud. <a href={cloudHandoff.src} target="_blank" rel="noopener noreferrer">View full size</a>.
+  </figcaption>
+</figure>
+
+### 4. The prediction returns to the phone
+
+The cloud model returned a prediction label and confidence value. DeCare added them to the result screen alongside the MMSE total. If the request failed, the score remained visible and the app reported the error.
+
+<figure class="decare-process__figure">
+  <ContentImage
+    src={predictionReturn}
+    alt="DeCare result illustration: the cloud model sends a prediction label and confidence value to the Android app, which displays them beneath the already-calculated MMSE total."
+  />
+  <figcaption>
+    Cloud response beside the MMSE total. <a href={predictionReturn.src} target="_blank" rel="noopener noreferrer">View full size</a>.
+  </figcaption>
+</figure>
+
+The same app also supported everyday care through activity reminders, guided yoga, and health articles. The [Android source](https://github.com/B21-CAP0075/DeCare-App), [model experiments](https://github.com/B21-CAP0075/Dementia-Classification), and [Flask backend](https://github.com/B21-CAP0075/Flask-Backend) show the separate parts of the system.
+
+## Outcome and limits
+
+The team completed the capstone and published the Android app on Google Play in 2021. That is the delivery outcome I can substantiate. I do not have evidence here that DeCare improved patient outcomes or that its model was clinically validated. The displayed model result is a prediction, not a diagnosis; [cognitive screening alone is insufficient to diagnose dementia](https://www.nia.nih.gov/health/health-care-professionals-information/assessing-cognitive-impairment-older-patients).
+
+For me, DeCare was an exercise in making a multi-step, two-person process work on a phone while connecting it to a larger team-built system. The clearest evidence of my contribution is the Android experience itself: instructions, screening, caregiver review, result, and the daily tools around it.

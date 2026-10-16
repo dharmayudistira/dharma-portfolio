@@ -42,12 +42,13 @@ const inspirations = [
   { name: "Lucas Marques", url: "https://www.lucasmarkes.com/" },
 ];
 const repositoryUrl = SITE_IDENTITY.links.repository;
+const siteLabel = Astro.site?.hostname ?? SITE_IDENTITY.name;
 ---
 
 <footer class="site-footer">
   <div class="site-footer__frame">
     <header class="site-footer__intro">
-      <strong>dharma-yudistira.com</strong>
+      <strong>{siteLabel}</strong>
       <p>Curious by nature, product-minded by practice.</p>
     </header>
 

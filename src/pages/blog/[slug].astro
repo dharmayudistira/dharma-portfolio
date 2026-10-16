@@ -62,6 +62,8 @@ const jsonLd = canonical
   image={image}
   canonicalUrl={canonical}
   ogType="article"
+  publishedAt={post.data.publishedAt}
+  updatedAt={post.data.updatedAt}
   jsonLd={jsonLd}
 >
   <main class="blog-page">
@@ -146,6 +148,7 @@ const jsonLd = canonical
 
   .blog-page__content .prose {
     max-width: none;
+    margin-top: clamp(1.5rem, 2.5vw, 2rem);
   }
 
   @media (max-width: 767px) {

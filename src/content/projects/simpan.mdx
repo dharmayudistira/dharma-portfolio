@@ -13,4 +13,52 @@ cover: "../../assets/projects/simpan-thumbnail.webp"
 featured: true
 draft: false
 publishedAt: 2026-10-12
+updatedAt: 2026-10-16
 ---
+
+import Callout from "../../components/Callout.astro";
+import videoPoster from "../../assets/projects/simpan-video-poster.jpg";
+
+<Callout type="info" title="Confidentiality note">
+  <p>This project was built under a professional engagement. Nonpublic product details, internal architecture, and business logic are covered by NDA and cannot be disclosed. What follows summarizes my personal contribution and the app's publicly reported reach.</p>
+  <details>
+    <summary>Important Links</summary>
+    <ul>
+      <li><a href="https://play.google.com/store/apps/details?id=com.simpan.mobile.stg">Google Play</a></li>
+      <li><a href="https://apps.apple.com/id/app/simpan-reksa-dana-idr-usd/id6444825882">App Store</a></li>
+      <li><a href="https://zero-one-group.com/case-studies/simplifying-investment-for-retail-investors-with-mobile-app">Zero One case study</a></li>
+    </ul>
+  </details>
+</Callout>
+
+At Zero One Group, I worked on Simpan, an investment app for Indonesian retail investors. Our team inherited its Flutter codebase from a previous vendor. I helped review and standardize the existing code while owning the ordering and payment flow across screens, state management, API integration, and tests. Refactoring and feature delivery happened alongside each other, with working features to protect throughout.
+
+<figure class="simpan-showcase__figure">
+  <video autoplay loop muted playsinline preload="metadata" poster={videoPoster.src} width="1100" height="1200" aria-label="Looping Simpan app preview showing goals, projections, fund information, and portfolio views">
+    <source src="/videos/simpan-app-preview.mp4" type="video/mp4" />
+    <a href="/videos/simpan-app-preview.mp4">Watch the Simpan app preview</a>
+  </video>
+  <figcaption>Simpan mobile app preview.</figcaption>
+</figure>
+
+## Reviewing before refactoring
+
+Before changing the inherited app, I reviewed the codebase to identify where refactoring would help and which areas could stay as they were. Preserving working features was part of that decision.
+
+I helped standardize the Flutter code and migrate state management toward BLoC. This work happened alongside feature development, so improving the existing codebase remained part of our delivery work.
+
+## Owning the ordering and payment flow
+
+I owned the Flutter ordering and payment flow across screens, state management, API integration, and tests.
+
+Testing followed the team's ownership model: each developer chose coverage, wrote tests, and reviewed them for their assigned screens and flows. For my work, I combined manual walkthroughs with Flutter unit and integration tests. These checks accompanied both refactoring and feature development, helping us verify that changes preserved the expected behavior.
+
+## Delivery and reach
+
+The team completed and handed over Simpan's iOS and Android app in October 2022, as documented in the [team case study](https://zero-one-group.com/case-studies/simplifying-investment-for-retail-investors-with-mobile-app). The product also reached [**1,000+ downloads**](https://play.google.com/store/apps/details?id=com.simpan.mobile.stg).
+
+My contribution combined standardizing the inherited Flutter codebase with delivering the ordering and payment flow across screens, state management, API integration, and testing.
+
+## What I took from the project
+
+Simpan taught me to judge refactoring by how it supported delivery. A worthwhile change helped me finish the current feature, reduced the risk of bugs, and made future changes easier. That gave the cleanup a practical purpose as we continued building the app.

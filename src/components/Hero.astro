@@ -3,14 +3,14 @@ import GoldenRatio from "./GoldenRatio.astro";
 import { SITE_IDENTITY } from "../data/site";
 ---
 
-<main class="hero">
+<section class="hero" aria-labelledby="hero-title">
   <div class="hero__content">
     <div class="hero__artwork" aria-hidden="true">
       <GoldenRatio class="hero__golden-ratio" hero />
     </div>
 
     <div class="hero__copy">
-      <h1 class="hero__title">
+      <h1 class="hero__title" id="hero-title">
         <span>DHARMA</span>
         <span>YUDISTIRA</span>
       </h1>
@@ -52,4 +52,4 @@ import { SITE_IDENTITY } from "../data/site";
       <span class="ratio-note__value">φ ≈ 1.618033</span>
     </div>
   </div>
-</main>
+</section>

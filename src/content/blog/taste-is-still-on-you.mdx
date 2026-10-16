@@ -1,8 +1,8 @@
 ---
 title: "Taste is still on you"
-description: "Notes on Addy Osmani's The Effective Software Engineer, and what a year of writing code with AI made me admit about my own work."
+description: "A response to Addy Osmani's The Effective Software Engineer on AI, full-stack work, and the human judgment behind a well-built feature."
 publishedAt: 2026-04-27
-updatedAt: 2026-04-28
+updatedAt: 2026-10-15
 category: engineering
 tags:
   - book
@@ -13,3 +13,58 @@ cover: "../../assets/blog/taste-is-still-on-you.webp"
 featured: false
 draft: false
 ---
+
+import Callout from "../../components/Callout.astro";
+
+On a client project, my role expanded beyond the mobile and frontend work I knew best. I had to take responsibility for backend work too. AI could explain unfamiliar concepts, suggest approaches, and write code much faster than I could learn every detail of a new stack. My concern was whether the feature would be well developed, not merely whether I could make it run.
+
+I came to Addy Osmani's [*The Effective Software Engineer*](https://www.oreilly.com/library/view/the-effective-software/9798341638167/) through a conversation about its arguments, rather than a cover-to-cover reading. I tested its central idea against that client work: producing code quickly and delivering a valuable, dependable outcome are different things.
+
+<Callout type="info" title="From the book">
+  <blockquote cite="https://www.oreilly.com/library/view/the-effective-software/9798341638167/">
+    <p>AI belongs in your toolbox, but you are accountable for what ships.</p>
+    <footer>Addy Osmani, <cite><a href="https://www.oreilly.com/library/view/the-effective-software/9798341638167/">The Effective Software Engineer</a></cite>, p. 231</footer>
+  </blockquote>
+</Callout>
+
+## Sharpen the axe before writing the code
+
+On my [profile](/profile/), I use the image of sharpening an axe before cutting down a tree. It captures how I like to work. Before implementation, I want the requirement, the expected result, and a viable approach to be clear. AI has made the cutting faster. It has also made it easier to spend time on the questions that come first.
+
+A client might request feature A. The product manager and I still need to understand the problem behind that request, research the options, and weigh their costs and benefits. If another approach serves the client better, I would recommend it. AI can help us explore possibilities, but it cannot decide what the client and their users need on our behalf.
+
+Clarity does not mean waiting until every unknown disappears. If I can resolve them all, I will. If I cannot, I start once the riskiest question has a credible answer and use small experiments to learn the rest. For an integration, that might mean reading the official documentation myself and building a proof of concept that confirms the relevant endpoints behave as described. It proves that an approach is feasible; it does not certify the finished feature.
+
+Consider a payment flow as an example. Before asking AI to implement it, I would want to know what should happen if someone taps Pay twice, closes the app before seeing confirmation, or receives an uncertain result. AI is valuable here because it helps bring those questions into the conversation early. I still decide which behaviors the product promises and what evidence will show they work.
+
+## What AI gave me, and what it did not
+
+AI helped me cross a technical gap. I used it to brainstorm, learn backend concepts, compare approaches, and produce code. After working this way, I can understand a backend task more quickly than I could before. I still rely on AI for both framework details and parts of backend design. That is the honest shape of my progress.
+
+Osmani argues that engineers need both technical depth and enough breadth to understand the systems around their work. AI has made that breadth more accessible to me, but it has not made me an instant backend specialist. I make the final technical choice, and a senior developer helps verify decisions outside my strongest domain.
+
+That human discussion has changed for the better. I can come to my senior with documentation, possible approaches, and a small piece of evidence, instead of only asking how to begin. My senior is open to discussion even though I have AI access. The tool helps me prepare for that conversation; the decision still belongs to people.
+
+## A checklist cannot grade its own code
+
+Verification is where speed can become deceptive. If AI writes an implementation and then writes the checklist used to judge it, the two may share the same assumption. Its checklist might cover the general path perfectly and still miss what matters in this product.
+
+I start with the result I expect. AI can suggest test cases and challenge its own suggestions, but I decide which checks matter and compare them with the requirements, documentation, and what the system actually does. Another developer's review adds a perspective that the AI cannot provide about whether the code is readable, the handoff is clear, and the onboarding documentation helps someone else maintain the backend.
+
+That part of Osmani's book deserves as much attention as its AI chapter. He treats shared knowledge and meaningful review as engineering work. A feature that only its author can understand leaves the next developer with a problem, even if every test currently passes. On the client project, maintainability was part of the deliverable, and another developer checked it directly.
+
+## The outcome I can see, and the one I cannot
+
+Osmani asks engineers to judge their work by outcomes rather than the number of tasks completed. I agree, but client work puts a limit on what I can know. The client's response is the first signal that the feature met their expectation. I also want to know what users experience. When I have access to their feedback or usage data, I can examine it and bring my opinion back to the client.
+
+I do not always have that access. Sometimes I see only the surface, and sometimes the client is the only source of feedback. In those cases I can say what we delivered, how it was verified, and what the client told us. I cannot honestly claim that users benefited in a measurable way unless I have evidence. The book acknowledges that organizational context affects an engineer's control over outcomes. For me, access to user feedback is where that constraint becomes concrete.
+
+## The responsibility that stays
+
+Taking on full-stack work with AI felt empowering. It also brought an unspoken pressure to do more because the tool was available. That pressure did not come as a demand from my senior, who continued to welcome questions. It came from realizing how much more I could attempt.
+
+That is why my advice to a junior developer would still begin with fundamentals. Learn enough to build and debug with or without AI. Those fundamentals are the backbone that helps you question an answer, understand a failure, and know when to seek another engineer's judgment. I am still learning outside my original domain, and AI helps me do that. It does not remove my responsibility to understand what I approve.
+
+The strongest idea I took from discussing Osmani's book is that faster execution only creates an opportunity for better engineering. I still have to clarify the client's goal, test the riskiest assumption, choose an approach, verify the result, and leave work another developer can carry forward. When user evidence is available, I have to listen to it too.
+
+AI has made writing code cheaper for me. The work that gives the code its value still takes judgment. That is where I keep sharpening the axe.

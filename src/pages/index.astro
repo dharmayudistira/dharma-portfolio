@@ -22,15 +22,17 @@ const jsonLd = Astro.site
 ---
 
 <BaseLayout jsonLd={jsonLd}>
-  <Hero />
-  <Gap size="small" variant="blank" corner="top-left" />
-  <TechMarquee />
-  <Gap size="small" variant="filled" corner="bottom-right" />
-  <FeaturedBlogs />
-  {showTestimonials && <Gap size="small" variant="blank" />}
-  {showTestimonials && <Testimonials />}
-  <Gap size="small" variant="filled" corner="bottom-left" />
-  <FeaturedProjects />
-  <Gap size="medium" variant="filled" corner="bottom-right" />
+  <main>
+    <Hero />
+    <Gap size="small" variant="blank" corner="top-left" />
+    <TechMarquee />
+    <Gap size="small" variant="filled" corner="bottom-right" />
+    <FeaturedBlogs />
+    {showTestimonials && <Gap size="small" variant="blank" />}
+    {showTestimonials && <Testimonials />}
+    <Gap size="small" variant="filled" corner="bottom-left" />
+    <FeaturedProjects />
+    <Gap size="medium" variant="filled" corner="bottom-right" />
+  </main>
   <Footer />
 </BaseLayout>

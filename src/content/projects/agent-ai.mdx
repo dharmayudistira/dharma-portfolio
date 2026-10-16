@@ -1,6 +1,6 @@
 ---
 title: "AgentAI"
-summary: "A SaaS platform that gives real estate agents AI tools tailored to their business needs, from property research to marketing content and listing management."
+summary: "Evolving a live real estate AI platform with a UI rebrand, new AI workflows, Stripe billing, and optional B2B onboarding."
 year: 2025
 projectType: full-time
 role: "Product Engineer"
@@ -13,4 +13,61 @@ cover: "../../assets/projects/agentai-thumbnail.webp"
 featured: true
 draft: false
 publishedAt: 2026-10-12
+updatedAt: 2026-10-16
 ---
+
+import Callout from "../../components/Callout.astro";
+import videoPoster from "../../assets/projects/agentai-video-poster.jpg";
+
+<Callout type="info" title="Confidentiality note">
+  <p>This project was built under a professional engagement. Nonpublic product details, internal architecture, and business logic are covered by NDA and cannot be disclosed. What follows summarizes my personal contribution and publicly available product features.</p>
+  <details>
+    <summary>Important Links</summary>
+    <ul>
+      <li><a href="https://agentai.ai/">Website</a></li>
+      <li><a href="https://zero-one-group.com/case-studies/refining-ai-powered-productivity-suite-for-real-estate-professionals">Zero One case study</a></li>
+    </ul>
+  </details>
+</Callout>
+
+[AgentAI](https://agentai.ai/) helps real estate professionals create marketing content, write property descriptions, and use AI in their daily work. I worked across its Next.js frontend and NestJS backend at Zero One Group while the live product went through a rebrand, added B2B support, and introduced a new AI stack.
+
+<figure>
+  <video autoplay loop muted playsinline preload="metadata" poster={videoPoster.src} width="1344" height="960" aria-label="Looping AgentAI product preview showing AI chat, marketing tools, and agent tools">
+    <source src="/videos/agentai-app-preview.mp4" type="video/mp4" />
+    <a href="/videos/agentai-app-preview.mp4">Watch the AgentAI product preview</a>
+  </video>
+  <figcaption>AgentAI product preview.</figcaption>
+</figure>
+
+## Evolving a live product
+
+I began the engagement as the only developer. A second developer joined partway through, and we shared the work from then on. My responsibilities spanned the UI rebrand, B2B support, AI integrations, and Stripe billing across frontend and backend.
+
+The rebrand included moving the UI from Chakra UI to Material UI. I also integrated Stripe billing into the existing app.
+
+We updated the existing app gradually, grouping changes by user flow to protect the behavior customers already relied on.
+
+## Adding B2B while keeping individual accounts
+
+The B2B work introduced organisations, member management, access roles, and sharing work within a team.
+
+Existing users could choose whether to move into the B2B setup. We added an onboarding page for that transition, while keeping individual accounts available for people who wanted to continue using the app on their own.
+
+User-type fields in the database distinguished individual and B2B users, allowing both account types to coexist in the product.
+
+## Connecting AI tools through Brand DNA
+
+I built or improved the Chat, Marketing Strategy, Property Description, and Brand DNA workflows. The OpenAI and LangChain direction came from the client.
+
+Brand DNA generated a brand identity, tone, and related brand information that could be reused across the other tools. This gave the generated content a shared reference for keeping the brand consistent across different tasks.
+
+## Working directly with clients and product managers
+
+My role also involved joining meetings with clients and product managers to understand problems, listen to product needs, and discuss responses to feedback.
+
+For the AI work, I explained the pros and cons of model options and how they supported the app's needs. I also took part in discussions about how to introduce B2B support. Those conversations connected implementation work with the client's product decisions.
+
+## What I took from the project
+
+AgentAI strengthened my full-stack engineering and AI integration skills, as well as how I work with clients and product managers. The work gave me practice taking changes from product discussions through frontend and backend implementation, while considering the people already using the app.
