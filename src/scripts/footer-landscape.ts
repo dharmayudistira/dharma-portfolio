@@ -1,8 +1,6 @@
 import type { DeviceStage, HairlineKernel, Point } from "../vendor/hairline/types";
 
-declare const HL: HairlineKernel;
-
-export function mountFooterLandscape({ stage, svg, read }: DeviceStage, value: number, engine: HairlineKernel = HL) {
+export function mountFooterLandscape({ stage, svg, read }: DeviceStage, value: number, engine: HairlineKernel) {
   const { Cam, fit, proj, facing, rings, prism, solid, put, rrect, poly, seg, mk, tween, tset, tval, tdone, register, pointer, disposer } = engine;
   const bag = disposer(), camera = Cam(45, 0.5, 0.86);
   const diagonal = Math.SQRT1_2;

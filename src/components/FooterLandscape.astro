@@ -9,38 +9,44 @@ import landscape from "../assets/footer-landscape.svg?raw";
 </div>
 
 <script>
-  import { mountFooterLandscape } from "../scripts/footer-landscape";
   import type { HairlineKernel, Point } from "../vendor/hairline/types";
 
-  declare const HL: HairlineKernel;
   const stage = document.querySelector<HTMLElement>(".footer-landscape__frame");
   const svg = stage?.querySelector("svg");
 
   if (stage && svg) {
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    const observer = new IntersectionObserver(([entry]) => {
+    const observer = new IntersectionObserver(async ([entry]) => {
       if (!entry.isIntersecting) return;
       observer.disconnect();
-      const engine: HairlineKernel = {
-        ...HL,
-        register: (element, tick) => HL.register(element, (dt, now) => {
-          HL.setReducedMotion(motion.matches);
-          return tick(dt, now);
-        }),
-        // Hairline's pointer uses 400 × 320; the footer shows the panoramic slice.
-        pointer: (element, handlers) => {
-          const viewBox = svg.viewBox.baseVal;
-          const point = ([x, y]: Point): Point => [x, viewBox.y + y * viewBox.height / 320];
-          return HL.pointer(element, {
-            move: (position) => handlers.move(point(position)),
-            down: (position) => handlers.down?.(point(position)),
-            leave: handlers.leave,
-          });
-        },
-      };
-      const read = { textContent: "rest" };
-      const figure = mountFooterLandscape({ stage, svg, read }, motion.matches ? 0 : 8, engine);
-      motion.addEventListener("change", () => figure.set(motion.matches ? 0 : 8));
+      try {
+        const [{ mountFooterLandscape }, { default: HL }] = await Promise.all([
+          import("../scripts/footer-landscape"),
+          import("../vendor/hairline/kernel.js"),
+        ]);
+        const engine: HairlineKernel = {
+          ...HL,
+          register: (element, tick) => HL.register(element, (dt, now) => {
+            HL.setReducedMotion(motion.matches);
+            return tick(dt, now);
+          }),
+          // Hairline's pointer uses 400 × 320; the footer shows the panoramic slice.
+          pointer: (element, handlers) => {
+            const viewBox = svg.viewBox.baseVal;
+            const point = ([x, y]: Point): Point => [x, viewBox.y + y * viewBox.height / 320];
+            return HL.pointer(element, {
+              move: (position) => handlers.move(point(position)),
+              down: (position) => handlers.down?.(point(position)),
+              leave: handlers.leave,
+            });
+          },
+        };
+        const read = { textContent: "rest" };
+        const figure = mountFooterLandscape({ stage, svg, read }, motion.matches ? 0 : 8, engine);
+        motion.addEventListener("change", () => figure.set(motion.matches ? 0 : 8));
+      } catch (error) {
+        console.warn("Footer animation unavailable; keeping the static drawing.", error);
+      }
     }, { rootMargin: "400px" });
     observer.observe(stage);
   }

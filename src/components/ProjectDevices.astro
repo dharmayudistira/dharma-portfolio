@@ -5,9 +5,9 @@
 
 <script>
   import { mountProjectDevices } from "../scripts/project-devices";
+  import HL from "../vendor/hairline/kernel.js";
   import type { HairlineKernel } from "../vendor/hairline/types";
 
-  declare const HL: HairlineKernel;
   const stage = document.querySelector<HTMLElement>(".project-hero__devices");
   const svg = stage?.querySelector("svg");
   const readout = stage?.querySelector<HTMLElement>(".project-hero__readout");

@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { ArrowLeft, ArrowRight } from "lucide";
 import MorphIcon from "morphicons/astro";
@@ -118,12 +119,13 @@ const initialProjectIndex = formatIndex(0);
                           },
                         ]}
                       >
-                        <img
-                          src={project.data.cover.src}
+                        <Image
+                          src={project.data.cover}
                           alt={`Preview of ${project.data.title}`}
-                          width={project.data.cover.width}
-                          height={project.data.cover.height}
-                          loading={index === 0 ? "eager" : "lazy"}
+                          width={Math.min(project.data.cover.width, 704)}
+                          widths={[320, 480, 640, 960, 1280]}
+                          sizes="auto, (min-width: 769px) 62vw, 100vw"
+                          loading="lazy"
                           decoding="async"
                         />
                       </span>

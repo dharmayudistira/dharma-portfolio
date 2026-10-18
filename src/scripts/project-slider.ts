@@ -47,6 +47,18 @@ sliders.forEach((slider) => {
     if (nextButton) nextButton.disabled = activeIndex === slides.length - 1 || isTransitioning;
   };
 
+  const prepareImage = (index: number) => {
+    const image = slides[index]?.querySelector<HTMLImageElement>("[data-project-visual] img");
+    if (image) image.loading = "eager";
+    return image;
+  };
+  const nearby = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    nearby.disconnect();
+    prepareImage(activeIndex + 1);
+  }, { rootMargin: "200px" });
+  nearby.observe(slider);
+
   const animateCounter = async (nextIndex: number, direction: number) => {
     const nextValue = formatIndex(nextIndex);
     const changes: Array<{
@@ -239,10 +251,18 @@ sliders.forEach((slider) => {
     const currentImage = currentSlide.querySelector<HTMLImageElement>(
       "[data-project-visual] img",
     );
-    const nextImage = nextSlide.querySelector<HTMLImageElement>(
-      "[data-project-visual] img",
-    );
+    const nextImage = prepareImage(nextIndex);
     const nextRole = nextSlide.dataset.projectRole ?? "Project role";
+
+    if (nextImage) {
+      // Keep the current slide visible while the incoming preview is decoded.
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      await Promise.race([
+        nextImage.decode().catch(() => undefined),
+        new Promise<void>((resolve) => { deadline = setTimeout(resolve, 3000); }),
+      ]);
+      clearTimeout(deadline);
+    }
 
     currentSlide.inert = true;
     currentSlide.setAttribute("aria-hidden", "true");
@@ -312,6 +332,7 @@ sliders.forEach((slider) => {
     nextSlide.inert = false;
     animations.forEach((animation) => animation.cancel());
     activeIndex = nextIndex;
+    prepareImage(activeIndex + 1);
     announcer.textContent = `Project ${activeIndex + 1} of ${slides.length}: ${nextSlide.dataset.projectTitle ?? "Featured project"}`;
     isTransitioning = false;
     updateNavigation();

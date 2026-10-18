@@ -31,8 +31,7 @@ const {
     ></span>
     <span
       class="mascot__layer mascot__layer--reactions"
-      data-mascot-reactions
-      style={`background-image: url("${reactions}");`}
+      data-mascot-reactions={reactions}
     ></span>
   </span>
 </button>
@@ -141,6 +140,24 @@ const {
     let timers: number[] = [];
     let boopCount = 0;
     let lastBoopAt = 0;
+    let reactionImage: Promise<boolean> | undefined;
+    let interactionId = 0;
+
+    const loadReactions = () => {
+      if (!reactionImage) {
+        const image = new Image();
+        image.src = reactions.dataset.mascotReactions ?? "";
+        reactionImage = image.decode().then(() => {
+          reactions.style.backgroundImage = `url(${JSON.stringify(image.src)})`;
+          return true;
+        }).catch(() => {
+          // Keep the direction sprite visible and allow a later interaction to retry.
+          reactionImage = undefined;
+          return false;
+        });
+      }
+      return reactionImage;
+    };
 
     setCell(directions, DIRECTIONS.indexOf("center"));
     setCell(reactions, REACTIONS.indexOf("blink"));
@@ -199,27 +216,33 @@ const {
       timers.push(window.setTimeout(() => showReaction(reaction), delay));
     };
 
-    mascot.addEventListener("click", () => {
+    mascot.addEventListener("click", async () => {
+      const interaction = ++interactionId;
       playInteractionSound("reaction", { cooldownMs: 180 });
       timers.forEach(window.clearTimeout);
       timers = [];
+      showReaction(null);
 
       const now = Date.now();
       boopCount = now - lastBoopAt < DIZZY_WINDOW ? boopCount + 1 : 1;
       lastBoopAt = now;
+      const dizzy = boopCount >= DIZZY_AFTER;
+      const payoff = PAYOFFS[(boopCount - 1) % PAYOFFS.length];
+      if (dizzy) boopCount = 0;
 
-      if (boopCount >= DIZZY_AFTER) {
-        boopCount = 0;
+      body.getAnimations().forEach((animation) => animation.cancel());
+      body.animate(SQUASH, { duration: SQUASH_MS, easing: "linear" });
+
+      if (!await loadReactions() || interaction !== interactionId) return;
+
+      if (dizzy) {
         showReaction("dizzy");
         later(DIZZY_END, null);
       } else {
         showReaction("blink");
-        later(BOOP_PAYOFF, PAYOFFS[(boopCount - 1) % PAYOFFS.length]);
+        later(BOOP_PAYOFF, payoff);
         later(BOOP_END, null);
       }
-
-      body.getAnimations().forEach((animation) => animation.cancel());
-      body.animate(SQUASH, { duration: SQUASH_MS, easing: "linear" });
     });
   }
 </script>

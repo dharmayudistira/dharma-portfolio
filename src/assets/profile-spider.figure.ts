@@ -1,8 +1,6 @@
 import type { DeviceStage, HairlineKernel, Point, WorldPoint } from "../vendor/hairline/types";
 
-declare const HL: HairlineKernel;
-
-export function mountProfileSpider({ stage, svg, read }: DeviceStage, value: number, engine: HairlineKernel = HL) {
+export function mountProfileSpider({ stage, svg, read }: DeviceStage, value: number, engine: HairlineKernel) {
   const { Cam, circ, clamp, fillet, fit, hull, mk, open, poly, proj, rad, rrect, run, solid, put, spring, stepS, pointer, register, disposer } = engine;
   const bag = disposer();
   svg.replaceChildren();

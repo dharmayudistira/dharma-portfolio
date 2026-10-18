@@ -23,7 +23,7 @@
   --technical-line: rgb(235 238 234 / 24%);
   --technical-line-soft: rgb(235 238 234 / 16%);
   --technical-line-strong: rgb(235 238 234 / 38%);
-  --technical-copy: rgb(235 238 234 / 42%);
+  --technical-copy: rgb(235 238 234 / 54%);
   --stack-copy: rgb(229 226 225 / 58%);
 }
 
@@ -40,13 +40,19 @@
   --technical-line: rgb(23 25 26 / 24%);
   --technical-line-soft: rgb(23 25 26 / 16%);
   --technical-line-strong: rgb(23 25 26 / 38%);
-  --technical-copy: rgb(23 25 26 / 48%);
+  --technical-copy: rgb(23 25 26 / 66%);
   --stack-copy: rgb(23 25 26 / 62%);
 }
 
 @media (any-pointer: coarse) {
   :root {
     --arrow-button-size: 44px;
+  }
+
+  .icon-button,
+  .app-bar__search {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 
@@ -235,7 +241,8 @@ button {
   outline-offset: 4px;
 }
 
-.app-bar__menu-button {
+.app-bar__menu-button,
+.app-bar__menu-fallback {
   display: none;
 }
 
@@ -2804,8 +2811,33 @@ main:has(> .gap:last-child) + .site-footer {
     display: none;
   }
 
-  .app-bar__menu-button {
+  .app-bar[data-ready="true"] .app-bar__menu-button {
     display: grid;
+  }
+
+  .app-bar__menu-fallback {
+    display: block;
+  }
+
+  .app-bar[data-ready="true"] .app-bar__menu-fallback {
+    display: none;
+  }
+
+  .app-bar__menu-fallback summary {
+    list-style: none;
+  }
+
+  .app-bar__menu-fallback summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .app-bar__menu-fallback nav {
+    position: absolute;
+    inset-block-start: var(--header-height);
+    inset-inline-end: var(--page-gutter);
+    width: min(320px, calc(100vw - 32px));
+    border: 1px solid var(--technical-line-soft);
+    background: var(--surface-raised);
   }
 
   .app-bar__mobile-nav {
@@ -2895,6 +2927,10 @@ main:has(> .gap:last-child) + .site-footer {
     inset-block-start: calc(var(--header-height) + 12px);
     width: calc(100% - 32px);
     max-height: calc(100svh - var(--header-height) - 24px);
+  }
+
+  .site-search__field input {
+    font-size: 16px;
   }
 
   .hero__golden-ratio,
@@ -3264,5 +3300,28 @@ main:has(> .gap:last-child) + .site-footer {
 
   .featured-blogs__primary-copy {
     padding-top: 38px;
+  }
+}
+
+@media (any-pointer: coarse) {
+  .site-search button,
+  .site-search a,
+  .social-links__link,
+  .testimonials__page {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .site-search__content-results a {
+    display: flex;
+    align-items: center;
+  }
+
+  .site-search__sound-controls input {
+    height: 44px;
+    border: 0;
+    background-size: 100% 6px;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 }

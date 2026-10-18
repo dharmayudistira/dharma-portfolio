@@ -32,16 +32,20 @@ const setTheme = (theme: "dark" | "light", persist: boolean) => {
   });
   meta?.setAttribute("content", theme === "dark" ? "#07090a" : "#f3f0e9");
 
-  icons.forEach((icon) => icon.morphTo(theme === "dark" ? Sun : Moon, "bouncy"));
+  icons.forEach((icon) => {
+    if (typeof icon.morphTo === "function") icon.morphTo(theme === "dark" ? Sun : Moon, "bouncy");
+  });
 
   if (persist) {
-    localStorage.setItem(themeStorageKey, theme);
+    try {
+      localStorage.setItem(themeStorageKey, theme);
+    } catch {
+      // The selected theme remains usable when storage is unavailable.
+    }
   }
 };
 
-const setupAppBar = async () => {
-  await customElements.whenDefined("morph-icon");
-
+const setupAppBar = () => {
   const themeButtons = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
   const menuButton = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
   const menu = document.querySelector<HTMLDialogElement>("#mobile-navigation");
@@ -68,7 +72,6 @@ const setupAppBar = async () => {
   const initialTheme = document.documentElement.dataset.theme === "light" ? "light" : "dark";
 
   setTheme(initialTheme, false);
-  themeIcons.forEach((icon) => icon.set(initialTheme === "dark" ? Sun : Moon));
 
   const updateSoundControls = (animateIcon = false) => {
     const preference = readSoundPreference();
@@ -76,8 +79,8 @@ const setupAppBar = async () => {
     if (soundLabel) soundLabel.textContent = preference.enabled ? "On" : "Off";
     soundIcons.forEach((icon) => {
       const nextIcon = preference.enabled ? Volume2 : VolumeX;
-      if (animateIcon) icon.morphTo(nextIcon, "bouncy");
-      else icon.set(nextIcon);
+      if (animateIcon && typeof icon.morphTo === "function") icon.morphTo(nextIcon, "bouncy");
+      else if (typeof icon.set === "function") icon.set(nextIcon);
     });
     if (soundVolume) {
       soundVolume.value = String(Math.round(preference.volume * 100));
@@ -86,6 +89,13 @@ const setupAppBar = async () => {
     if (soundVolumeOutput) soundVolumeOutput.value = `${Math.round(preference.volume * 100)}%`;
   };
   updateSoundControls();
+
+  // Icons enhance controls after registration; navigation never waits for them.
+  void customElements.whenDefined("morph-icon").then(() => {
+    const theme = document.documentElement.dataset.theme;
+    themeIcons.forEach((icon) => icon.set(theme === "dark" ? Sun : Moon));
+    updateSoundControls();
+  });
 
   soundButton?.addEventListener("click", () => {
     const enabled = !readSoundPreference().enabled;
@@ -211,6 +221,7 @@ const setupAppBar = async () => {
     event.preventDefault();
     openSearch();
   });
+  document.querySelector(".app-bar")?.setAttribute("data-ready", "true");
 };
 
 setupAppBar();

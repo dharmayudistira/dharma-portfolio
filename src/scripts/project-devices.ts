@@ -1,8 +1,6 @@
 import type { DeviceStage, HairlineKernel, Point } from "../vendor/hairline/types";
 
-declare const HL: HairlineKernel;
-
-export function mountProjectDevices({ stage, svg, read }: DeviceStage, value: number, engine: HairlineKernel = HL) {
+export function mountProjectDevices({ stage, svg, read }: DeviceStage, value: number, engine: HairlineKernel) {
   const { Cam, fit, proj, rrect, hull, poly, open, seg, rad, tween, tset, tval, tdone, mk, register, pointer, disposer } = engine;
   const bag = disposer();
   const camera = Cam(45, 0.5, 1.8);

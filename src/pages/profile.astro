@@ -1,4 +1,5 @@
 ---
+import { Picture } from "astro:assets";
 import MorphIcon from "morphicons/astro";
 import { Volume } from "lucide";
 import namePronunciation from "../assets/dharma-pronounce.m4a?url";
@@ -80,13 +81,18 @@ const jsonLd = profileUrl
           <text x="39" y="52">90°</text>
         </g>
       </svg>
-      <img
+      <Picture
         class="profile-page__texture"
-        src={paperTexture.src}
+        src={paperTexture}
         alt=""
-        width={paperTexture.width}
-        height={paperTexture.height}
-        loading="lazy"
+        width={768}
+        widths={[384, 768]}
+        sizes="100vw"
+        formats={["avif"]}
+        fallbackFormat="webp"
+        quality={45}
+        loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
     </div>
@@ -215,13 +221,13 @@ const jsonLd = profileUrl
           AI makes execution faster and cheaper while helping me bridge technical
           gaps. That makes ‘sharpening the axe’ more important: understanding the
           problem, questioning assumptions, and deciding what’s worth building.
-          My setup is{" "}
+          Explore my{" "}
           <a
             class="profile-page__introduction-link"
             href="https://github.com/dharmayudistira/doteyay"
             target="_blank"
             rel="noopener noreferrer"
-          >here</a>.
+          >development setup on GitHub</a>.
         </p>
       </div>
       <span class="gap__cross gap__cross--bottom-left" aria-hidden="true" />

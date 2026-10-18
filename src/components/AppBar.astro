@@ -73,6 +73,16 @@ const contentResults = [
       >
         <MorphIcon icon={Menu} size={19} strokeWidth={1.5} />
       </button>
+      <details class="app-bar__menu-fallback">
+        <summary class="icon-button" aria-label="Navigation">
+          <MorphIcon icon={Menu} size={19} strokeWidth={1.5} />
+        </summary>
+        <nav class="app-bar__mobile-links" aria-label="Mobile navigation">
+          {links.map(({ href, label }) => (
+            <a href={href} aria-current={isActive(href) ? "page" : undefined}>{label}</a>
+          ))}
+        </nav>
+      </details>
     </div>
   </div>
 </header>

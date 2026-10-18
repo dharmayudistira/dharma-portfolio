@@ -69,4 +69,35 @@ const maskId = `intro-${mode}-ink`;
   </div>
 </div>
 
+<script is:inline>
+  (() => {
+    const intro = document.querySelector(".intro");
+    if (!intro || document.documentElement.dataset.intro === "seen") return;
+
+    // This must work even if the entrance module or one of its assets never loads.
+    const release = () => {
+      stop();
+      document.documentElement.dataset.intro = "seen";
+      intro.remove();
+      try {
+        sessionStorage.setItem("dharma:intro-seen", "1");
+      } catch {
+        // Revealing the page does not depend on storage access.
+      }
+      document.dispatchEvent(new Event("dharma:intro-timeout"));
+    };
+    let timer = window.setTimeout(release, 8000);
+    const started = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(release, 8000);
+    };
+    const stop = () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("dharma:intro-start", started);
+      document.removeEventListener("dharma:intro-end", stop);
+    };
+    document.addEventListener("dharma:intro-start", started, { once: true });
+    document.addEventListener("dharma:intro-end", stop, { once: true });
+  })();
+</script>
 <script src="../scripts/entrance.ts"></script>

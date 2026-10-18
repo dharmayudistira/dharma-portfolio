@@ -1,8 +1,11 @@
 const sessionKey = "dharma:intro-seen";
 const entranceSpeed = 1.5;
 const intro = document.querySelector<HTMLElement>(".intro");
+let activeTimeline: ReturnType<typeof import("gsap").gsap.timeline> | undefined;
+let removeHeadingResize: (() => void) | undefined;
 
 if (intro) {
+  document.addEventListener("dharma:intro-timeout", finishIntro, { once: true });
   const hasPlayed = (() => {
     try {
       return sessionStorage.getItem(sessionKey) === "1";
@@ -31,9 +34,8 @@ if (intro) {
         return;
       }
 
-      await decodeImage(hand);
-
-      const { gsap } = await import("gsap");
+      const [, { gsap }] = await Promise.all([decodeImage(hand), import("gsap")]);
+      if (!intro.isConnected) return;
       const mode = intro.dataset.introMode;
 
       if (mode === "home") {
@@ -50,6 +52,11 @@ if (intro) {
 }
 
 function finishIntro() {
+  activeTimeline?.kill();
+  activeTimeline = undefined;
+  removeHeadingResize?.();
+  document.removeEventListener("dharma:intro-timeout", finishIntro);
+  document.dispatchEvent(new Event("dharma:intro-end"));
   document.documentElement.dataset.intro = "seen";
   intro?.remove();
 }
@@ -163,21 +170,39 @@ async function playHomeIntro(
   const randomVerticalOrigin = gsap.utils.random(["top", "center", "bottom"], true);
   const randomHorizontalOrigin = gsap.utils.random(["left", "center", "right"], true);
   const curveLength = ratioCurve.getTotalLength();
-  const curveMatrix = ratioCurve.getScreenCTM();
+  // Older iPhone Safari omits the SVG's CSS rotation from getScreenCTM().
+  // Measure a basis in the rendered SVG so the hand follows its actual transform.
+  const basis = [[0, 0], [100, 0], [0, 100]].map(([x, y]) => {
+    const marker = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    marker.setAttribute("cx", String(x));
+    marker.setAttribute("cy", String(y));
+    marker.setAttribute("r", "1");
+    marker.style.opacity = "0";
+    introRatio.append(marker);
+    return marker;
+  });
+  const getCurveMatrix = () => {
+    const [origin, xAxis, yAxis] = basis.map((marker) => {
+      const bounds = marker.getBoundingClientRect();
+      return { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+    });
 
-  if (!curveMatrix) {
-    finishIntro();
-    return;
-  }
+    return {
+      a: (xAxis.x - origin.x) / 100,
+      b: (xAxis.y - origin.y) / 100,
+      c: (yAxis.x - origin.x) / 100,
+      d: (yAxis.y - origin.y) / 100,
+      e: origin.x,
+      f: origin.y,
+    };
+  };
+  const curveMatrix = getCurveMatrix();
 
   const renderedCurveLength = curveLength * Math.hypot(curveMatrix.a, curveMatrix.b);
   const handEntryState = { progress: 0 };
 
-  const getScreenPoint = (distance: number) => {
+  const getScreenPoint = (distance: number, matrix = getCurveMatrix()) => {
     const point = ratioCurve.getPointAtLength(distance);
-    const matrix = ratioCurve.getScreenCTM();
-
-    if (!matrix) return null;
 
     return {
       x: point.x * matrix.a + point.y * matrix.c + matrix.e,
@@ -190,9 +215,7 @@ async function playHomeIntro(
 
     for (let index = 0; index <= sampleCount; index += 1) {
       const distance = (curveLength * index) / sampleCount;
-      const point = getScreenPoint(distance);
-
-      if (!point) continue;
+      const point = getScreenPoint(distance, curveMatrix);
 
       if (
         point.x >= heroBounds.left &&
@@ -210,18 +233,16 @@ async function playHomeIntro(
   const visibleStartDistance = findVisibleStartDistance();
   const visibleStartProgress = visibleStartDistance / curveLength;
   const initialDashOffset = renderedCurveLength * (1 - visibleStartProgress);
-  const setHandLeft = gsap.quickSetter(handAnchor, "left", "px");
-  const setHandTop = gsap.quickSetter(handAnchor, "top", "px");
+  const setHandX = gsap.quickSetter(handAnchor, "x", "px");
+  const setHandY = gsap.quickSetter(handAnchor, "y", "px");
 
   const renderHandEntry = () => {
     const point = getScreenPoint(visibleStartDistance);
 
-    if (!point) return;
-
     const remainingProgress = 1 - handEntryState.progress;
 
-    setHandLeft(point.x + 60 * remainingProgress);
-    setHandTop(point.y + (window.innerHeight + 180 - point.y) * remainingProgress);
+    setHandX(point.x + 60 * remainingProgress);
+    setHandY(point.y + (window.innerHeight + 180 - point.y) * remainingProgress);
   };
 
   const renderHandFromStroke = () => {
@@ -238,18 +259,11 @@ async function playHomeIntro(
     const drawnDistance = curveLength * (1 - hiddenProgress);
     const point = getScreenPoint(drawnDistance);
 
-    if (!point) return;
-
-    setHandLeft(point.x);
-    setHandTop(point.y);
+    setHandX(point.x);
+    setHandY(point.y);
   };
 
   const drawingStart = getScreenPoint(visibleStartDistance);
-
-  if (!drawingStart) {
-    finishIntro();
-    return;
-  }
 
   gsap.set(verticalLines, {
     opacity: 0,
@@ -269,13 +283,14 @@ async function playHomeIntro(
   });
   gsap.set(handAnchor, {
     autoAlpha: 0,
-    left: drawingStart.x + 60,
-    top: window.innerHeight + 180,
+    x: drawingStart.x + 60,
+    y: window.innerHeight + 180,
   });
 
-  gsap
+  activeTimeline = gsap
     .timeline({
       defaults: { ease: "power2.inOut" },
+      onStart: () => document.dispatchEvent(new Event("dharma:intro-start")),
       onComplete: finishIntro,
     })
     .to(
@@ -390,8 +405,8 @@ async function playHeadingIntro(
 
   alignWord();
 
-  const setHandLeft = gsap.quickSetter(handAnchor, "left", "px");
-  const setHandTop = gsap.quickSetter(handAnchor, "top", "px");
+  const setHandX = gsap.quickSetter(handAnchor, "x", "px");
+  const setHandY = gsap.quickSetter(handAnchor, "y", "px");
   const lengths = strokes.map((stroke) => stroke.getTotalLength());
   const totalLength = lengths.reduce((sum, length) => sum + length, 0);
   const getScreenPoint = (stroke: SVGPathElement, distance: number) => {
@@ -416,21 +431,21 @@ async function playHeadingIntro(
     });
   });
   gsap.set(word, { visibility: "visible" });
-  gsap.set(handAnchor, { autoAlpha: 0, left: start.x + 60, top: window.innerHeight + 180 });
+  gsap.set(handAnchor, { autoAlpha: 0, x: start.x + 60, y: window.innerHeight + 180 });
 
   const timeline = gsap.timeline({
     defaults: { ease: "power2.inOut" },
-    onComplete: () => {
-      window.removeEventListener("resize", alignWord);
-      finishIntro();
-    },
+    onStart: () => document.dispatchEvent(new Event("dharma:intro-start")),
+    onComplete: finishIntro,
   });
+  activeTimeline = timeline;
   window.addEventListener("resize", alignWord);
+  removeHeadingResize = () => window.removeEventListener("resize", alignWord);
 
   timeline.addLabel("write-heading", 0.3).to(handAnchor, {
     autoAlpha: 1,
-    left: () => getScreenPoint(strokes[0], 0)?.x ?? start.x,
-    top: () => getScreenPoint(strokes[0], 0)?.y ?? start.y,
+    x: () => getScreenPoint(strokes[0], 0)?.x ?? start.x,
+    y: () => getScreenPoint(strokes[0], 0)?.y ?? start.y,
     duration: 0.65,
     ease: "power3.out",
   }, "write-heading");
@@ -445,15 +460,15 @@ async function playHeadingIntro(
 
       if (!point) return;
 
-      setHandLeft(point.x);
-      setHandTop(point.y);
+      setHandX(point.x);
+      setHandY(point.y);
     };
     const strokeStart = getScreenPoint(stroke, 0);
 
     if (index > 0 && strokeStart) {
       timeline.to(handAnchor, {
-        left: () => getScreenPoint(stroke, 0)?.x ?? strokeStart.x,
-        top: () => getScreenPoint(stroke, 0)?.y ?? strokeStart.y,
+        x: () => getScreenPoint(stroke, 0)?.x ?? strokeStart.x,
+        y: () => getScreenPoint(stroke, 0)?.y ?? strokeStart.y,
         duration: 0.14,
       });
     }
@@ -468,7 +483,7 @@ async function playHeadingIntro(
   });
 
   timeline
-    .to(handAnchor, { autoAlpha: 0, y: 50, duration: 0.35 })
+    .to(handAnchor, { autoAlpha: 0, y: "+=50", duration: 0.35 })
     .to(intro, { autoAlpha: 0, duration: 0.65 }, "<0.15");
 
   timeline.timeScale(entranceSpeed);
@@ -498,16 +513,16 @@ function playShellIntro(
 
   mat.append(leftLine, headerLine, rightLine);
 
-  const setHandLeft = gsap.quickSetter(handAnchor, "left", "px");
-  const setHandTop = gsap.quickSetter(handAnchor, "top", "px");
+  const setHandX = gsap.quickSetter(handAnchor, "x", "px");
+  const setHandY = gsap.quickSetter(handAnchor, "y", "px");
   const moveHand = (fromX: number, fromY: number, toX: number, toY: number) => {
     const state = { progress: 0 };
 
     return {
       state,
       render: () => {
-        setHandLeft(fromX + (toX - fromX) * state.progress);
-        setHandTop(fromY + (toY - fromY) * state.progress);
+        setHandX(fromX + (toX - fromX) * state.progress);
+        setHandY(fromY + (toY - fromY) * state.progress);
       },
     };
   };
@@ -521,19 +536,20 @@ function playShellIntro(
   gsap.set(rightLine, { scaleY: 0, transformOrigin: "top" });
   gsap.set(handAnchor, {
     autoAlpha: 0,
-    left: -80,
-    top: headerY + 100,
+    x: -80,
+    y: headerY + 100,
   });
 
-  gsap
+  activeTimeline = gsap
     .timeline({
       defaults: { ease: "sine.inOut" },
+      onStart: () => document.dispatchEvent(new Event("dharma:intro-start")),
       onComplete: finishIntro,
     })
     .to(handAnchor, {
       autoAlpha: 1,
-      left: 0,
-      top: headerY,
+      x: 0,
+      y: headerY,
       duration: 0.45,
       ease: "power3.out",
     })
@@ -555,8 +571,8 @@ function playShellIntro(
       "<",
     )
     .to(handAnchor, {
-      left: rightX,
-      top: headerY,
+      x: rightX,
+      y: headerY,
       duration: 0.25,
       ease: "power1.inOut",
     })
@@ -574,11 +590,11 @@ function playShellIntro(
       "<",
     )
     .to(handAnchor, { autoAlpha: 0, duration: 0.2 })
-    .set(handAnchor, { left: leftX, top: bottomY + 100 })
+    .set(handAnchor, { x: leftX, y: bottomY + 100 })
     .to(handAnchor, {
       autoAlpha: 1,
-      left: leftX,
-      top: bottomY,
+      x: leftX,
+      y: bottomY,
       duration: 0.35,
       ease: "power3.out",
     })

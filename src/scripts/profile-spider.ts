@@ -1,7 +1,7 @@
 import { mountProfileSpider } from "../assets/profile-spider.figure";
+import HL from "../vendor/hairline/kernel.js";
 import type { HairlineKernel, Point } from "../vendor/hairline/types";
 
-declare const HL: HairlineKernel;
 const wrapper = document.querySelector<HTMLElement>(".profile-spider");
 const stage = wrapper?.querySelector<HTMLButtonElement>(".profile-spider__figure");
 const svg = stage?.querySelector("svg");

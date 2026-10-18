@@ -1,9 +1,4 @@
-import {
-  createUISFX,
-  type CueName,
-  type PlayOptions,
-  type UISFXPlayer,
-} from "uisfx";
+import type { CueName, PlayOptions, UISFXPlayer } from "uisfx";
 
 const soundStorageKey = "dharma:sound";
 const soundPack = "zen";
@@ -15,6 +10,9 @@ export interface SoundPreference {
 }
 
 let player: UISFXPlayer | undefined;
+let audioContext: AudioContext | undefined;
+let loadingPlayer: Promise<UISFXPlayer | undefined> | undefined;
+let playbackGeneration = 0;
 let unlocked = false;
 let unlockInstalled = false;
 let fallbackPreference: SoundPreference = {
@@ -55,17 +53,33 @@ const saveSoundPreference = (preference: SoundPreference) => {
   }
 };
 
-const getPlayer = (): UISFXPlayer | undefined => {
-  if (typeof window === "undefined") return;
-  if (!player) {
-    const preference = readSoundPreference();
-    player = createUISFX({
-      pack: soundPack,
-      volume: preference.volume,
-      enabled: preference.enabled,
+const getPlayer = async (): Promise<UISFXPlayer | undefined> => {
+  if (typeof window === "undefined" || !window.AudioContext) return;
+
+  // Resume synchronously in the gesture, before downloading the optional player.
+  audioContext ??= new window.AudioContext();
+  const context = audioContext;
+  if (context.state === "suspended") void context.resume().catch(() => undefined);
+  if (player) return player;
+  if (!loadingPlayer) {
+    loadingPlayer = import("uisfx").then(({ createUISFX }) => {
+      if (audioContext !== context) return;
+      const preference = readSoundPreference();
+      player = createUISFX({
+        pack: soundPack,
+        volume: preference.volume,
+        enabled: preference.enabled,
+        context,
+      });
+      return player;
+    }).catch((error: unknown) => {
+      console.warn("Interface sound is unavailable.", error);
+      return undefined;
+    }).finally(() => {
+      if (audioContext === context) loadingPlayer = undefined;
     });
   }
-  return player;
+  return loadingPlayer;
 };
 
 export const installSoundUnlock = () => {
@@ -74,9 +88,9 @@ export const installSoundUnlock = () => {
 
   const unlock = () => {
     if (!readSoundPreference().enabled || unlocked) return;
-    const ui = getPlayer();
-    if (!ui) return;
-    void ui.unlock().then((ready) => {
+    void getPlayer().then(async (ui) => {
+      if (!ui || !readSoundPreference().enabled) return;
+      const ready = await ui.unlock();
       if (player === ui && ui.isEnabled()) unlocked = ready;
     });
   };
@@ -89,35 +103,50 @@ export const installSoundUnlock = () => {
 };
 
 // Use inside the user's input handler so the first playback can unlock Web Audio.
-export const playInteractionSound = (cue: CueName, options?: PlayOptions) =>
-  readSoundPreference().enabled ? getPlayer()?.play(cue, options) ?? null : null;
+export const playInteractionSound = (cue: CueName, options?: PlayOptions) => {
+  if (!readSoundPreference().enabled) return null;
+  if (player) return player.play(cue, options);
+  const generation = playbackGeneration;
+  void getPlayer().then((ui) => {
+    if (generation === playbackGeneration && ui === player && readSoundPreference().enabled) ui?.play(cue, options);
+  });
+  return null;
+};
 
 export const setSoundEnabled = async (enabled: boolean) => {
-  const ui = getPlayer();
-  if (!ui) return false;
-  if (!enabled) ui.stopAll();
-  ui.setEnabled(enabled);
-  saveSoundPreference({ enabled, volume: ui.getVolume() });
+  saveSoundPreference({ ...readSoundPreference(), enabled });
   if (!enabled) {
+    playbackGeneration += 1;
+    player?.stopAll();
+    player?.setEnabled(false);
     unlocked = false;
     return false;
   }
+  const generation = playbackGeneration;
+  const ui = await getPlayer();
+  if (generation !== playbackGeneration || !ui || player !== ui || !readSoundPreference().enabled) return false;
+  ui.setEnabled(true);
   const ready = await ui.unlock();
-  if (player !== ui || !ui.isEnabled()) return false;
+  if (generation !== playbackGeneration || player !== ui || !ui.isEnabled()) return false;
   unlocked = ready;
   return ready;
 };
 
 export const setSoundVolume = (volume: number) => {
-  const ui = getPlayer();
-  if (!ui) return;
-  ui.setVolume(volume);
-  saveSoundPreference({ enabled: ui.isEnabled(), volume: ui.getVolume() });
+  if (!Number.isFinite(volume)) return;
+  const nextVolume = Math.max(0, Math.min(1, volume));
+  player?.setVolume(nextVolume);
+  saveSoundPreference({ ...readSoundPreference(), volume: nextVolume });
 };
 
 export const disposeSound = async () => {
+  playbackGeneration += 1;
   const ui = player;
+  const context = audioContext;
   player = undefined;
+  audioContext = undefined;
+  loadingPlayer = undefined;
   unlocked = false;
   if (ui) await ui.destroy();
+  if (context && context.state !== "closed") await context.close();
 };

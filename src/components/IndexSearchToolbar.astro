@@ -103,6 +103,13 @@ const inputId = `${isBlog ? "blog" : "project"}-search-input`;
     to { transform: rotate(360deg); }
   }
 
+  @media (max-width: 768px) {
+    .index-search__field input {
+      height: 44px;
+      font-size: 16px;
+    }
+  }
+
   @media (max-width: 640px) {
     .index-search__frame {
       padding-inline: 0;
@@ -111,11 +118,6 @@ const inputId = `${isBlog ? "blog" : "project"}-search-input`;
     .index-search__field {
       flex-basis: 100%;
       padding-inline: 12px;
-    }
-
-    .index-search__field input {
-      height: 42px;
-      font-size: 12px;
     }
 
     .index-search__field input::placeholder {

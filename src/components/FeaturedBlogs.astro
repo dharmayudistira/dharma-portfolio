@@ -63,6 +63,9 @@ const getCategory = ({ data }: BlogPost) => BLOG_CATEGORY_LABELS[data.category];
                 <Image
                   src={primaryPost.data.cover}
                   alt={`Cover for ${primaryPost.data.title}`}
+                  width={Math.min(primaryPost.data.cover.width, 704)}
+                  widths={[320, 480, 640, 960, 1280]}
+                  sizes="auto, (min-width: 769px) 50vw, 100vw"
                   loading="lazy"
                   decoding="async"
                 />

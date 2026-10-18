@@ -57,6 +57,7 @@ const jsonLd = canonical
   title={project.data.title}
   description={project.data.summary}
   image={image}
+  socialImagePosition={project.id === "kickavenue" ? "bottom" : "center"}
   canonicalUrl={canonical}
   jsonLd={jsonLd}
 >
@@ -91,6 +92,10 @@ const jsonLd = canonical
   <Gap size="medium" variant="filled" />
   <Footer />
 </BaseLayout>
+
+<script>
+  import "../../scripts/project-previews";
+</script>
 
 <style>
   .project-page {

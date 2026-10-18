@@ -1,4 +1,5 @@
 ---
+import { Picture } from "astro:assets";
 import IndexDrawing from "./IndexDrawing.astro";
 import paperTexture from "../assets/crumpled-paper.webp";
 
@@ -12,13 +13,18 @@ const { word, showWord = true } = Astro.props;
 
 <div class="header-backdrop" aria-hidden="true">
   <IndexDrawing word={word} showWord={showWord} />
-  <img
+  <Picture
     class="header-backdrop__texture"
-    src={paperTexture.src}
+    src={paperTexture}
     alt=""
-    width={paperTexture.width}
-    height={paperTexture.height}
-    loading="lazy"
+    width={768}
+    widths={[384, 768]}
+    sizes="100vw"
+    formats={["avif"]}
+    fallbackFormat="webp"
+    quality={45}
+    loading="eager"
+    fetchpriority="high"
     decoding="async"
   />
 </div>
