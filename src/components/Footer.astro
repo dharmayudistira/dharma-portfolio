@@ -6,6 +6,7 @@ import FooterLandscape from "./FooterLandscape.astro";
 import SocialLinks from "./SocialLinks.astro";
 import UnderlineMark from "./UnderlineMark.astro";
 import { SITE_IDENTITY } from "../data/site";
+import { GOATCOUNTER_URL } from "../data/analytics";
 
 const deploymentCommit =
   process.env.VERCEL_GIT_COMMIT_SHA ??
@@ -75,9 +76,16 @@ const siteLabel = Astro.site?.hostname ?? SITE_IDENTITY.name;
         <dd><time datetime={updatedAt}>{updatedAt}</time></dd>
       </div>
 
-      <div class="site-footer__detail site-footer__detail--focus">
-        <dt>Focus</dt>
-        <dd>Web · Mobile</dd>
+      <div class="site-footer__detail site-footer__detail--analytics">
+        <dt>Analytics</dt>
+        <dd>
+          <a class="site-footer__link" href={GOATCOUNTER_URL ?? "https://www.goatcounter.com/"} rel="noreferrer">
+            <span class="site-footer__link-label">
+              <span>GoatCounter</span>
+              <UnderlineMark class="site-footer__link-mark" />
+            </span>
+          </a>
+        </dd>
       </div>
 
       <div class="site-footer__detail site-footer__detail--deployed">
@@ -133,6 +141,12 @@ const siteLabel = Astro.site?.hostname ?? SITE_IDENTITY.name;
           <a class="site-footer__link" href="/index.md">
             <span class="site-footer__link-label">
               <span>index.md</span>
+              <UnderlineMark class="site-footer__link-mark" />
+            </span>
+          </a>
+          <a class="site-footer__link" href="/statistics/">
+            <span class="site-footer__link-label">
+              <span>statistics</span>
               <UnderlineMark class="site-footer__link-mark" />
             </span>
           </a>

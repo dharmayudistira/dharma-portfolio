@@ -21,6 +21,7 @@ export const GET: APIRoute = async ({ site }) => {
     `- [Profile](${url("/profile/")}): Work history, community activity, and technology stack.`,
     `- [Projects](${url("/projects/")}): All published projects.`,
     `- [Blog](${url("/blog/")}): All published articles.`,
+    `- [Statistics](${url("/statistics/")}): Published blog and project counts with all-time visits, refreshed daily.`,
     "",
     "## Projects",
     "",

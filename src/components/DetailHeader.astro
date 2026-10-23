@@ -12,7 +12,7 @@ const { title, description, drawingVariant, byline } = Astro.props;
 ---
 
 <header class="detail-header">
-  <HeaderBackdrop word={drawingVariant} showWord={false} />
+  <HeaderBackdrop variant={drawingVariant} />
   <div class:list={["detail-header__frame", "detail-header__intro", { "detail-header__intro--with-byline": byline }]}>
     <h1>{title}</h1>
     <p>{description}</p>

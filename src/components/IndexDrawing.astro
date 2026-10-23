@@ -1,10 +1,9 @@
 ---
 interface Props {
-  word: "project" | "blogs";
-  showWord?: boolean;
+  variant: "project" | "blogs" | "statistics";
 }
 
-const { word, showWord = true } = Astro.props;
+const { variant } = Astro.props;
 ---
 
 <svg
@@ -15,36 +14,37 @@ const { word, showWord = true } = Astro.props;
   aria-hidden="true"
 >
   <defs>
-    <pattern id={`${word}-grid`} width="54.638" height="53.624" patternUnits="userSpaceOnUse" patternTransform="translate(59.311 74.555)">
+    <pattern id={`${variant}-grid`} width="54.638" height="53.624" patternUnits="userSpaceOnUse" patternTransform="translate(59.311 74.555)">
       <path d="M0 0V53.624M0 0H54.638" stroke="currentColor" stroke-width="1.1" opacity=".2" />
       <path d="M27.319 0V53.624M0 26.812H54.638" stroke="currentColor" stroke-width="1.55" stroke-dasharray="3.17 3.17" opacity=".2" />
     </pattern>
-    <pattern id={`${word}-hatch`} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(59)">
-      <path class="index-drawing__hatch" d="M0 0V7M3.5 0V7" stroke="currentColor" stroke-width=".38" opacity=".48" />
-    </pattern>
   </defs>
 
-  <rect class="index-drawing__grid" x="0" y="74.555" width="1153" height="723.96" fill={`url(#${word}-grid)`} />
-
-  {showWord && (
-    <text
-      class="index-drawing__word"
-      x="45"
-      y="349"
-      textLength="1063"
-      lengthAdjust="spacingAndGlyphs"
-      fill={`url(#${word}-hatch)`}
-      stroke="currentColor"
-      stroke-width=".48"
-      font-family="var(--font-sans)"
-      font-size="282"
-      font-weight="800"
-      letter-spacing="-15"
-    >{word}</text>
-  )}
+  <rect class="index-drawing__grid" x="0" y="74.555" width="1153" height="723.96" fill={`url(#${variant}-grid)`} />
 
   <g stroke="currentColor" stroke-width=".8" opacity=".42">
-    {word === "blogs" ? (
+    {variant === "statistics" ? (
+      <Fragment>
+        <path d="M72 330H658M364 106V378" stroke-dasharray="12 10" />
+        <path d="M90 330C170 330 202 318 236 275C278 222 290 132 364 132C438 132 450 222 492 275C526 318 558 330 638 330" />
+        <path d="M256 330V252M472 330V252M148 330V314M580 330V314" stroke-dasharray="5 7" />
+        <path d="M256 106H472M256 98V114M472 98V114" />
+        <path d="M262 102L256 106L262 110M466 102L472 106L466 110" />
+        <path d="M256 344V354M364 344V354M472 344V354" />
+        <path d="M742 118V330H1072" />
+        <path d="M742 158H1072M742 244H1072" stroke-dasharray="5 7" />
+        <path d="M770 298L1046 138" />
+        <path d="M825 266H1014V156" stroke-dasharray="12 10" />
+        <path d="M857 266A32 32 0 0 0 853 250" />
+        <circle cx="790" cy="280" r="5" />
+        <circle cx="842" cy="255" r="5" />
+        <circle cx="890" cy="234" r="5" />
+        <circle cx="938" cy="186" r="5" />
+        <circle cx="990" cy="184" r="5" />
+        <circle cx="1032" cy="148" r="5" />
+        <path d="M748 124L742 118L736 124M1066 324L1072 330L1066 336" />
+      </Fragment>
+    ) : variant === "blogs" ? (
       <Fragment>
         <path d="M45 148H1110M45 349H1110" stroke-dasharray="12 10" />
         <path d="M550 112V433" stroke-dasharray="12 10" />
@@ -75,7 +75,13 @@ const { word, showWord = true } = Astro.props;
   </g>
 
   <g fill="currentColor" opacity=".55" font-family="Geist Mono Variable, monospace" font-size="13" font-weight="400">
-    {word === "blogs" ? (
+    {variant === "statistics" ? (
+      <Fragment>
+        <text x="347" y="94">2σ</text>
+        <text x="354" y="370">μ</text>
+        <text x="866" y="256">30°</text>
+      </Fragment>
+    ) : variant === "blogs" ? (
       <Fragment>
         <text x="246" y="97">337</text>
         <text x="598" y="237">60°</text>
@@ -101,21 +107,6 @@ const { word, showWord = true } = Astro.props;
 
   .index-drawing__grid {
     opacity: .55;
-  }
-
-  .index-drawing__word {
-    stroke: var(--technical-copy);
-    opacity: .22;
-  }
-
-  @media (max-width: 768px) {
-    .index-drawing__hatch {
-      stroke-width: .8;
-    }
-
-    .index-drawing__word {
-      stroke-width: 1.2;
-    }
   }
 
 </style>

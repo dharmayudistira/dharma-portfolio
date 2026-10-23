@@ -2,7 +2,7 @@
 import hand from "../assets/hand-pencil-sketch.svg";
 
 interface Props {
-  mode: "home" | "projects" | "blog" | "shell";
+  mode: "home" | "projects" | "blog" | "statistics" | "shell";
 }
 
 const { mode } = Astro.props;
@@ -41,8 +41,32 @@ const handwrittenHeadings = {
       "M160 71L163 70",
     ],
   },
+  statistics: {
+    text: "statistics.",
+    width: 320,
+    strokeWidth: 12,
+    strokes: [
+      "M34.2 52C44.2 37 30.2 39 17.2 52C1.2 67 28.2 67 28.2 76Q23.2 80 12.2 77",
+      "M61.7 29C51.7 43 43.7 59 44.7 73Q47.7 81 64.7 71",
+      "M45.7 42Q53.7 43 68.7 41",
+      "M103 50C95 38 77 58 73 71Q70 81 86 72Q97 62 103 50",
+      "M103 50C98 61 101 71 109 73",
+      "M132.8 29C122.8 43 114.8 59 115.8 73Q118.8 81 135.8 71",
+      "M116.8 42Q124.8 43 139.8 41",
+      "M150 52Q144 65 144 75",
+      "M155 32L157 27",
+      "M181.8 52C191.8 37 177.8 39 164.8 52C148.8 67 175.8 67 175.8 76Q170.8 80 159.8 77",
+      "M209.3 29C199.3 43 191.3 59 192.3 73Q195.3 81 212.3 71",
+      "M193.3 42Q201.3 43 216.3 41",
+      "M227.5 52Q221.5 65 221.5 75",
+      "M232.5 32L234.5 27",
+      "M259.2 55C265.2 38 248.2 44 240.2 62Q229.2 87 261.2 67",
+      "M291.6 52C301.6 37 287.6 39 274.6 52C258.6 67 285.6 67 285.6 76Q280.6 80 269.6 77",
+      "M300.6 71L303.6 70",
+    ],
+  },
 } as const;
-const handwriting = mode === "projects" || mode === "blog"
+const handwriting = mode === "projects" || mode === "blog" || mode === "statistics"
   ? handwrittenHeadings[mode]
   : undefined;
 const maskId = `intro-${mode}-ink`;

@@ -2047,7 +2047,7 @@ main:has(> .gap:last-child) + .site-footer {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-areas:
-    "crafted build updated focus"
+    "crafted build updated analytics"
     "deployed source license typeface"
     "stack stack stack agents"
     "inspired inspired inspired inspired";
@@ -2061,7 +2061,7 @@ main:has(> .gap:last-child) + .site-footer {
   border-bottom: 1px dashed var(--technical-line-soft);
 }
 
-.site-footer__detail--focus,
+.site-footer__detail--analytics,
 .site-footer__detail--typeface,
 .site-footer__detail--agents,
 .site-footer__detail--inspired {
@@ -2080,8 +2080,8 @@ main:has(> .gap:last-child) + .site-footer {
   grid-area: updated;
 }
 
-.site-footer__detail--focus {
-  grid-area: focus;
+.site-footer__detail--analytics {
+  grid-area: analytics;
 }
 
 .site-footer__detail--deployed {
@@ -3135,7 +3135,7 @@ main:has(> .gap:last-child) + .site-footer {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "crafted build"
-      "updated focus"
+      "updated analytics"
       "deployed source"
       "license typeface"
       "stack stack"

@@ -11,6 +11,7 @@ import EntranceOverlay from "../components/EntranceOverlay.astro";
 import PageGuides from "../components/PageGuides.astro";
 import portfolioPreview from "../assets/social/portfolio-preview.png";
 import { SITE_IDENTITY } from "../data/site";
+import { GOATCOUNTER_URL } from "../data/analytics";
 
 type JsonLd = Record<string, unknown>;
 
@@ -71,12 +72,18 @@ const introMode = pathname === "/"
     ? "projects"
     : pathname === "/blog/" || pathname === "/blog"
       ? "blog"
-      : "shell";
+      : pathname === "/statistics/" || pathname === "/statistics"
+        ? "statistics"
+        : "shell";
 const serializedJsonLd = jsonLd
   ? JSON.stringify(jsonLd).replace(/</g, "\\u003c")
   : undefined;
 const speedInsightsEnabled = import.meta.env.PROD
   && process.env.VERCEL_ENV === "production"
+  && !noindex;
+const goatCounterEnabled = import.meta.env.PROD
+  && process.env.VERCEL_ENV === "production"
+  && GOATCOUNTER_URL
   && !noindex;
 ---
 
@@ -151,6 +158,15 @@ const speedInsightsEnabled = import.meta.env.PROD
     <slot />
     <PageGuides />
     <EntranceOverlay mode={introMode} />
+    {goatCounterEnabled && (
+      <script
+        is:inline
+        async
+        src="https://gc.zgo.at/count.js"
+        data-goatcounter={`${GOATCOUNTER_URL}/count`}
+        data-goatcounter-settings={JSON.stringify({ path: pathname })}
+      ></script>
+    )}
     {speedInsightsEnabled && (
       <>
         <script is:inline>

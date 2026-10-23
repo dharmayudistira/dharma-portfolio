@@ -4,15 +4,14 @@ import IndexDrawing from "./IndexDrawing.astro";
 import paperTexture from "../assets/crumpled-paper.webp";
 
 interface Props {
-  word: "project" | "blogs";
-  showWord?: boolean;
+  variant: "project" | "blogs" | "statistics";
 }
 
-const { word, showWord = true } = Astro.props;
+const { variant } = Astro.props;
 ---
 
 <div class="header-backdrop" aria-hidden="true">
-  <IndexDrawing word={word} showWord={showWord} />
+  <IndexDrawing variant={variant} />
   <Picture
     class="header-backdrop__texture"
     src={paperTexture}

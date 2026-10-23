@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "astro",
+  "crons": [
+    { "path": "/api/rebuild", "schedule": "0 17 * * *" }
+  ],
   "redirects": [
     { "source": "/about", "destination": "/profile/", "permanent": true },
     { "source": "/about/", "destination": "/profile/", "permanent": true },

@@ -4,15 +4,17 @@ import MorphIcon from "morphicons/astro";
 
 interface Props {
   collection: "projects" | "blog";
+  variant?: "standalone" | "inline";
+  placeholder?: string;
 }
 
-const { collection } = Astro.props;
+const { collection, variant = "standalone", placeholder } = Astro.props;
 const isBlog = collection === "blog";
 const searchLabel = isBlog ? "Search blogs" : "Search projects";
 const inputId = `${isBlog ? "blog" : "project"}-search-input`;
 ---
 
-<section class="index-search" aria-label={searchLabel} data-index-search-toolbar data-search-collection={collection}>
+<section class:list={["index-search", { "index-search--inline": variant === "inline" }]} aria-label={searchLabel} data-index-search-toolbar data-search-collection={collection}>
   <form class="index-search__frame" role="search" aria-label={searchLabel}>
     <div class="index-search__field">
       <span class="index-search__icon" aria-hidden="true">
@@ -23,7 +25,7 @@ const inputId = `${isBlog ? "blog" : "project"}-search-input`;
         id={inputId}
         type="search"
         name="query"
-        placeholder={isBlog ? "Search topics, categories, tags..." : "Search projects, stack, platform..."}
+        placeholder={placeholder ?? (isBlog ? "Search topics, categories, tags..." : "Search projects, stack, platform...")}
         autocomplete="off"
         data-index-search-input
       />
@@ -49,6 +51,17 @@ const inputId = `${isBlog ? "blog" : "project"}-search-input`;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+  }
+
+  .index-search--inline {
+    flex: 0 1 280px;
+    min-width: 0;
+    border-block-end: 0;
+  }
+
+  .index-search--inline .index-search__frame {
+    width: 100%;
+    padding: 0;
   }
 
   .index-search__field {
@@ -111,6 +124,10 @@ const inputId = `${isBlog ? "blog" : "project"}-search-input`;
   }
 
   @media (max-width: 640px) {
+    .index-search--inline {
+      flex-basis: 100%;
+    }
+
     .index-search__frame {
       padding-inline: 0;
     }

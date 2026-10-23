@@ -2,13 +2,13 @@
 import HeaderBackdrop from "./HeaderBackdrop.astro";
 
 interface Props {
-  word: "project" | "blogs";
+  variant: "project" | "blogs" | "statistics";
 }
 
-const { word } = Astro.props;
+const { variant } = Astro.props;
 ---
 
-<HeaderBackdrop word={word} />
+<HeaderBackdrop variant={variant} />
 
 <style>
   :global(.index-hero) {

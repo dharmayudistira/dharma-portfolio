@@ -40,7 +40,7 @@ if (intro) {
 
       if (mode === "home") {
         await playHomeIntro(gsap);
-      } else if (mode === "projects" || mode === "blog") {
+      } else if (mode === "projects" || mode === "blog" || mode === "statistics") {
         await playHeadingIntro(gsap);
       } else {
         playShellIntro(gsap);

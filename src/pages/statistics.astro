@@ -1,0 +1,277 @@
+---
+import { getCollection } from "astro:content";
+import ContentLayout from "../layouts/ContentLayout.astro";
+import Footer from "../components/Footer.astro";
+import Gap from "../components/Gap.astro";
+import IndexHero from "../components/IndexHero.astro";
+import IndexSearchToolbar from "../components/IndexSearchToolbar.astro";
+import { GOATCOUNTER_URL } from "../data/analytics";
+import { fetchPageVisits } from "../data/statistics";
+
+const [posts, projects] = await Promise.all([
+  getCollection("blog", ({ data }) => !data.draft),
+  getCollection("projects", ({ data }) => !data.draft),
+]);
+const apiKey = import.meta.env.GOATCOUNTER_API_KEY?.trim();
+const statistics = GOATCOUNTER_URL && apiKey
+  ? await fetchPageVisits(GOATCOUNTER_URL, apiKey)
+  : undefined;
+const number = new Intl.NumberFormat("en-US");
+const displayVisits = (visits: number | undefined) => visits === undefined ? "N/A" : number.format(visits);
+const makeRows = (entries: typeof posts | typeof projects, collection: "blog" | "projects") => entries
+  .map(({ id, data }) => {
+    const path = `/${collection}/${id}/`;
+    return {
+      title: data.title,
+      path,
+      visits: statistics ? statistics.visits.get(path) ?? 0 : undefined,
+    };
+  })
+  .sort((a, b) => (b.visits ?? 0) - (a.visits ?? 0) || a.title.localeCompare(b.title));
+const groups = [
+  { id: "blog", title: "Blogs", itemLabel: "Posts", rows: makeRows(posts, "blog") },
+  { id: "projects", title: "Projects", itemLabel: "Projects", rows: makeRows(projects, "projects") },
+].map((group) => ({
+  ...group,
+  total: statistics ? group.rows.reduce((total, row) => total + (row.visits ?? 0), 0) : undefined,
+}));
+const updatedAt = statistics ? new Date() : undefined;
+const formatDate = (date: Date) => new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeZone: "Asia/Jakarta",
+}).format(date);
+---
+
+<ContentLayout
+  title="statistics."
+  description="A look at the writing, projects, and visits behind this site."
+  showDescription={false}
+  pageClass="statistics-page index-hero"
+>
+  <IndexHero variant="statistics" />
+  <Fragment slot="after-content">
+    <Gap size="small" variant="filled" />
+    <Gap size="small" variant="blank" />
+    <div class="statistics">
+      {updatedAt && (
+        <div class="statistics__frame">
+          <p class="statistics__updated">Updated <time datetime={updatedAt.toISOString()}>{formatDate(updatedAt)}</time></p>
+        </div>
+      )}
+
+      <section class="statistics__summary" aria-label="Published content totals">
+        <div class="statistics__summary-frame">
+          {groups.map((group) => (
+            <article class="statistics__card">
+              <h2>{group.title}</h2>
+              <dl>
+                <div><dt>{group.itemLabel}</dt><dd>{number.format(group.rows.length)}</dd></div>
+                <div><dt>Visits</dt><dd aria-label={group.total === undefined ? "Not available" : undefined}>{displayVisits(group.total)}</dd></div>
+              </dl>
+            </article>
+          ))}
+          <span class="gap__cross gap__cross--top-left" aria-hidden="true"></span>
+          <span class="gap__cross gap__cross--top-right" aria-hidden="true"></span>
+          <span class="gap__cross gap__cross--bottom-left" aria-hidden="true"></span>
+          <span class="gap__cross gap__cross--bottom-right" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <Gap size="extra-small" variant="filled" />
+
+      <div class="statistics__frame">
+        {groups.map((group) => (
+          <section class="statistics__group" aria-labelledby={`statistics-${group.id}`}>
+            <div class="statistics__group-heading">
+              <h2 id={`statistics-${group.id}`}>{group.title}</h2>
+              <IndexSearchToolbar collection={group.id === "blog" ? "blog" : "projects"} variant="inline" placeholder="Search title or path..." />
+            </div>
+            <table class="statistics__table">
+              <caption class="visually-hidden">Published {group.id === "blog" ? "blog posts" : "projects"} and their visits</caption>
+              <thead>
+                <tr>
+                  <th scope="col">
+                    Title / path
+                    {["top", "bottom"].map((edge) => (
+                      <span class:list={["statistics__row-guide", "statistics__row-guide--wide", { "statistics__row-guide--top": edge === "top" }]} aria-hidden="true">
+                        <span class="statistics__guide-frame">
+                          <span class="gap__cross gap__cross--top-left"></span>
+                          <span class="gap__cross gap__cross--top-right"></span>
+                        </span>
+                      </span>
+                    ))}
+                  </th>
+                  <th scope="col">Visits</th>
+                </tr>
+              </thead>
+              <tbody data-blog-list={group.id === "blog" ? "" : undefined} data-project-list={group.id === "projects" ? "" : undefined} hidden={group.rows.length === 0}>
+                {group.rows.map((row) => (
+                  <tr
+                    data-blog-item={group.id === "blog" ? "" : undefined}
+                    data-project-item={group.id === "projects" ? "" : undefined}
+                    data-search-title={row.title}
+                    data-search-metadata={row.path}
+                  >
+                    <th scope="row">
+                      <a href={row.path}>{row.title}</a><span class="statistics__path">{row.path}</span>
+                      <span class="statistics__row-guide" aria-hidden="true"></span>
+                    </th>
+                    <td aria-label={row.visits === undefined ? "Not available" : undefined}>{displayVisits(row.visits)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tbody data-blog-empty={group.id === "blog" ? "" : undefined} data-project-empty={group.id === "projects" ? "" : undefined} hidden={group.rows.length > 0}>
+                <tr class="statistics__empty">
+                  <td colspan="2">
+                    No {group.id === "blog" ? "blogs" : "projects"} found.
+                    <span class="statistics__row-guide" aria-hidden="true"></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            {group.id === "blog" && <Gap size="extra-small" variant="filled" />}
+            {group.id === "projects" && (
+              <span class="statistics__row-guide statistics__row-guide--wide statistics__row-guide--closing" aria-hidden="true">
+                <span class="statistics__guide-frame">
+                  <span class="gap__cross gap__cross--top-left"></span>
+                  <span class="gap__cross gap__cross--top-right"></span>
+                </span>
+              </span>
+            )}
+          </section>
+        ))}
+      </div>
+    </div>
+    <Gap size="medium" variant="filled" />
+  </Fragment>
+  <Footer slot="after-main" />
+</ContentLayout>
+
+<style>
+  :global(.gap:has(+ .gap + .statistics)),
+  :global(.gap:has(+ .statistics > .statistics__summary:first-child)) {
+    border-block-end: 0;
+  }
+
+  .statistics {
+    --statistics-inset: 32px;
+    container-type: inline-size;
+    padding-block-end: 48px;
+  }
+
+  .statistics__frame,
+  .statistics__summary-frame {
+    width: min(
+      var(--content-max-width),
+      calc(100% - var(--page-gutter) - var(--page-gutter))
+    );
+    margin-inline: auto;
+  }
+
+  .statistics__frame {
+    padding-inline: var(--statistics-inset);
+  }
+
+  .statistics__updated {
+    margin: 0;
+    padding-block: 10px;
+    color: var(--technical-copy);
+    font: 400 11px/1.6 var(--font-mono);
+    text-align: end;
+  }
+
+  .statistics__summary {
+    border-block: 1px dashed var(--technical-line-soft);
+  }
+
+  .statistics__summary + :global(.gap) {
+    border-block-start: 0;
+  }
+
+  :global(.statistics__summary + .gap :is(.gap__cross--top-left, .gap__cross--top-right)) {
+    display: none;
+  }
+
+  .statistics__summary-frame {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statistics__card { padding: 24px var(--statistics-inset); }
+  .statistics__card + .statistics__card { border-inline-start: 1px dashed var(--technical-line-soft); }
+  .statistics__card h2 { margin: 0; font-size: 1.25rem; font-weight: 500; }
+  .statistics__card dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-block: 24px 0; }
+  .statistics__card dl > div:last-child { text-align: end; }
+  .statistics__card dt { color: var(--technical-copy); font: 400 11px/1.4 var(--font-mono); text-transform: uppercase; }
+  .statistics__card dd { margin: 8px 0 0; font: 400 clamp(1.5rem, 3vw, 2.5rem)/1.2 var(--font-mono); overflow-wrap: anywhere; }
+
+  .statistics__group-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding-block: 20px; }
+  .statistics__group h2 { margin: 0; font-size: 1.5rem; font-weight: 500; }
+  .statistics__table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .statistics__table tr { position: relative; }
+  .statistics__table th, .statistics__table td { padding: 16px 0; text-align: start; }
+  .statistics__table thead th { color: var(--technical-copy); font: 400 11px/1.4 var(--font-mono); text-transform: uppercase; }
+  .statistics__table tbody th { font-size: 1rem; font-weight: 400; overflow-wrap: anywhere; }
+  .statistics__table :is(th, td):last-child { width: 100px; text-align: end; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .statistics__path { display: block; margin-block-start: 8px; color: var(--technical-copy); font: 400 11px/1.6 var(--font-mono); overflow-wrap: anywhere; }
+  .statistics__table .statistics__empty td { width: auto; text-align: start; color: var(--muted); font: inherit; }
+  .statistics__table a { text-decoration: none; }
+
+  .statistics__group tbody > tr:nth-last-child(1 of :not([hidden])) .statistics__row-guide {
+    display: none;
+  }
+
+  .statistics__group > :global(.gap) {
+    width: 100cqw;
+    margin-inline-start: calc((100% - 100cqw) / 2);
+  }
+
+  :global(.statistics__group > .gap :is(.gap__cross--top-left, .gap__cross--top-right)) {
+    display: none;
+  }
+
+  .statistics__row-guide {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: calc(-1 * var(--statistics-inset));
+    width: calc(100% + 2 * var(--statistics-inset));
+    border-block-end: 1px dashed var(--technical-line-soft);
+    pointer-events: none;
+  }
+
+  .statistics__row-guide--wide {
+    inset-inline-start: calc((100% - 100cqw) / 2);
+    width: 100cqw;
+  }
+
+  .statistics__row-guide--closing {
+    position: relative;
+    display: block;
+  }
+
+  .statistics__row-guide--top {
+    inset-block-start: 0;
+    inset-block-end: auto;
+  }
+
+  .statistics__guide-frame {
+    position: relative;
+    display: block;
+    width: min(var(--content-max-width), calc(100cqw - var(--page-gutter) - var(--page-gutter)));
+    margin-inline: auto;
+  }
+  .statistics a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .statistics a:focus-visible { outline: 1px solid var(--foreground); outline-offset: 4px; }
+
+  @media (max-width: 640px) {
+    .statistics__summary-frame { grid-template-columns: 1fr; }
+    .statistics__card { padding-block: 20px; }
+    .statistics__card + .statistics__card { border-inline-start: 0; border-block-start: 1px dashed var(--technical-line-soft); }
+    .statistics__table :is(th, td):last-child { width: 76px; }
+  }
+
+  @media (max-width: 575px) {
+    .statistics { --statistics-inset: 16px; }
+  }
+</style>
