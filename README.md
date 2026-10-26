@@ -19,6 +19,14 @@ Copy `.env.example` to `.env` and replace the example value with the production
 origin. `SITE_URL` enables canonical URLs, structured data URLs, `robots.txt`,
 and sitemap generation.
 
+## RSS
+
+`/rss.xml` provides summaries of published blog posts and project case studies,
+combined newest first by publication date, with permanent links. Drafts from both
+collections are excluded. It is generated at build time and requires `SITE_URL`.
+Public pages advertise the feed through metadata for feed readers, and the footer
+links to it under For agents.
+
 ## Analytics and statistics
 
 GoatCounter records production visits. `/statistics/` combines the published

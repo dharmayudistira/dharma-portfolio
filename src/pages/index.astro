@@ -15,8 +15,15 @@ const jsonLd = Astro.site
   ? {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": new URL("/#website", Astro.site).toString(),
       name: SITE_IDENTITY.name,
       url: Astro.site.toString(),
+      publisher: {
+        "@type": "Person",
+        "@id": new URL("/profile/#person", Astro.site).toString(),
+        name: SITE_IDENTITY.name,
+        url: new URL("/profile/", Astro.site).toString(),
+      },
     }
   : undefined;
 ---

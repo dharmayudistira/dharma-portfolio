@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content";
 import ContentLayout from "../../layouts/ContentLayout.astro";
 import Gap from "../../components/Gap.astro";
 import Footer from "../../components/Footer.astro";
@@ -6,13 +7,39 @@ import IndexHero from "../../components/IndexHero.astro";
 import IndexSearchToolbar from "../../components/IndexSearchToolbar.astro";
 import ProjectGrid from "../../components/ProjectGrid.astro";
 import ProjectDevices from "../../components/ProjectDevices.astro";
+import { compareProjectsByTimeline } from "../../data/projects";
+
+const title = "projects.";
+const description = "Selected product engineering work across frontend and mobile experiences.";
+const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(compareProjectsByTimeline);
+const url = Astro.site ? new URL("/projects/", Astro.site).toString() : undefined;
+const jsonLd = url
+  ? {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: title,
+      description,
+      url,
+      isPartOf: { "@id": new URL("/#website", Astro.site).toString() },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: projects.map((project, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: project.data.title,
+          url: new URL(`${project.id}/`, url).toString(),
+        })),
+      },
+    }
+  : undefined;
 ---
 
 <ContentLayout
-  title="projects."
-  description="Selected product engineering work across frontend and mobile experiences."
+  title={title}
+  description={description}
   showDescription={false}
   pageClass="projects-page index-hero"
+  jsonLd={jsonLd}
 >
   <IndexHero variant="project" />
   <ProjectDevices />
@@ -20,7 +47,7 @@ import ProjectDevices from "../../components/ProjectDevices.astro";
     <Gap size="small" variant="filled" />
     <IndexSearchToolbar collection="projects" />
     <Gap size="extra-small" variant="blank" corner="bottom-right" />
-    <ProjectGrid />
+    <ProjectGrid projects={projects} />
     <Gap size="medium" variant="filled" />
   </Fragment>
   <Footer slot="after-main" />

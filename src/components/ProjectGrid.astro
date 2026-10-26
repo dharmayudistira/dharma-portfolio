@@ -1,11 +1,15 @@
 ---
 import { Image } from "astro:assets";
-import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import { STACK_LABELS } from "../data/stacks";
-import { compareProjectsByTimeline, getProjectSearchFields } from "../data/projects";
+import { getProjectSearchFields } from "../data/projects";
 import UnderlineMark from "./UnderlineMark.astro";
 
-const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(compareProjectsByTimeline);
+interface Props {
+  projects: CollectionEntry<"projects">[];
+}
+
+const { projects } = Astro.props;
 ---
 
 <section class="project-grid" aria-label="Projects" data-project-grid>

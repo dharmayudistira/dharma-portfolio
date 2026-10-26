@@ -1,17 +1,45 @@
 ---
+import { getCollection } from "astro:content";
 import ContentLayout from "../../layouts/ContentLayout.astro";
 import Gap from "../../components/Gap.astro";
 import Footer from "../../components/Footer.astro";
 import IndexHero from "../../components/IndexHero.astro";
 import IndexSearchToolbar from "../../components/IndexSearchToolbar.astro";
 import BlogList from "../../components/BlogList.astro";
+
+const title = "blogs.";
+const description = "Notes on product engineering, interfaces, animation, and building software.";
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+const url = Astro.site ? new URL("/blog/", Astro.site).toString() : undefined;
+const jsonLd = url
+  ? {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: title,
+      description,
+      url,
+      isPartOf: { "@id": new URL("/#website", Astro.site).toString() },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: posts.map((post, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: post.data.title,
+          url: new URL(`${post.id}/`, url).toString(),
+        })),
+      },
+    }
+  : undefined;
 ---
 
 <ContentLayout
-  title="blogs."
-  description="Notes on product engineering, interfaces, animation, and building software."
+  title={title}
+  description={description}
   showDescription={false}
   pageClass="blogs-page index-hero"
+  jsonLd={jsonLd}
 >
   <IndexHero variant="blogs" />
   <div class="blog-hero__keyboard" aria-hidden="true"></div>
@@ -19,7 +47,7 @@ import BlogList from "../../components/BlogList.astro";
     <Gap size="small" variant="filled" />
     <IndexSearchToolbar collection="blog" />
     <Gap size="extra-small" variant="blank" corner="bottom-right" />
-    <BlogList />
+    <BlogList posts={posts} />
     <Gap size="medium" variant="filled" />
   </Fragment>
   <Footer slot="after-main" />
