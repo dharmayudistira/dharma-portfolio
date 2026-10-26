@@ -19,6 +19,25 @@ Copy `.env.example` to `.env` and replace the example value with the production
 origin. `SITE_URL` enables canonical URLs, structured data URLs, `robots.txt`,
 and sitemap generation.
 
+## Identity and AI discovery
+
+Public pages share a `Person` record with the stable `/profile/#person` identifier.
+The website identifies that person as its author and publisher; Zero One Group is
+identified only as the person's employer. `/profile/` carries both `ProfilePage`
+and `AboutPage` metadata and remains the public about page.
+
+`/.well-known/ai.txt` lists public discovery resources. `/ai/summary.json` contains
+the existing public identity and links to profile, writing, projects, RSS, and
+other machine-readable resources. Both are generated at build time from
+`SITE_URL` and shared site data, and are linked from `/llms.txt`. These discovery
+files are optional conventions; crawler permissions remain in `/robots.txt`.
+
+Decorative social icons have empty alternative text and are hidden from
+assistive technology; their links provide accessible labels. The decorative
+entrance hand is already inside an accessibility-hidden overlay. Audit warnings
+that require a company publisher, a literal `/about` path, or descriptive text
+on every decorative image do not apply to these choices.
+
 ## RSS
 
 `/rss.xml` provides summaries of published blog posts and project case studies,

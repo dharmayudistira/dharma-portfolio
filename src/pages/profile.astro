@@ -22,27 +22,13 @@ const profileUrl = Astro.site
 const jsonLd = profileUrl
   ? {
       "@context": "https://schema.org",
-      "@type": "ProfilePage",
+      "@type": ["ProfilePage", "AboutPage"],
+      "@id": `${profileUrl}#webpage`,
+      name: SITE_IDENTITY.name,
       url: profileUrl,
-      mainEntity: {
-        "@id": `${profileUrl}#person`,
-        "@type": "Person",
-        name: SITE_IDENTITY.name,
-        url: profileUrl,
-        sameAs: [
-          SITE_IDENTITY.links.x,
-          SITE_IDENTITY.links.instagram,
-          SITE_IDENTITY.links.linkedin,
-          SITE_IDENTITY.links.github,
-          SITE_IDENTITY.links.upwork,
-        ],
-        jobTitle: SITE_IDENTITY.role,
-        worksFor: {
-          "@type": "Organization",
-          name: SITE_IDENTITY.employer.name,
-          url: SITE_IDENTITY.employer.url,
-        },
-      },
+      mainEntity: { "@id": `${profileUrl}#person` },
+      about: { "@id": `${profileUrl}#person` },
+      author: { "@id": `${profileUrl}#person` },
     }
   : undefined;
 ---

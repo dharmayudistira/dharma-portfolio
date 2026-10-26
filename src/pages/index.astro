@@ -6,7 +6,7 @@ import Gap from "../components/Gap.astro";
 import Hero from "../components/Hero.astro";
 import TechMarquee from "../components/TechMarquee.astro";
 import Testimonials from "../components/Testimonials.astro";
-import { SITE_IDENTITY } from "../data/site";
+import { SITE_DESCRIPTION, SITE_IDENTITY } from "../data/site";
 import { testimonials } from "../data/testimonials";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -17,13 +17,11 @@ const jsonLd = Astro.site
       "@type": "WebSite",
       "@id": new URL("/#website", Astro.site).toString(),
       name: SITE_IDENTITY.name,
+      description: SITE_DESCRIPTION,
       url: Astro.site.toString(),
-      publisher: {
-        "@type": "Person",
-        "@id": new URL("/profile/#person", Astro.site).toString(),
-        name: SITE_IDENTITY.name,
-        url: new URL("/profile/", Astro.site).toString(),
-      },
+      author: { "@id": new URL("/profile/#person", Astro.site).toString() },
+      publisher: { "@id": new URL("/profile/#person", Astro.site).toString() },
+      about: { "@id": new URL("/profile/#person", Astro.site).toString() },
     }
   : undefined;
 ---

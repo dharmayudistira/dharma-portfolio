@@ -10,7 +10,7 @@ import AppBar from "../components/AppBar.astro";
 import EntranceOverlay from "../components/EntranceOverlay.astro";
 import PageGuides from "../components/PageGuides.astro";
 import portfolioPreview from "../assets/social/portfolio-preview.png";
-import { SITE_IDENTITY } from "../data/site";
+import { getPersonSchema, SITE_DESCRIPTION, SITE_IDENTITY } from "../data/site";
 import { GOATCOUNTER_URL } from "../data/analytics";
 
 type JsonLd = Record<string, unknown>;
@@ -31,7 +31,7 @@ interface Props {
 const siteName = SITE_IDENTITY.name;
 const {
   title = siteName,
-  description = `${siteName}, product engineer working across frontend and mobile experiences.`,
+  description = SITE_DESCRIPTION,
   image,
   socialImagePosition = "center",
   canonicalUrl,
@@ -75,8 +75,17 @@ const introMode = pathname === "/"
       : pathname === "/statistics/" || pathname === "/statistics"
         ? "statistics"
         : "shell";
-const serializedJsonLd = jsonLd
-  ? JSON.stringify(jsonLd).replace(/</g, "\\u003c")
+const structuredData = !noindex && Astro.site
+  ? {
+      "@context": "https://schema.org",
+      "@graph": [
+        getPersonSchema(Astro.site),
+        ...(jsonLd ? Array.isArray(jsonLd) ? jsonLd : [jsonLd] : []),
+      ],
+    }
+  : jsonLd;
+const serializedJsonLd = structuredData
+  ? JSON.stringify(structuredData).replace(/</g, "\\u003c")
   : undefined;
 const speedInsightsEnabled = import.meta.env.PROD
   && process.env.VERCEL_ENV === "production"
