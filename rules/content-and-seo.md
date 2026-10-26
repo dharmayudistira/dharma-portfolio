@@ -1,8 +1,9 @@
 # Content and SEO Rules
 
-Apply these rules to MDX, Content Collections, metadata, structured data, and
-publishing behavior. SEO includes search indexing. GEO means making content
-clear and attributable for answer engines and AI-assisted search.
+Apply these rules to MDX, Content Collections, metadata, structured data, RSS,
+AI discovery files, and publishing behavior. SEO includes search indexing. GEO
+means making content clear and attributable for answer engines and AI-assisted
+search.
 
 ## Content Collections
 
@@ -63,7 +64,8 @@ propose an intentional schema change with its route and metadata impact.
 
 - Use one descriptive H1 supplied by the page layout.
 - Start authored content at H2 and preserve a logical heading hierarchy.
-- Use descriptive link text and meaningful image alternative text.
+- Use descriptive link text. Describe informative images and follow the
+  [decorative image rules](design-system.md#icons-and-svg) for decorative ones.
 - Keep the important explanation in text, not only in an interactive element.
 - Use embedded components only when they add material value.
 - Do not place secrets or executable third-party snippets in MDX.
@@ -84,18 +86,43 @@ import screenshot from "../../assets/screenshot.webp";
 - Every public page needs a unique title and useful description.
 - Use `SITE_URL` for canonical, Open Graph, JSON-LD, robots, and sitemap URLs.
 - Never guess a production origin when `SITE_URL` is absent.
-- Use an explicit canonical URL only for intentionally cross-published content.
-- Keep article publish and update dates accurate.
+- When `SITE_URL` is configured, default to one canonical URL pointing to the
+  indexable page's own URL. Reserve external canonical overrides for intentionally
+  cross-published content.
+- Keep original publication dates accurate. Set `updatedAt` only for substantive
+  content changes; never derive content dates from builds or statistics refreshes.
+- Emit `updatedAt`, when provided, as `dateModified` and applicable article
+  metadata. Follow the [protected update-date decision](../AGENTS.md#protected-product-decisions).
 - Provide a social image when a suitable versioned asset exists.
 
 ## Structured Content and GEO
 
 - Keep schema.org data consistent with visible page content.
-- Use `BlogPosting` only for actual posts and the person identity for the
-  portfolio owner.
+- Reuse `SITE_IDENTITY` and `getPersonSchema()` from `src/data/site.ts`. Preserve
+  `/profile/#person` as the shared owner identifier and keep author and publisher
+  references consistent across pages and discovery files.
+- The website's author and publisher are the owner's `Person` record. Identify
+  the actual employer through `worksFor`; the employer is not the site publisher.
+- `/profile/` serves as the about page with `ProfilePage` and `AboutPage` metadata.
+- Use `BlogPosting` only for actual posts; other schema types must match the
+  page's purpose and content.
 - Prefer direct statements of role, project outcome, constraints, and tools.
 - Add useful internal links between related pages without keyword stuffing.
 - Do not generate repetitive hidden copy for search engines or answer engines.
+
+## Feeds and AI Discovery
+
+- Maintain `/rss.xml`, `/llms.txt`, `/.well-known/ai.txt`, and `/ai/summary.json`
+  as generated public resources using shared site data and `SITE_URL`.
+- RSS includes published blog posts and project case studies, using summaries
+  ordered newest first by publication date, with stable permalink links and GUIDs.
+- Exclude drafts and secrets from discovery resources. Keep their links, RSS
+  discovery metadata, and footer destinations valid.
+- `/index.md` was intentionally removed. Keep it out of generated discovery
+  links and automatic audit fixes.
+- `robots.txt` governs crawler access. Discovery files are optional conventions;
+  Google AI search features require no additional AI files or special schema.
+  See [Google's AI search guidance](https://developers.google.com/search/docs/appearance/ai-features).
 
 ## Publishing Check
 

@@ -62,7 +62,7 @@ Read only the rule files relevant to the task, but follow all applicable ones.
 | --- | --- |
 | Routes, dependencies, components, or data flow | `rules/architecture.md` |
 | Entrance, GSAP, hand motion, SVG drawing, or timing | `rules/animation.md` |
-| MDX, collections, metadata, SEO, GEO, or publishing | `rules/content-and-seo.md` |
+| MDX, collections, metadata, RSS, AI discovery, SEO, GEO, or publishing | `rules/content-and-seo.md` |
 | CSS, themes, typography, icons, grid, or responsive UI | `rules/design-system.md` |
 | Interface sound, playback, or sound controls | `rules/sound-design.md` |
 | Testing, review, release, or completion checks | `rules/quality-gates.md` |
@@ -85,6 +85,9 @@ Do not change these without explicit user approval:
 - The public writing route is `/blog/`, never `/blogs/`.
 - Projects and posts live in this repository as validated MDX.
 - Route slugs come from stable content filenames.
+- Blog and project update dates remain machine-readable only. Do not add visible
+  "Updated" labels to posts or case studies. Footer build dates and statistics
+  refresh dates remain separate.
 - Animations outside the footer landscape have no reduced-motion branch by
   current product decision.
 - The footer landscape may honor `prefers-reduced-motion`, including Hairline's

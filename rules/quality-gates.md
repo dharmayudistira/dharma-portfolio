@@ -32,7 +32,8 @@ npm run preview
 | Entrance animation | Full intro, shell intro, revisit skip, timing, failures |
 | SVG geometry | Scaling, clipping, stroke weight, both themes, breakpoints |
 | Content or schema | Frontmatter, draft filter, index, detail route, build |
-| Metadata or SEO | Title, description, canonical, Open Graph, JSON-LD |
+| Metadata, SEO, or GEO | Title, description, canonical, Open Graph, JSON-LD, identity references |
+| Feeds or AI discovery | Response status, content type, valid format, draft filtering, links |
 | Dependency | Lockfile, check, build, client impact, reason documented |
 
 ## Animation Inspection
@@ -47,6 +48,24 @@ After completion or failure, confirm the overlay is removed and input works.
 Test one draft and one published item when changing collection logic. Confirm
 drafts do not appear publicly. Validate the route slug, heading order, links,
 image text alternatives, canonical URL, dates, and structured data.
+
+## SEO and GEO Verification
+
+- Inspect built HTML and generated endpoints against the
+  [content and SEO rules](content-and-seo.md). Check identity references, page
+  types, canonical URLs, content dates, draft exclusion, and discovery links.
+- Before a live audit, confirm the intended commit is deployed. Record the
+  audited origin, date, auditor version, scoring rubric, and successful and
+  failed URL counts. Compare scores using matching auditor versions and rubrics.
+- Distinguish local, preview, and live results. Report environment overrides and
+  disabled services; a build without analytics fetching does not verify visit
+  counts.
+- Review warnings against page purpose, visible content, and accessibility.
+  Explain false positives such as literal `/about` checks, expectations of a
+  company publisher for this personal portfolio, or empty `alt` on decorative images.
+  Do not invent entities, FAQs, dates, or routes solely to increase a score.
+- Report readiness scores and crawler user-agent simulations as such. They do
+  not measure AI citations or prove that actual vendor crawlers visited.
 
 ## Review Before Handoff
 

@@ -48,7 +48,11 @@ annotations add meaning. Keep decoration sparse and preserve content clarity.
 ## Icons and SVG
 
 - Use Morphicons with Lucide paths for controls whose icon state changes.
-- Give icon-only controls an accessible name and visible focus state.
+- Give icon-only links and controls an accessible name and visible focus state,
+  including when their images use empty alternative text.
+- Describe informative images. Decorative `<img>` elements use `alt=""`;
+  keep the attribute present and avoid redundant descriptions, following
+  [W3C's decorative image guidance](https://www.w3.org/WAI/tutorials/images/decorative/).
 - Use inline SVG for golden-ratio and technical drawing geometry that needs
   CSS styling, clipping, responsive scaling, or path animation.
 - Keep decorative SVG hidden from assistive technology.
