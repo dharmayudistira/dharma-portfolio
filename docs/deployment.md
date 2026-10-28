@@ -34,6 +34,13 @@ history. Repeat loads of a page within a session count as one visit under
 Without the dashboard URL and API key, visit counts show `N/A`; content totals
 still work.
 
+Each statistics page request gets up to three attempts, with waits of one and
+two seconds between attempts. Connection failures, timeouts, HTTP `404`, `408`,
+`429`, and `5xx` responses are retried; other HTTP errors, including `401` and
+`403`, fail immediately. Each attempt has a 15-second timeout. Retry warnings
+appear in the build logs. Invalid data and stalled pagination still fail the
+build rather than publishing incomplete counts.
+
 To [exclude your own browser](https://www.goatcounter.com/help/skip-dev), append
 `#toggle-goatcounter` to the production site's URL and follow the dialog.
 Enable public dashboard access in GoatCounter if visitors should be able to
@@ -56,9 +63,13 @@ request was accepted; fresh statistics appear only after a successful deployment
 - Trigger a run from Vercel's Cron Jobs controls. Inspect the function logs,
   resulting deployment, and refresh timestamp on `/statistics/`. Compare visit
   totals with GoatCounter's all-time range.
-- If a configured GoatCounter API request fails, the build fails and the
-  previous deployment stays online. Vercel does not automatically retry failed
-  cron invocations. See [cron error handling](https://vercel.com/docs/cron-jobs/manage-cron-jobs).
+- If a configured GoatCounter API request still fails after its retries, the
+  build fails and the previous deployment stays online. Repeated `404` responses
+  warrant checking `GOATCOUNTER_URL` and the dashboard's availability; `401` or
+  `403` responses warrant checking the API key and its read permission.
+  The cron's accepted Deploy Hook request does not report the later build result,
+  so these retries run inside the build. Vercel does not automatically retry
+  failed cron invocations. See [cron error handling](https://vercel.com/docs/cron-jobs/manage-cron-jobs).
 - Locally, `vercel pull --environment=production` can write `[SENSITIVE]`
   placeholders. Supply real values from your ignored local environment when
   running `vercel build --prod`.

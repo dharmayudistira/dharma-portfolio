@@ -55,19 +55,44 @@ export const fetchPageVisits = async (
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      signal: AbortSignal.timeout(15_000),
-    });
+    const maxAttempts = 3;
+    let data: unknown;
+    for (let attempt = 1; ; attempt += 1) {
+      if (attempt > 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1_000 * 2 ** (attempt - 2)));
+      }
 
-    if (!response.ok) {
-      throw new Error(`GoatCounter statistics request failed (${response.status}).`);
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (response.ok) {
+          data = await response.json();
+          break;
+        }
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          throw new Error("GoatCounter returned an invalid JSON statistics response.", { cause: error });
+        }
+        if (attempt === maxAttempts) {
+          throw new Error(`GoatCounter statistics connection failed after ${maxAttempts} attempts.`, { cause: error });
+        }
+        console.warn(`GoatCounter statistics connection failed; retrying (${attempt + 1}/${maxAttempts}).`);
+        continue;
+      }
+
+      const message = `GoatCounter statistics request failed (${response.status}).`;
+      // Retry intermittent upstream 404s as well as transient HTTP failures.
+      const retryable = [404, 408, 429].includes(response.status) || response.status >= 500;
+      if (!retryable || attempt === maxAttempts) throw new Error(message);
+      console.warn(`${message} Retrying (${attempt + 1}/${maxAttempts}).`);
     }
 
-    const data: unknown = await response.json();
     if (!isResponse(data)) {
       throw new Error("GoatCounter returned an invalid statistics response.");
     }
